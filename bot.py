@@ -1,3 +1,5 @@
+import os
+
 import nonebot
 
 import config
@@ -5,4 +7,5 @@ import config
 if __name__ == '__main__':
 	nonebot.init(config)
 	nonebot.load_builtin_plugins()
+	nonebot.load_plugins(os.path.join(os.path.dirname(__file__), 'mswar', 'plugins'), 'mswar.plugins')
 	nonebot.run()
