@@ -1,8 +1,9 @@
 import requests
 import bs4
 from nonebot import on_command, CommandSession
+from nonebot.permission import SUPERUSER, GROUP
 
-@on_command('dailystar', aliases=('每日一星'))
+@on_command('dailystar', aliases=('每日一星'), permission=SUPERUSER | GROUP)
 async def dailystar(session: CommandSession):
 	daily_star_info = await get_daily_star()
 	await session.send(daily_star_info)
@@ -20,4 +21,3 @@ async def get_daily_star() -> str:
 
 	result = t.replace('    ', '\n').replace('   ', '\n').replace('  ', '\n').replace(' ↑', ' ↑').replace(' ', '\n').replace('　', '\n').replace('|', ' | ') # re-align
 	return result
-
