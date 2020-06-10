@@ -9,44 +9,44 @@ mswar-bot是一个基于NoneBot的机器人, 用于扫雷联萌(原扫雷大作�
 ### 管理员权限(包含SUPERUSERS)
 管理员可以登录/退出登录机器人关联的账号, 当机器人关联账号处于登出状态时, 大部分功能无法使用, 其语法如下:
 + 登录机器人关联账户
-```bash
+```
     login/登录
 ```
 + 登出机器人关联账户
-```bash
+```
     logout/登出/退出登录
 ```
 
 ### 普通群用户权限
 普通群用户可以使用如下功能:
 + 显示此指南网址
-```bash
+```
     guide/指南
 ```
 + 获取机器人关联账户登录状态
-```bash
+```
     status/状态/账号状态
 ```
 + 获取雷网每日一星
-```bash
+```
     dailystar/每日一星
 ```
 + 按ID搜索联萌用户
-```bash
+```
     id/idsearch/查询/查找 用户ID
 ```
 + 按昵称搜索联萌用户(该功能是模糊查询, 搜索结果为经典模式排位最高的用户)
-```bash
+```
     name/nickname/namesearch/昵称 用户昵称
 ```
 + 经典模式排行榜查询(最多查询 20 名用户)
-```bash
+```
     rank/ranking/排名 # 用于查询时间榜前10名
     rank/ranking/排名 起始排名 终止排名 # 用于查询时间榜起始排名至终止排名
     rank/ranking/排名 起始排名 终止排名 [t]ime/时间|[b]vs/3bvs [a]ll/全部|[n]f/盲扫|[f]l/标旗 [a]ll/全部|[i]nt/初级|[b]eg/中级|[e]xp/高级 # 所有参数
 ```
 + 录像数据解析功能
-```bash
+```
     analyze/分析 [r]ecord record_id # 根据录像ID解析
     analyze/分析 [p]ost post_id # 根据发帖ID解析
 ```
@@ -56,13 +56,13 @@ mswar-bot是一个基于NoneBot的机器人, 用于扫雷联萌(原扫雷大作�
 + 安装CQHttp插件
 + 安装Python 3.7及以上版本
 + 安装依赖项
-```bash
+```
     pip install -r requirements.txt
 ```
 + 根据Nonebot中的说明修改CQHttp与NoneBot间的相关配置
 + (可选)修改配置`config.py`
 + 运行机器人
-```bash
+```
     py -3 bot.py
 ```
 
