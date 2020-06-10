@@ -8,17 +8,6 @@ from base64 import b64decode
 import gzip
 import traceback
 
-def from_record_id(record_id: int) -> str:      
-    record_file = fetch(page='/MineSweepingWar/game/record/get', query='recordId=%d' % (record_id))
-    board = get_board(record_file['data']['map'].split('-')[0: -1])
-    action = get_action(gzip.decompress(b64decode(record_file['data']['handle'])).decode().split('-'))
-    return get_result(board, action)
-
-def from_post_id(post_id: int) -> str:
-    # First get the record ID, then use the former function to analyze.
-    record_id = fetch(page='/MineSweepingWar/post/get', query='postId=%d' % (post_id))['data']['recordId']
-    return from_record_id(record_id)
-
 def format_analyze_result(result):
     line_1 = 'mode: %dx%d + %d (%s)' % (result['row'], result['column'], result['mines'], result['fmode'])
     line_2 = 'time/est: %.3f/%.3f' % (result['rtime'], result['est'])
@@ -32,6 +21,18 @@ def format_analyze_result(result):
     line_10 = 'rqp/qg: %.3f, %.3f' % (result['rqp'], result['qg'])
     result_message = line_1 + '\n' + line_2 + '\n' + line_3 + '\n' + line_4 + '\n' + line_5 + '\n' + line_6 + '\n' + line_7 + '\n' + line_8 + '\n' + line_9 + '\n' + line_10
     return result_message
+
+async def from_record_id(record_id: int) -> str:      
+    record_file = await fetch(page='/MineSweepingWar/game/record/get', query='recordId=%d' % (record_id))
+    board = get_board(record_file['data']['map'].split('-')[0: -1])
+    action = get_action(gzip.decompress(b64decode(record_file['data']['handle'])).decode().split('-'))
+    return get_result(board, action)
+
+async def from_post_id(post_id: int) -> str:
+    # First get the record ID, then use the former function to analyze.
+    record_result = await fetch(page='/MineSweepingWar/post/get', query='postId=%d' % (post_id))
+    result = await from_record_id(record_result['data']['recordId'])
+    return result
 
 @on_command('analyze', aliases=('分析'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def analyze(session: CommandSession):
@@ -63,9 +64,9 @@ async def get_analyze_result(mode: str, target_id: str) -> dict:
         mode_ref = {'record': True, 'r': True, '录像': True, 'post': False, 'p': False, '帖子': False}
         target_id = int(target_id)
         if mode_ref[mode]:
-            result = from_record_id(target_id)
+            result = await from_record_id(target_id)
         else:
-            result = from_post_id(target_id)
+            result = await from_post_id(target_id)
         return format_analyze_result(result)
     except Exception as e:
         logger.error(traceback.format_exc())

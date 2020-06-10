@@ -5,22 +5,7 @@ from urllib.parse import quote, unquote
 from .core import fetch, is_online
 import traceback
 
-def search_user(name, padding=True):
-    if padding:
-        # If you search user by id, then the user matched with corresponding id will come out
-        query = 'name=' + quote(' ' * 20 + name) + '&page=0&count=1'
-    else:
-        # If you search user by nickname, then the user matched with highest rank will come out
-        query = 'name=' + quote(name) + '&page=0&count=1'
-    result = fetch(page='/MineSweepingWar/user/search', query=query)
-    return result
-
-def get_user_career(uid):
-    query = 'uid=' + quote(uid)
-    result = fetch(page='/MineSweepingWar/game/timing/career', query=query)
-    return result
-
-def dump_user_info(user_info):
+def format_user_info(user_info):
     sex_ref = {0: '', 1: 'GG', 2: 'mm'}
     level_ref = {0: '-', 1: 'E', 2: 'D', 3: 'C', 4: 'B', 5: 'A', 6: 'S', 7: 'SS', 8: 'SSS', 9: '★', 10: '★★', -1: '雷帝'}
     line_1 = user_info['nickname'] + ' (Id: %s)' % (str(user_info['id'])) + ' ' + sex_ref[user_info['sex']]
@@ -41,7 +26,22 @@ def dump_user_info(user_info):
         message = line_1 + '\n' + line_2
     return message
 
-def get_user_info(search_result):
+async def search_user(name, padding=True):
+    if padding:
+        # If you search user by id, then the user matched with corresponding id will come out
+        query = 'name=' + quote(' ' * 20 + name) + '&page=0&count=1'
+    else:
+        # If you search user by nickname, then the user matched with highest rank will come out
+        query = 'name=' + quote(name) + '&page=0&count=1'
+    result = await fetch(page='/MineSweepingWar/user/search', query=query)
+    return result
+
+async def get_user_career(uid):
+    query = 'uid=' + quote(uid)
+    result = await fetch(page='/MineSweepingWar/game/timing/career', query=query)
+    return result
+
+async def get_user_info(search_result):
     uid = search_result['uid']
 
     # basic info
@@ -53,34 +53,34 @@ def get_user_info(search_result):
     user_info['id'] = search_result['id']
 
     # career info
-    career_result = get_user_career(uid)['data']
+    career_result = await get_user_career(uid)
     user_info['stat'] = {}
-    user_info['stat']['best_beg_time'] = career_result['begTimeRank']['time']
-    user_info['stat']['best_beg_time_rank'] = career_result['begTimeRank']['rank']
-    user_info['stat']['best_beg_bvs'] = career_result['begBvsRank']['bvs']
-    user_info['stat']['best_beg_bvs_rank'] = career_result['begBvsRank']['rank']
+    user_info['stat']['best_beg_time'] = career_result['data']['begTimeRank']['time']
+    user_info['stat']['best_beg_time_rank'] = career_result['data']['begTimeRank']['rank']
+    user_info['stat']['best_beg_bvs'] = career_result['data']['begBvsRank']['bvs']
+    user_info['stat']['best_beg_bvs_rank'] = career_result['data']['begBvsRank']['rank']
 
-    user_info['stat']['best_int_time'] = career_result['intTimeRank']['time']
-    user_info['stat']['best_int_time_rank'] = career_result['intTimeRank']['rank']
-    user_info['stat']['best_int_bvs'] = career_result['intBvsRank']['bvs']
-    user_info['stat']['best_int_bvs_rank'] = career_result['intBvsRank']['rank']
+    user_info['stat']['best_int_time'] = career_result['data']['intTimeRank']['time']
+    user_info['stat']['best_int_time_rank'] = career_result['data']['intTimeRank']['rank']
+    user_info['stat']['best_int_bvs'] = career_result['data']['intBvsRank']['bvs']
+    user_info['stat']['best_int_bvs_rank'] = career_result['data']['intBvsRank']['rank']
 
-    user_info['stat']['best_exp_time'] = career_result['expTimeRank']['time']
-    user_info['stat']['best_exp_time_rank'] = career_result['expTimeRank']['rank']
-    user_info['stat']['best_exp_bvs'] = career_result['expBvsRank']['bvs']
-    user_info['stat']['best_exp_bvs_rank'] = career_result['expBvsRank']['rank']
+    user_info['stat']['best_exp_time'] = career_result['data']['expTimeRank']['time']
+    user_info['stat']['best_exp_time_rank'] = career_result['data']['expTimeRank']['rank']
+    user_info['stat']['best_exp_bvs'] = career_result['data']['expBvsRank']['bvs']
+    user_info['stat']['best_exp_bvs_rank'] = career_result['data']['expBvsRank']['rank']
 
-    if career_result['statistics']:
-        user_info['stat']['beg_win_total'] = career_result['statistics']['begSum']
-        user_info['stat']['beg_total'] = career_result['statistics']['begSum'] + career_result['statistics']['begFail']
+    if career_result['data']['statistics']:
+        user_info['stat']['beg_win_total'] = career_result['data']['statistics']['begSum']
+        user_info['stat']['beg_total'] = career_result['data']['statistics']['begSum'] + career_result['data']['statistics']['begFail']
 
-        user_info['stat']['int_win_total'] = career_result['statistics']['intSum']
-        user_info['stat']['int_total'] = career_result['statistics']['intSum'] + career_result['statistics']['intFail']
+        user_info['stat']['int_win_total'] = career_result['data']['statistics']['intSum']
+        user_info['stat']['int_total'] = career_result['data']['statistics']['intSum'] + career_result['data']['statistics']['intFail']
 
-        user_info['stat']['exp_win_total'] = career_result['statistics']['expSum']
-        user_info['stat']['exp_total'] = career_result['statistics']['expSum'] + career_result['statistics']['expFail']
+        user_info['stat']['exp_win_total'] = career_result['data']['statistics']['expSum']
+        user_info['stat']['exp_total'] = career_result['data']['statistics']['expSum'] + career_result['data']['statistics']['expFail']
 
-    user_info_message = dump_user_info(user_info)
+    user_info_message = format_user_info(user_info)
     return user_info_message
 
 @on_command('idsearch', aliases=('查询', '查找', 'id'), permission=SUPERUSER | GROUP, only_to_me=False)
@@ -104,8 +104,9 @@ async def get_user_info_by_id(_id: str) -> str:
         return '账号处于离线状态，无法使用该功能'
     try:
         int(_id) # literal check for integer    
-        search_result = search_user(_id)['data'][0]
-        return get_user_info(search_result)
+        search_result = await search_user(_id)
+        user_info = await get_user_info(search_result['data'][0])
+        return user_info
     except (TypeError, ValueError) as e:
         logger.error(traceback.format_exc())
         return '非法的ID输入'
@@ -133,8 +134,9 @@ async def get_user_info_by_nickname(nickname: str) -> str:
     if not is_online():
         return '账号处于离线状态，无法使用该功能'
     try:    
-        search_result = search_user(nickname, padding=False)['data'][0]
-        return get_user_info(search_result)
+        search_result = await search_user(nickname, padding=False)
+        user_info = await get_user_info(search_result['data'][0])
+        return user_info
     except Exception as e:
         logger.error(traceback.format_exc())
         return '无法查找到该用户'
