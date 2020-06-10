@@ -20,24 +20,23 @@ def get_user_career(uid):
 
 def dump_user_info(user_info):
     sex_ref = {0: '', 1: 'GG', 2: 'mm'}
-    level_ref = {0: '-', 1: 'E', 2: 'D', 3: 'C', 4: 'B', 5: 'A', 6: 'S', 7: 'SS', 8: 'SSS', -1: '★', -2: '★★'}
+    level_ref = {0: '-', 1: 'E', 2: 'D', 3: 'C', 4: 'B', 5: 'A', 6: 'S', 7: 'SS', 8: 'SSS', 9: '★', 10: '★★', -1: '雷帝'}
     line_1 = user_info['nickname'] + ' (Id: %s)' % (str(user_info['id'])) + ' ' + sex_ref[user_info['sex']]
-    line_2 = '经典时长: %.3f 秒' % (user_info['stat']['total_runtime'] / 1000)
     if user_info['level'] != 0:
-        line_3 = '初级记录: %.3f(%d) | %.3f(%d)' % (user_info['stat']['best_beg_time'] / 1000, user_info['stat']['best_beg_time_rank'], 
+        line_2 = '初级记录: %.3f(%d) | %.3f(%d)' % (user_info['stat']['best_beg_time'] / 1000, user_info['stat']['best_beg_time_rank'], 
                                                      user_info['stat']['best_beg_bvs'], user_info['stat']['best_beg_bvs_rank'])
-        line_4 = '初级局数: %d / %d (%.1f%%)' % (user_info['stat']['beg_win_total'], user_info['stat']['beg_total'], user_info['stat']['beg_win_total'] / user_info['stat']['beg_total'] * 100)
-        line_5 = '中级记录: %.3f(%d) | %.3f(%d)' % (user_info['stat']['best_int_time'] / 1000, user_info['stat']['best_int_time_rank'], 
+        line_3 = '初级局数: %d / %d (%.1f%%)' % (user_info['stat']['beg_win_total'], user_info['stat']['beg_total'], user_info['stat']['beg_win_total'] / user_info['stat']['beg_total'] * 100)
+        line_4 = '中级记录: %.3f(%d) | %.3f(%d)' % (user_info['stat']['best_int_time'] / 1000, user_info['stat']['best_int_time_rank'], 
                                                      user_info['stat']['best_int_bvs'], user_info['stat']['best_int_bvs_rank'])
-        line_6 = '中级局数: %d / %d (%.1f%%)' % (user_info['stat']['int_win_total'], user_info['stat']['int_total'], user_info['stat']['int_win_total'] / user_info['stat']['int_total'] * 100)
-        line_7 = '高级记录: %.3f(%d) | %.3f(%d)' % (user_info['stat']['best_exp_time'] / 1000, user_info['stat']['best_exp_time_rank'], 
+        line_5 = '中级局数: %d / %d (%.1f%%)' % (user_info['stat']['int_win_total'], user_info['stat']['int_total'], user_info['stat']['int_win_total'] / user_info['stat']['int_total'] * 100)
+        line_6 = '高级记录: %.3f(%d) | %.3f(%d)' % (user_info['stat']['best_exp_time'] / 1000, user_info['stat']['best_exp_time_rank'], 
                                                      user_info['stat']['best_exp_bvs'], user_info['stat']['best_exp_bvs_rank'])
-        line_8 = '高级局数: %d / %d (%.1f%%)' % (user_info['stat']['exp_win_total'], user_info['stat']['exp_total'], user_info['stat']['exp_win_total'] / user_info['stat']['exp_total'] * 100)
-        line_9 = '评价: %s 级, 排位第 %d 名' % (level_ref[user_info['level']] , user_info['rank'])
-        message = line_1 + '\n' + line_2 + '\n' + line_3 + '\n' + line_4 + '\n' + line_5 + '\n' + line_6 + '\n' + line_7 + '\n' + line_8 + '\n' + line_9
+        line_7 = '高级局数: %d / %d (%.1f%%)' % (user_info['stat']['exp_win_total'], user_info['stat']['exp_total'], user_info['stat']['exp_win_total'] / user_info['stat']['exp_total'] * 100)
+        line_8 = '评价: %s 级, 排位第 %d 名' % (level_ref[user_info['level']] , user_info['rank'])
+        message = line_1 + '\n' + line_2 + '\n' + line_3 + '\n' + line_4 + '\n' + line_5 + '\n' + line_6 + '\n' + line_7 + '\n' + line_8
     else:
-        line_3 = '未加入排名, 无评价'
-        message = line_1 + '\n' + line_2 + '\n' + line_3
+        line_2 = '未加入排名, 无评价'
+        message = line_1 + '\n' + line_2
     return message
 
 def get_user_info(search_result):
