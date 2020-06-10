@@ -20,16 +20,16 @@ def from_post_id(post_id: int) -> str:
     return from_record_id(record_id)
 
 def format_analyze_result(result):
-    line_1 = 'mode: %dx%d + %d' % (result['row'], result['column'], result['mines'])
+    line_1 = 'mode: %dx%d + %d (%s)' % (result['row'], result['column'], result['mines'], result['fmode'])
     line_2 = 'time/est: %.3f/%.3f' % (result['rtime'], result['est'])
     line_3 = 'bv/bvs: %d/%d, %.3f' % (result['solved_bv'], result['bv'], result['bvs'])
-    line_4 = 'op/is: %d/%d, %d' % (result['solved_op'], result['op'], result['is'])
-    line_5 = 'l/r/d/fl: %d, %d, %d, %d' % (result['left'], result['right'], result['double'], result['flags'])
-    line_6 = 'ces/cls: %.3f, %.3f' % (result['ces'], result['cls'])
-    line_7 = 'rqp/qg: %.3f, %.3f' % (result['rqp'], result['qg'])
-    line_8 = 'corr/thrp: %.3f, %.3f' % (result['corr'], result['thrp'])
-    line_9 = 'path: %.3f' % (result['path'])
-    line_10 = 'ioe/iome: %.3f, %.3f' % (result['ioe'], result['iome'])
+    line_4 = 'ces/cls: %.3f, %.3f' % (result['ces'], result['cls'])
+    line_5 = 'l/fl/r/d: %d, %d, %d, %d' % (result['left'], result['flags'], result['right'], result['double'])
+    line_6 = 'op/is: %d/%d, %d' % (result['solved_op'], result['op'], result['is'])
+    line_7 = 'path: %.3f' % (result['path'])
+    line_8 = 'ioe/iome: %.3f, %.3f' % (result['ioe'], result['iome'])
+    line_9 = 'corr/thrp: %.3f, %.3f' % (result['corr'], result['thrp'])
+    line_10 = 'rqp/qg: %.3f, %.3f' % (result['rqp'], result['qg'])
     result_message = line_1 + '\n' + line_2 + '\n' + line_3 + '\n' + line_4 + '\n' + line_5 + '\n' + line_6 + '\n' + line_7 + '\n' + line_8 + '\n' + line_9 + '\n' + line_10
     return result_message
 
