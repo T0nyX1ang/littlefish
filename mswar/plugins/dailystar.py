@@ -1,7 +1,7 @@
-import requests
-import bs4
 from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
+import requests
+import bs4
 
 @on_command('dailystar', aliases=('每日一星'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def dailystar(session: CommandSession):
