@@ -3,7 +3,7 @@ import bs4
 from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
 
-@on_command('dailystar', aliases=('每日一星'), permission=SUPERUSER | GROUP)
+@on_command('dailystar', aliases=('每日一星'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def dailystar(session: CommandSession):
     daily_star_info = await get_daily_star()
     await session.send(daily_star_info)

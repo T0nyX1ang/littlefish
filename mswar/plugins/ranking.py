@@ -22,7 +22,7 @@ def get_rank_core(begin=1, end=10, _type=0, mode=-1, level=4):
         current += 1
     return result.strip()
 
-@on_command('ranking', aliases=('排名', 'rank'), permission=SUPERUSER | GROUP)
+@on_command('ranking', aliases=('排名', 'rank'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def ranking(session: CommandSession):
     begin = session.get('begin')
     end = session.get('end')
