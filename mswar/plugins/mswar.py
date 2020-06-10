@@ -233,6 +233,7 @@ def get_result(board, action):
     result['cl'] = result['left'] + result['right'] + result['double']
     result['ce'], result['flags'], result['wasted_flagging'], result['solved_op'], result['solved_bv'], result['current_status'] = get_effective_operations(board, action)
 
+    result['fmode'] = 'FL' if result['right'] > 0 else 'NF'
     result['bvs'] = result['solved_bv'] / result['rtime']
     result['est'] = result['rtime'] / result['solved_bv'] * result['bv']
     result['rqp'] = (result['rtime'] + 1) / result['bvs']
