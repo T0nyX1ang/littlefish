@@ -68,8 +68,6 @@ def get_user_info(search_result):
     user_info['stat']['best_exp_bvs'] = career_result['expBvsRank']['bvs']
     user_info['stat']['best_exp_bvs_rank'] = career_result['expBvsRank']['rank']
 
-    user_info['stat']['total_runtime'] = career_result['statistics']['begTotalTime'] + career_result['statistics']['intTotalTime'] + career_result['statistics']['expTotalTime']
-
     user_info['stat']['beg_win_total'] = career_result['statistics']['begSum']
     user_info['stat']['beg_total'] = career_result['statistics']['begSum'] + career_result['statistics']['begFail']
 
@@ -82,7 +80,7 @@ def get_user_info(search_result):
     user_info_message = dump_user_info(user_info)
     return user_info_message
 
-@on_command('idsearch', aliases=('查询', '查找', 'id'), permission=SUPERUSER | GROUP)
+@on_command('idsearch', aliases=('查询', '查找', 'id'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def idsearch(session: CommandSession):
     _id = session.get('id')
     search_result = await get_user_info_by_id(_id)
@@ -110,7 +108,7 @@ async def get_user_info_by_id(_id: str) -> str:
     except Exception as e:
         return '无法查找到该用户(error: %s)' % repr(e)
 
-@on_command('namesearch', aliases=('昵称', 'name', 'nickname'), permission=SUPERUSER | GROUP)
+@on_command('namesearch', aliases=('昵称', 'name', 'nickname'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def namesearch(session: CommandSession):
     nickname = session.get('nickname')
     search_result = await get_user_info_by_nickname(nickname)
