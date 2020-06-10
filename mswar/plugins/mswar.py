@@ -112,8 +112,12 @@ def get_rtime(action):
 
 def get_path(action):
     path = 0
-    for i in range(1, len(action)):
-        path += math.sqrt((action[i][1] - action[i - 1][1]) ** 2 + (action[i][2] - action[i - 1][2]) ** 2)
+    current, last = 0, 0
+    while current < len(action):
+        if action[current][0] in [0, 1, 4]:
+            path += math.sqrt((action[current][1] - action[last][1]) ** 2 + (action[current][2] - action[last][2]) ** 2)
+            last = current
+        current += 1
     return path
 
 def get_clicks(action):
@@ -223,16 +227,16 @@ def get_result(board, action):
     result = get_board_result(board)
     
     result['rtime'] = get_rtime(action)
-    result['bvs'] = result['bv'] / result['rtime']
     result['path'] = get_path(action)
 
     result['left'], result['right'], result['double'] = get_clicks(action)
     result['cl'] = result['left'] + result['right'] + result['double']
     result['ce'], result['flags'], result['wasted_flagging'], result['solved_op'], result['solved_bv'], result['current_status'] = get_effective_operations(board, action)
 
+    result['bvs'] = result['solved_bv'] / result['rtime']
     result['est'] = result['rtime'] / result['solved_bv'] * result['bv']
     result['rqp'] = (result['rtime'] + 1) / result['bvs']
-    result['qg'] = result['rtime'] ** 1.7 / result['bv']
+    result['qg'] = result['rtime'] ** 1.7 / result['solved_bv']
     result['cls'] = result['cl'] / result['rtime']
     result['ces'] = result['ce'] / result['rtime']
     result['corr'] = (result['ce'] - result['wasted_flagging']) / result['cl']
