@@ -1,7 +1,9 @@
 from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
+from nonebot.log import logger
 from urllib.parse import quote, unquote
 from .core import fetch, is_online
+import traceback
 
 def get_rank_core(begin=1, end=10, _type=0, mode=-1, level=4):
     if end - begin >= 20:
@@ -75,4 +77,5 @@ async def get_rank(begin: str, end: str, _type: str, mode: str, level: str) -> s
         level = level_ref[level.lower()]
         return get_rank_core(begin, end, _type, mode, level)
     except Exception as e:
+        logger.error(traceback.format_exc())
         return '错误的语法指令(error: %s)' % repr(e)

@@ -1,7 +1,9 @@
 from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
+from nonebot.log import logger
 from urllib.parse import quote, unquote
 from .core import fetch, is_online
+import traceback
 
 def search_user(name, padding=True):
     if padding:
@@ -68,14 +70,15 @@ def get_user_info(search_result):
     user_info['stat']['best_exp_bvs'] = career_result['expBvsRank']['bvs']
     user_info['stat']['best_exp_bvs_rank'] = career_result['expBvsRank']['rank']
 
-    user_info['stat']['beg_win_total'] = career_result['statistics']['begSum']
-    user_info['stat']['beg_total'] = career_result['statistics']['begSum'] + career_result['statistics']['begFail']
+    if career_result['statistics']:
+        user_info['stat']['beg_win_total'] = career_result['statistics']['begSum']
+        user_info['stat']['beg_total'] = career_result['statistics']['begSum'] + career_result['statistics']['begFail']
 
-    user_info['stat']['int_win_total'] = career_result['statistics']['intSum']
-    user_info['stat']['int_total'] = career_result['statistics']['intSum'] + career_result['statistics']['intFail']
+        user_info['stat']['int_win_total'] = career_result['statistics']['intSum']
+        user_info['stat']['int_total'] = career_result['statistics']['intSum'] + career_result['statistics']['intFail']
 
-    user_info['stat']['exp_win_total'] = career_result['statistics']['expSum']
-    user_info['stat']['exp_total'] = career_result['statistics']['expSum'] + career_result['statistics']['expFail']
+        user_info['stat']['exp_win_total'] = career_result['statistics']['expSum']
+        user_info['stat']['exp_total'] = career_result['statistics']['expSum'] + career_result['statistics']['expFail']
 
     user_info_message = dump_user_info(user_info)
     return user_info_message
@@ -104,9 +107,11 @@ async def get_user_info_by_id(_id: str) -> str:
         search_result = search_user(_id)['data'][0]
         return get_user_info(search_result)
     except (TypeError, ValueError) as e:
-        return '非法的ID输入(error: %s)' % repr(e)
+        logger.error(traceback.format_exc())
+        return '非法的ID输入'
     except Exception as e:
-        return '无法查找到该用户(error: %s)' % repr(e)
+        logger.error(traceback.format_exc())
+        return '无法查找到该用户'
 
 @on_command('namesearch', aliases=('昵称', 'name', 'nickname'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def namesearch(session: CommandSession):
@@ -131,4 +136,5 @@ async def get_user_info_by_nickname(nickname: str) -> str:
         search_result = search_user(nickname, padding=False)['data'][0]
         return get_user_info(search_result)
     except Exception as e:
-        return '无法查找到该用户(error: %s)' % repr(e)
+        logger.error(traceback.format_exc())
+        return '无法查找到该用户'
