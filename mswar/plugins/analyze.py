@@ -1,10 +1,12 @@
 from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
+from nonebot.log import logger
 from urllib.parse import quote, unquote
 from .core import fetch, is_online
 from .mswar import get_board, get_action, get_result
 from base64 import b64decode
 import gzip
+import traceback
 
 def from_record_id(record_id: int) -> str:      
     record_file = fetch(page='/MineSweepingWar/game/record/get', query='recordId=%d' % (record_id))
@@ -20,8 +22,8 @@ def from_post_id(post_id: int) -> str:
 def format_analyze_result(result):
     line_1 = 'mode: %dx%d + %d' % (result['row'], result['column'], result['mines'])
     line_2 = 'time/est: %.3f/%.3f' % (result['rtime'], result['est'])
-    line_3 = 'bv/bvs: %d/%d, %.3f' % (result['bv'], result['solved_bv'], result['bvs'])
-    line_4 = 'op/is: %d/%d, %d' % (result['op'], result['solved_op'], result['is'])
+    line_3 = 'bv/bvs: %d/%d, %.3f' % (result['solved_bv'], result['bv'], result['bvs'])
+    line_4 = 'op/is: %d/%d, %d' % (result['solved_op'], result['op'], result['is'])
     line_5 = 'l/r/d/fl: %d, %d, %d, %d' % (result['left'], result['right'], result['double'], result['flags'])
     line_6 = 'ces/cls: %.3f, %.3f' % (result['ces'], result['cls'])
     line_7 = 'rqp/qg: %.3f, %.3f' % (result['rqp'], result['qg'])
@@ -66,4 +68,5 @@ async def get_analyze_result(mode: str, target_id: str) -> dict:
             result = from_post_id(target_id)
         return format_analyze_result(result)
     except Exception as e:
-        return '错误的语法指令(error: %s)' % repr(e)
+        logger.error(traceback.format_exc())
+        return '错误的语法指令'
