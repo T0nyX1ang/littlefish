@@ -1,4 +1,5 @@
 from nonebot import on_command, CommandSession
+from nonebot import on_natural_language, NLPSession, IntentCommand
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
 from urllib.parse import quote, unquote
@@ -8,19 +9,22 @@ from base64 import b64decode
 import gzip
 import traceback
 
-def format_analyze_result(result):
-    line_1 = 'mode: %dx%d + %d (%s)' % (result['row'], result['column'], result['mines'], result['fmode'])
-    line_2 = 'time/est: %.3f/%.3f' % (result['rtime'], result['est'])
-    line_3 = 'bv/bvs: %d/%d, %.3f' % (result['solved_bv'], result['bv'], result['bvs'])
-    line_4 = 'ces/cls: %.3f, %.3f' % (result['ces'], result['cls'])
-    line_5 = 'l/fl/r/d: %d, %d, %d, %d' % (result['left'], result['flags'], result['right'], result['double'])
-    line_6 = 'op/is: %d/%d, %d' % (result['solved_op'], result['op'], result['is'])
-    line_7 = 'path: %.3f' % (result['path'])
-    line_8 = 'ioe/iome: %.3f, %.3f' % (result['ioe'], result['iome'])
-    line_9 = 'corr/thrp: %.3f, %.3f' % (result['corr'], result['thrp'])
-    line_10 = 'rqp/qg: %.3f, %.3f' % (result['rqp'], result['qg'])
-    result_message = line_1 + '\n' + line_2 + '\n' + line_3 + '\n' + line_4 + '\n' + line_5 + '\n' + line_6 + '\n' + line_7 + '\n' + line_8 + '\n' + line_9 + '\n' + line_10
-    return result_message
+def format_analyze_result(result: dict) -> str:
+    line = ['mode: %dx%d + %d (%s)' % (result['row'], result['column'], result['mines'], result['fmode']),
+            'time/est: %.3f/%.3f' % (result['rtime'], result['est']),
+            'bv/bvs: %d/%d, %.3f' % (result['solved_bv'], result['bv'], result['bvs']),
+            'ce/ces: %d, %.3f' % (result['ce'], result['ces']),
+            'cl/cls: %d, %.3f' % (result['cl'], result['cls']),
+            'l/fl/r/d: %d, %d, %d, %d' % (result['left'], result['flags'], result['right'], result['double']),
+            'op/is: %d/%d, %d' % (result['solved_op'], result['op'], result['is']),
+            'path: %.3f' % (result['path']),
+            'ioe/iome: %.3f, %.3f' % (result['ioe'], result['iome']),
+            'corr/thrp: %.3f, %.3f' % (result['corr'], result['thrp']),
+            'rqp/qg: %.3f, %.3f' % (result['rqp'], result['qg'])]
+    result_message = ''
+    for each_line in line:
+        result_message = result_message + each_line + '\n'
+    return result_message.strip()
 
 async def from_record_id(record_id: int) -> str:      
     record_file = await fetch(page='/MineSweepingWar/game/record/get', query='recordId=%d' % (record_id))
@@ -71,3 +75,17 @@ async def get_analyze_result(mode: str, target_id: str) -> dict:
     except Exception as e:
         logger.error(traceback.format_exc())
         return '错误的语法指令'
+
+@on_natural_language(permission=SUPERUSER | GROUP, only_short_message=False, only_to_me=False)
+async def _(session: NLPSession):
+    stripped_msg = session.msg.strip()
+    start_seq = stripped_msg.find('http://tapsss.com/?post=')
+    if start_seq == -1:
+        return IntentCommand(0.0, 'analyze')
+    current = start_seq + 24
+    post_id = ''
+    while current < len(stripped_msg) and stripped_msg[current] in '0123456789':
+        post_id += stripped_msg[current]
+        current += 1
+    post_id = int(post_id) # forcibly convert to int
+    return IntentCommand(100.0, 'analyze', current_arg='post %d' % (post_id))
