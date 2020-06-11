@@ -25,7 +25,7 @@ async def get_daily_star() -> str:
     result = '每日一星:\n' + t.replace('    ', '\n').replace('   ', '\n').replace('  ', '\n').replace(' ↑', ' ↑').replace(' ↓', ' ↓').replace(' ', '\n').replace('　', '\n').replace('|', ' | ') # re-align
     return result
 
-@nonebot.scheduler.scheduled_job('cron', hour=0, minute=1, second=30)
+@nonebot.scheduler.scheduled_job('cron', hour=0, minute=1, second=30, jitter=30)
 async def _():
     bot = nonebot.get_bot()
     message = await get_daily_star()
