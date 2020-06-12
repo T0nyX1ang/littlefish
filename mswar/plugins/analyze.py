@@ -9,6 +9,7 @@ from .admire import get_admire_message
 from base64 import b64decode
 import gzip
 import traceback
+import time
 
 def format_analyze_result(result: dict) -> str:
     line = ['mode: %dx%d + %d (%s)' % (result['row'], result['column'], result['mines'], result['fmode']),
@@ -27,7 +28,9 @@ def format_analyze_result(result: dict) -> str:
         result_message = result_message + each_line + '\n'
     return result_message.strip()
 
-async def from_record_id(record_id: int) -> str:      
+async def from_record_id(record_id: int) -> str:
+    if not is_online():
+        return '账号处于离线状态，无法使用该功能'    
     record_file = await fetch(page='/MineSweepingWar/game/record/get', query='recordId=%d' % (record_id))
     board = get_board(record_file['data']['map'].split('-')[0: -1])
     action = get_action(gzip.decompress(b64decode(record_file['data']['handle'])).decode().split('-'))
@@ -36,6 +39,7 @@ async def from_record_id(record_id: int) -> str:
 async def from_post_id(post_id: int) -> str:
     # First get the record ID, then use the former function to analyze.
     record_result = await fetch(page='/MineSweepingWar/post/get', query='postId=%d' % (post_id))
+    time.sleep(0.5)
     result = await from_record_id(record_result['data']['recordId'])
     return result
 
@@ -96,7 +100,7 @@ async def _(session: NLPSession):
     stripped_msg = session.msg.strip()
     keywords = stripped_msg.find('http://tapsss.com')
     start_seq = stripped_msg.find('post=')
-    if keywords == -1 or start_seq == -1:
+    if keywords == -1 or start_seq == -1 or not is_online():
         return
     current = start_seq + 5
     post_id = ''
