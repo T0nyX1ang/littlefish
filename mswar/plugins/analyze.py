@@ -28,9 +28,7 @@ def format_analyze_result(result: dict) -> str:
         result_message = result_message + each_line + '\n'
     return result_message.strip()
 
-async def from_record_id(record_id: int) -> str:
-    if not is_online():
-        return '账号处于离线状态，无法使用该功能'    
+async def from_record_id(record_id: int) -> str:   
     record_file = await fetch(page='/MineSweepingWar/game/record/get', query='recordId=%d' % (record_id))
     board = get_board(record_file['data']['map'].split('-')[0: -1])
     action = get_action(gzip.decompress(b64decode(record_file['data']['handle'])).decode().split('-'))
@@ -45,6 +43,9 @@ async def from_post_id(post_id: int) -> str:
 
 @on_command('analyze', aliases=('分析'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def analyze(session: CommandSession):
+    if not is_online():
+        await session.send('账号处于离线状态，无法使用该功能')
+        return 
     mode = session.get('mode')
     target_id = session.get('id')
     admire_person = session.get('admire_person')
