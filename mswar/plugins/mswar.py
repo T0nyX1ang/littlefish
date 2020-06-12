@@ -168,9 +168,10 @@ def get_effective_operations(board, action):
 
         if act_no == 0:
             # deal with opening
-            effective += 1
-            current_status[row][col] = 1
-            deal_with_op(row, col)
+            if current_status[row][col] == 0:
+                effective += 1
+                current_status[row][col] = 1
+                deal_with_op(row, col)
             
         elif act_no == 1:
             # deal with flagging and unflagging
