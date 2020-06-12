@@ -31,7 +31,7 @@ mswar-bot是一个基于NoneBot的异步IO机器人, 用于扫雷联萌(原扫�
 ```
     dailystar/每日一星
 ```
-+ 自动推送雷网每日一星(每天00:01:30进行推送, 该功能自动触发, 广播至**所有**机器人加入的群中)
++ 自动推送雷网每日一星(每天00:01:30进行推送，误差为30秒, 该功能自动触发, 广播至**所有**机器人加入的群中)
 + 按ID搜索联萌用户
 ```
     id/idsearch/查询/查找 用户ID
@@ -54,11 +54,22 @@ mswar-bot是一个基于NoneBot的异步IO机器人, 用于扫雷联萌(原扫�
     rank/ranking/排名 [c]haos/乱斗       # 乱斗排行榜
     rank/ranking/排名 [a]dvance/进步     # 进步排行榜
 ```
++ 膜佬功能
+```
+    praise/膜/膜拜            # 空泛膜拜
+    admire/狂膜               # 用于复读的空泛膜拜
+    praise/膜/膜拜 大佬的名字  # 定向膜拜
+    admire/狂膜    大佬的名字  # 用于复读的定向膜拜
+```
 + 录像数据解析功能
 ```
-    analyze/分析 [r]ecord record_id # 根据录像ID解析
-    analyze/分析 [p]ost post_id     # 根据发帖ID解析
+    analyze/分析 [r]ecord/录像 录像ID          # 根据录像ID解析
+    analyze/分析 [p]ost/帖子   帖子ID          # 根据发帖ID解析  
+    analyze/分析 [r]ecord/录像 录像ID 大佬名字  # 根据录像ID解析+膜佬
+    analyze/分析 [p]ost/帖子   帖子ID 大佬名字  # 根据发帖ID解析+膜佬
 ```
++ 分享录像链接自动解析功能(该功能在提取到`http://tapsss.com`与`post=`关键词后自动触发)
++ 自动膜佬功能(该功能在在提取到`http://tapsss.com`, `post=`, `恭喜`与`刷新`关键词后自动触发, 包含录像解析功能)
 
 <!-- ## 安装机器人
 + 下载酷Q Air
