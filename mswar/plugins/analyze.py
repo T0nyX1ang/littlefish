@@ -79,10 +79,6 @@ async def get_analyze_result(mode: str, target_id: str) -> dict:
 @on_natural_language(permission=SUPERUSER | GROUP, only_short_message=False, only_to_me=False)
 async def _(session: NLPSession):
     stripped_msg = session.msg.strip()
-    start_seq = stripped_msg.find('http://tapsss.com/?post=')
-    if start_seq == -1:
-        return IntentCommand(0.0, 'analyze')
-    current = start_seq + 24
     post_id = ''
     while current < len(stripped_msg) and stripped_msg[current] in '0123456789':
         post_id += stripped_msg[current]
