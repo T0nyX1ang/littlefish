@@ -5,6 +5,7 @@ from nonebot.log import logger
 from urllib.parse import quote, unquote
 from .core import fetch, is_online
 from .mswar import get_board, get_action, get_result
+from .admire import get_admire_message
 from base64 import b64decode
 import gzip
 import traceback
@@ -42,8 +43,13 @@ async def from_post_id(post_id: int) -> str:
 async def analyze(session: CommandSession):
     mode = session.get('mode')
     target_id = session.get('id')
+    admire_person = session.get('admire_person')
     analyze_result = await get_analyze_result(mode, target_id)
     await session.send(analyze_result)
+
+    if admire_person:
+        admire_message = get_admire_message(admire_person)
+        await session.send(admire_message)
 
 @analyze.args_parser
 async def _(session: CommandSession):
@@ -59,9 +65,18 @@ async def _(session: CommandSession):
             if argc == 2:
                 session.state['mode'] = split_arg[0]
                 session.state['id'] = split_arg[1]
+                session.state['admire_person'] = None
+            elif argc >= 3:
+                session.state['mode'] = split_arg[0]
+                session.state['id'] = split_arg[1]
+                admire_person = ''
+                for i in range(2, argc):
+                    admire_person += (split_arg[i] + ' ')
+                session.state['admire_person'] = admire_person.strip()
             else:
                 session.finish('不正确的参数数目')
-        return
+        else:
+            session.finish()
 
 async def get_analyze_result(mode: str, target_id: str) -> dict:
     try:
@@ -79,9 +94,21 @@ async def get_analyze_result(mode: str, target_id: str) -> dict:
 @on_natural_language(permission=SUPERUSER | GROUP, only_short_message=False, only_to_me=False)
 async def _(session: NLPSession):
     stripped_msg = session.msg.strip()
+    keywords = stripped_msg.find('http://tapsss.com')
+    start_seq = stripped_msg.find('post=')
+    if keywords == -1 or start_seq == -1:
+        return
+    current = start_seq + 5
     post_id = ''
     while current < len(stripped_msg) and stripped_msg[current] in '0123456789':
         post_id += stripped_msg[current]
         current += 1
     post_id = int(post_id) # forcibly convert to int
-    return IntentCommand(100.0, 'analyze', current_arg='post %d' % (post_id))
+
+    start_name = stripped_msg.find('恭喜')
+    end_name = stripped_msg.find('刷新')
+    if start_name != -1 and end_name != -1:
+        admire_person = stripped_msg[start_name + 2:end_name]
+        return IntentCommand(100.0, 'analyze', current_arg='post %d %s' % (post_id, admire_person))
+    else:
+        return IntentCommand(100.0, 'analyze', current_arg='post %d' % (post_id))
