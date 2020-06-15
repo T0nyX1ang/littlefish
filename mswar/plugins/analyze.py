@@ -36,9 +36,17 @@ async def from_record_id(record_id: int) -> str:
 
 async def from_post_id(post_id: int) -> str:
     # First get the record ID, then use the former function to analyze.
-    record_result = await fetch(page='/MineSweepingWar/post/get', query='postId=%d' % (post_id))
-    time.sleep(0.5)
-    result = await from_record_id(record_result['data']['recordId'])
+    retries, fetched = 3, False
+    while not fetched and retries > 0:
+        record_result = await fetch(page='/MineSweepingWar/post/get', query='postId=%d' % (post_id))
+        if 'data' in record_result and 'record_id' in record_result['data']: 
+            result = await from_record_id(record_result['data']['recordId'])
+            fetched = True
+        elif retries == 0:
+            raise ConnectionError('Unable to get record ID from post ID.')
+        else:
+            retries -= 1
+            time.sleep(0.5)
     return result
 
 @on_command('analyze', aliases=('分析'), permission=SUPERUSER | GROUP, only_to_me=False)
