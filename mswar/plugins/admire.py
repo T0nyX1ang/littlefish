@@ -17,6 +17,10 @@ def get_admire_message(person):
         MessageSegment.face(111),
         MessageSegment.face(111) + MessageSegment.face(111), 
         MessageSegment.face(111) + MessageSegment.face(111) + MessageSegment.face(111), 
+        # face: /hec
+        MessageSegment.face(144),
+        MessageSegment.face(144) + MessageSegment.face(144), 
+        MessageSegment.face(144) + MessageSegment.face(144) + MessageSegment.face(144), 
     ]
     message = [
         '%s大佬太强了' % (person),
