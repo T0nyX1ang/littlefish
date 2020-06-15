@@ -36,17 +36,17 @@ async def from_record_id(record_id: int) -> str:
 
 async def from_post_id(post_id: int) -> str:
     # First get the record ID, then use the former function to analyze.
-    retries, fetched = 3, False
+    retries, fetched, result = 3, False, {}
     while not fetched and retries > 0:
         record_result = await fetch(page='/MineSweepingWar/post/get', query='postId=%d' % (post_id))
-        if 'data' in record_result and 'record_id' in record_result['data']: 
+        if 'data' in record_result and record_result['data'] and 'recordId' in record_result['data']: 
             result = await from_record_id(record_result['data']['recordId'])
             fetched = True
-        elif retries == 0:
-            raise ConnectionError('Unable to get record ID from post ID.')
         else:
             retries -= 1
             time.sleep(0.5)
+    if retries == 0:
+        raise ConnectionError('Unable to get record ID from post ID.')
     return result
 
 @on_command('analyze', aliases=('分析'), permission=SUPERUSER | GROUP, only_to_me=False)
@@ -100,6 +100,9 @@ async def get_analyze_result(mode: str, target_id: str) -> dict:
         else:
             result = await from_post_id(target_id)
         return format_analyze_result(result)
+    except ConnectionError as e:
+        logger.error(traceback.format_exc())
+        return '无法查询到录像信息'    	
     except Exception as e:
         logger.error(traceback.format_exc())
         return '错误的语法指令'
