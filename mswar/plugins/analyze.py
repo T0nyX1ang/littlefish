@@ -36,7 +36,7 @@ async def from_record_id(record_id: int) -> str:
 
 async def from_post_id(post_id: int) -> str:
     # First get the record ID, then use the former function to analyze.
-    retries, fetched, result = 3, False, {}
+    retries, fetched, result = 10, False, {}
     while not fetched and retries > 0:
         record_result = await fetch(page='/MineSweepingWar/post/get', query='postId=%d' % (post_id))
         if 'data' in record_result and record_result['data'] and 'recordId' in record_result['data']: 
