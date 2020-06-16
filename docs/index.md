@@ -75,6 +75,11 @@ mswar-bot是一个基于NoneBot的异步IO机器人, 用于扫雷联萌(原扫�
 ```
 + 分享录像链接自动解析功能(该功能在提取到`http://tapsss.com`与`post=`关键词后自动触发)
 + 自动膜佬功能(该功能在在提取到`http://tapsss.com`, `post=`, `恭喜`与`刷新`关键词后自动触发, 包含录像解析功能)
++ 查询[对战机器人](https://github.com/T0nyX1ang/mswar-bot-autopvp)状态
+```
+    autopvp
+```
++ 自动推送[对战机器人](https://github.com/T0nyX1ang/mswar-bot-autopvp)状态(每天00:00:30进行推送，误差为30秒, 该功能自动触发, 广播至**所有**机器人加入的群中)
 
 <!-- ## 安装机器人
 + 下载酷Q Air
