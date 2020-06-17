@@ -90,7 +90,7 @@ def get_action(action_detail):
         operation, row, column, current_time = each_action.split(':')
         split_action.append([int(operation), int(row), int(column), int(current_time)])
 
-    current = 0
+    current, threshold = 0, 2
     while current < len(split_action):
         if split_action[current][0] == 2: # press key
             tag_row = split_action[current][1]
@@ -98,21 +98,21 @@ def get_action(action_detail):
             
             # find out the release key
             release = current + 1
-            while release < len(split_action) and (split_action[release][0] not in [1, 3] or split_action[release][1] != tag_row or split_action[release][2] != tag_col):
+            while release < len(split_action) and (split_action[release][0] != 3 or split_action[release][1] != tag_row or split_action[release][2] != tag_col):
                 release += 1
 
             # find out the assurance final key
             if release < len(split_action):
                 final = release + 1
-                if split_action[release][0] == 1:
-                    while final < len(split_action) and (split_action[final][0] != 3 or split_action[final][1] != tag_row or split_action[final][2] != tag_col):
-                        final += 1
-                    if final < len(split_action):
-                        split_action[release][0] = 4
-                elif split_action[release][0] == 3:
-                    while final < len(split_action) and (split_action[final][0] != 1 or split_action[final][1] != tag_row or split_action[final][2] != tag_col):
-                        final += 1
-                    if final < len(split_action):
+                while final < len(split_action) and (split_action[final][3] - split_action[release][3] <= threshold) and (split_action[final][0] != 1 or split_action[final][1] != tag_row or split_action[final][2] != tag_col):
+                    final += 1
+                if final < len(split_action) and (split_action[final][3] - split_action[release][3] <= threshold):
+                    split_action[final][0] = 4
+                else:
+                    final = release - 1
+                    while final >= 0 and (split_action[release][3] - split_action[final][3] <= threshold) and (split_action[final][0] != 1 or split_action[final][1] != tag_row or split_action[final][2] != tag_col):
+                        final -= 1
+                    if final >= 0 and (split_action[release][3] - split_action[final][3] <= threshold):
                         split_action[final][0] = 4
 
         current += 1
