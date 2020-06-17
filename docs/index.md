@@ -79,7 +79,7 @@ mswar-bot是一个基于NoneBot的异步IO机器人, 用于扫雷联萌(原扫�
 ```
     autopvp
 ```
-+ 自动推送[对战机器人](https://github.com/T0nyX1ang/mswar-bot-autopvp)状态(每天00:00:30进行推送，误差为30秒, 该功能自动触发, 广播至**所有**机器人加入的群中)
++ 自动推送[对战机器人](https://github.com/T0nyX1ang/mswar-bot-autopvp)状态(每天00:00:00进行推送，误差为30秒, 该功能自动触发, 广播至**所有**机器人加入的群中)
 
 <!-- ## 安装机器人
 + 下载酷Q Air
