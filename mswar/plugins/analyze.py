@@ -12,7 +12,7 @@ import traceback
 import time
 
 def format_analyze_result(result: dict) -> str:
-    line = ['mode: %dx%d + %d (%s)' % (result['row'], result['column'], result['mines'], result['fmode']),
+    line = ['mode: %s (%s)' % (result['difficulty'], result['fmode']),
             'time/est: %.3f/%.3f' % (result['rtime'], result['est']),
             'bv/bvs: %d/%d, %.3f' % (result['solved_bv'], result['bv'], result['bvs']),
             'ce/ces: %d, %.3f' % (result['ce'], result['ces']),
