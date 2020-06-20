@@ -34,6 +34,7 @@ def format_user_info(user_info):
         line.append('评价: %s 级, 排位第 %d 名' % (level_ref[user_info['level']] , user_info['rank']))
     else:
         line.append('未加入排名, 无评价')
+    line.append('雷网主页: %s' % user_info['lw_url'])
     result_message = ''
     for each_line in line:
         result_message = result_message + each_line + '\n'
@@ -54,6 +55,11 @@ async def get_user_career(uid):
     result = await fetch(page='/MineSweepingWar/game/timing/career', query=query)
     return result
 
+async def get_user_home_info(uid):
+    query = 'targetUid=' + quote(uid)
+    result = await fetch(page='/MineSweepingWar/user/home', query=query)
+    return result
+
 async def get_user_info(search_result):
     uid = search_result['uid']
 
@@ -64,6 +70,13 @@ async def get_user_info(search_result):
     user_info['level'] = search_result['timingLevel']
     user_info['rank'] = search_result['timingRank']
     user_info['id'] = search_result['id']
+
+    # home info
+    home_info_result = await get_user_home_info(uid)
+    if home_info_result['data']['saoleiOauth']:
+        user_info['lw_url'] = 'http://saolei.wang/Player/Index.asp?Id=%s' % (home_info_result['data']['saoleiOauth']['openId'].strip())
+    else:
+        user_info['lw_url'] = '暂未关联'
 
     # career info
     career_result = await get_user_career(uid)
