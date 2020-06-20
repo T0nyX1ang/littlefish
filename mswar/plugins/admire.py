@@ -22,18 +22,14 @@ def get_admire_message(person):
         MessageSegment.face(144) + MessageSegment.face(144), 
         MessageSegment.face(144) + MessageSegment.face(144) + MessageSegment.face(144), 
     ]
+    if not person:
+        person = '大佬'
     message = [
-        '%s大佬太强了' % (person),
         '%s太强了' % (person),
-        '%s大佬tql' % (person),
         '%s tql' % (person) if person and str.isascii(person[-1]) else '%stql' % (person),
-        '%s大佬NB' % (person),
         '%s NB' % (person) if person and str.isascii(person[-1]) else '%sNB' % (person),
-        '%s大佬🐮🍺' % (person),
         '%s🐮🍺' % (person),
-        '%s大佬冲冲冲' % (person),
-        '膜拜%s大佬' % (person),
-        '膜拜%s' % (person),
+        '%s冲鸭' % (person),
     ]
     return MessageSegment.text(random.choice(message)) + random.choice(exaggeration)
 
