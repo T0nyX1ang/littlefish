@@ -270,5 +270,9 @@ def get_result(board, action):
     result['thrp'] = result['solved_bv'] / result['ce']
     result['ioe'] = result['solved_bv'] / result['cl']
     result['iome'] = result['solved_bv'] / result['path']
+    mode_ref = {'beg': 1, 'int': 2, 'exp-v': 3, 'exp-h': 3}
+    if result['difficulty'] in mode_ref:
+        mode = mode_ref[result['difficulty']]
+        result['stnb'] = (87.420 * (mode ** 2) - 155.829 * mode + 115.708) / (result['qg'] * math.sqrt(result['solved_bv'] / result['bv'])) if result['solved_bv'] else 0.0
 
     return result

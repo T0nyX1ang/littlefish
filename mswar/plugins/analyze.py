@@ -12,17 +12,21 @@ import traceback
 import time
 
 def format_analyze_result(result: dict) -> str:
-    line = ['mode: %s (%s)' % (result['difficulty'], result['fmode']),
-            'time/est: %.3f/%.3f' % (result['rtime'], result['est']),
-            'bv/bvs: %d/%d, %.3f' % (result['solved_bv'], result['bv'], result['bvs']),
-            'ce/ces: %d, %.3f' % (result['ce'], result['ces']),
-            'cl/cls: %d, %.3f' % (result['cl'], result['cls']),
-            'l/fl/r/d: %d, %d, %d, %d' % (result['left'], result['flags'], result['right'], result['double']),
-            'op/is: %d/%d, %d' % (result['solved_op'], result['op'], result['is']),
-            'path: %.3f' % (result['path']),
-            'ioe/iome: %.3f, %.3f' % (result['ioe'], result['iome']),
-            'corr/thrp: %.3f, %.3f' % (result['corr'], result['thrp']),
-            'rqp/qg: %.3f, %.3f' % (result['rqp'], result['qg'])]
+    line = [
+        'mode: %s (%s)' % (result['difficulty'], result['fmode']),
+        'time/est: %.3f/%.3f' % (result['rtime'], result['est']),
+        'bv/bvs: %d/%d, %.3f' % (result['solved_bv'], result['bv'], result['bvs']),
+        'ce/ces: %d, %.3f' % (result['ce'], result['ces']),
+        'cl/cls: %d, %.3f' % (result['cl'], result['cls']),
+        'l/fl/r/d: %d, %d, %d, %d' % (result['left'], result['flags'], result['right'], result['double']),
+        'op/is: %d/%d, %d' % (result['solved_op'], result['op'], result['is']),
+        'path: %.3f' % (result['path']),
+        'ioe/iome: %.3f, %.3f' % (result['ioe'], result['iome']),
+        'corr/thrp: %.3f, %.3f' % (result['corr'], result['thrp']),
+        'rqp/qg: %.3f, %.3f' % (result['rqp'], result['qg']),
+    ]
+    if result['difficulty'] in ['beg', 'int', 'exp-h', 'exp-v']:
+        line.append('stnb: %.3f' % result['stnb'])
     result_message = ''
     for each_line in line:
         result_message = result_message + each_line + '\n'
