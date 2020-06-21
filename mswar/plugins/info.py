@@ -74,7 +74,7 @@ async def get_user_info(search_result):
     # home info
     home_info_result = await get_user_home_info(uid)
     if home_info_result['data']['saoleiOauth']:
-        user_info['lw_url'] = 'http://saolei.wang/Player/Index.asp?Id=%s' % (home_info_result['data']['saoleiOauth']['openId'].strip())
+        user_info['lw_url'] = '(%s) http://saolei.wang/Player/Index.asp?Id=%s' % (home_info_result['data']['saoleiOauth']['name'].strip(), home_info_result['data']['saoleiOauth']['openId'].strip())
     else:
         user_info['lw_url'] = '暂未关联'
 
