@@ -261,15 +261,16 @@ def get_result(board, action):
 
     result['fmode'] = 'FL' if result['right'] > 0 else 'NF'
     result['bvs'] = result['solved_bv'] / result['rtime']
-    result['est'] = result['rtime'] / result['solved_bv'] * result['bv']
-    result['rqp'] = (result['rtime'] + 1) / result['bvs']
-    result['qg'] = result['rtime'] ** 1.7 / result['solved_bv']
+    result['est'] = result['rtime'] / result['solved_bv'] * result['bv'] if result['solved_bv'] else math.inf
+    result['rqp'] = (result['rtime'] + 1) / result['bvs'] if result['solved_bv'] else math.inf
+    result['qg'] = result['rtime'] ** 1.7 / result['solved_bv'] if result['solved_bv'] else math.inf
     result['cls'] = result['cl'] / result['rtime']
     result['ces'] = result['ce'] / result['rtime']
-    result['corr'] = (result['ce'] - result['wasted_flagging']) / result['cl']
+    result['corr'] = (result['ce'] - result['wasted_flagging'] - (result['solved_bv'] != result['bv'])) / result['cl']
     result['thrp'] = result['solved_bv'] / result['ce']
     result['ioe'] = result['solved_bv'] / result['cl']
-    result['iome'] = result['solved_bv'] / result['path']
+    result['iome'] = result['solved_bv'] / result['path'] if result['solved_bv'] else 0.0 # if path is 0, solved_bv must be 0 
+
     mode_ref = {'beg': 1, 'int': 2, 'exp-v': 3, 'exp-h': 3}
     if result['difficulty'] in mode_ref:
         mode = mode_ref[result['difficulty']]
