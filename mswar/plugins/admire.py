@@ -5,18 +5,18 @@ import random
 
 def get_admire_message(person):
     exaggeration = [
-        # !
+        # ! (English exclaimation)
         '!',
         '!!',
         '!!!',
+        # ！ (Chinese exclaimation)
+        '！',
+        '！！',
+        '！！！',
         # face: /fad
         MessageSegment.face(41),
         MessageSegment.face(41) + MessageSegment.face(41), 
         MessageSegment.face(41) + MessageSegment.face(41) + MessageSegment.face(41),
-        # face: /kel
-        MessageSegment.face(111),
-        MessageSegment.face(111) + MessageSegment.face(111), 
-        MessageSegment.face(111) + MessageSegment.face(111) + MessageSegment.face(111), 
         # face: /hec
         MessageSegment.face(144),
         MessageSegment.face(144) + MessageSegment.face(144), 
