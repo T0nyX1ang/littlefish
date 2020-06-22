@@ -32,11 +32,25 @@ def format_analyze_result(result: dict) -> str:
         result_message = result_message + each_line + '\n'
     return result_message.strip()
 
+def format_user_result(result: dict) -> str:
+    level_ref = {0: '-', 1: 'E', 2: 'D', 3: 'C', 4: 'B', 5: 'A', 6: 'S', 7: 'SS', 8: 'SSS', 9: '★', 10: '★★', -1: '雷帝'}
+    result_message = ''
+    if result['level'] != 0:
+        result_message = '当前评价: %s 级, 排位第 %d 名' % (level_ref[result['level']], result['rank'])
+    else:
+        result_message = '未加入排名, 无评价'
+    return result_message
+
 async def from_record_id(record_id: int) -> str:   
     record_file = await fetch(page='/MineSweepingWar/game/record/get', query='recordId=%d' % (record_id))
     board = get_board(record_file['data']['map'].split('-')[0: -1])
     action = get_action(gzip.decompress(b64decode(record_file['data']['handle'])).decode().split('-'))
-    return get_result(board, action)
+
+    user = {}
+    user['level'] = record_file['data']['user']['timingLevel']
+    user['rank'] = record_file['data']['user']['timingRank']
+
+    return (get_result(board, action), user)
 
 async def from_post_id(post_id: int) -> str:
     # First get the record ID, then use the former function to analyze.
@@ -62,9 +76,10 @@ async def analyze(session: CommandSession):
     target_id = session.get('id')
     admire_person = session.get('admire_person')
     analyze_result = await get_analyze_result(mode, target_id)
-    await session.send(analyze_result)
+    await session.send(analyze_result[0])
 
     if admire_person:
+        await session.send(analyze_result[1])
         admire_message = get_admire_message(admire_person)
         await session.send(admire_message)
 
@@ -95,7 +110,7 @@ async def _(session: CommandSession):
         else:
             session.finish()
 
-async def get_analyze_result(mode: str, target_id: str) -> dict:
+async def get_analyze_result(mode: str, target_id: str) -> str:
     try:
         mode_ref = {'record': True, 'r': True, '录像': True, 'post': False, 'p': False, '帖子': False}
         target_id = int(target_id)
@@ -103,7 +118,7 @@ async def get_analyze_result(mode: str, target_id: str) -> dict:
             result = await from_record_id(target_id)
         else:
             result = await from_post_id(target_id)
-        return format_analyze_result(result)
+        return format_analyze_result(result[0]), format_user_result(result[1])
     except ConnectionError as e:
         logger.error(traceback.format_exc())
         return '无法查询到录像信息'    	
