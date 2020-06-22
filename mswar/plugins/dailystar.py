@@ -22,7 +22,7 @@ async def get_daily_star() -> str:
         t = t_new
         t_new = t_new.replace(' | ', '|').replace(' |', '|').replace('| ', '|') # more simplications
 
-    result = '每日一星:\n' + t.replace('    ', '\n').replace('   ', '\n').replace('  ', '\n').replace(' ↑', ' ↑').replace(' ↓', ' ↓').replace(' ', '\n').replace('　', '\n').replace('|', ' | ') # re-align
+    result = '每日一星:\n' + t.replace('    ', '\n').replace('   ', '\n').replace('  ', '\n').replace(' ↑', ' ↑').replace(' ↓', ' ↓').replace(' →', ' →').replace(' ', '\n').replace('　', '\n').replace('|', ' | ') # re-align
     return result
 
 @nonebot.scheduler.scheduled_job('cron', hour=0, minute=1, second=30, misfire_grace_time=30)
