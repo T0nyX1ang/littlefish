@@ -3,7 +3,7 @@ from nonebot.permission import SUPERUSER, GROUP
 from nonebot.message import MessageSegment
 import random
 
-def get_admire_message(person):
+def get_admire_message(person=''):
     exaggeration = [
         # ! (English exclaimation)
         '!',
