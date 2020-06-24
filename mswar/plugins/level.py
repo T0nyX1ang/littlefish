@@ -1,0 +1,43 @@
+from nonebot import on_command, CommandSession
+from nonebot.permission import SUPERUSER, GROUP
+from nonebot.log import logger
+from .core import fetch, is_online
+import nonebot
+
+async def get_user_level():
+    user_level_result = await fetch(page='/MineSweepingWar/rank/timing/level/count')
+    level_ref = {0: '-', 1: 'E', 2: 'D', 3: 'C', 4: 'B', 5: 'A', 6: 'S', 7: 'SS', 8: 'SSS', 9: '★', 10: '★★', -1: '雷帝'}
+    line = []
+    total = 0
+    for val in user_level_result['data']:
+        line.append('%s 级: %d 人' % (level_ref[val['level']], val['count']))
+        total += val['count']
+
+    line.reverse()
+    line.append('合计: %d 人' % total)
+
+    result_message = ''
+    for each_line in line:
+        result_message = result_message + each_line + '\n'
+    return result_message.strip()
+
+@on_command('level', aliases=('用户等级'), permission=SUPERUSER | GROUP, only_to_me=False)
+async def level(session: CommandSession):
+    if not is_online():
+        await session.send('账号处于离线状态，无法使用该功能')
+        return
+    user_level_info = await get_user_level()
+    await session.send(user_level_info)
+
+@nonebot.scheduler.scheduled_job('cron', day_of_week=0, hour=0, minute=0, second=0, misfire_grace_time=30)
+async def _():
+    if not is_online():
+        return
+    bot = nonebot.get_bot()
+    message = await get_user_level()
+    try:
+        groups = await bot.get_group_list() # boardcast to all groups
+        for each_group in groups:
+            await bot.send_group_msg(group_id=each_group['group_id'], message=message)
+    except Exception as e:
+        logger.error(traceback.format_exc())
