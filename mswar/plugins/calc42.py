@@ -66,7 +66,7 @@ def check_ordered_calc42_solvable(ordered_problem, ordered_operator):
             '+': lambda x, y: x + y,
             '-': lambda x, y: x - y,
             '*': lambda x, y: x * y,
-            '/': lambda x, y: x / y if abs(y) < 1e-6 else math.inf
+            '/': lambda x, y: x / y if abs(y) >= 1e-6 else math.inf
         }
         a, b, c, d, e = ordered_problem
         op1, op2, op3, op4 = ordered_operator
@@ -87,8 +87,8 @@ def check_ordered_calc42_solvable(ordered_problem, ordered_operator):
         f[12] = op_table[op3](op_table[op1](a, op_table[op2](b, c)), op_table[op4](d, e))
         f[13] = op_table[op3](op_table[op2](op_table[op1](a, b), c), op_table[op4](d, e))
 
-        for val in f:
-            if abs(val - 42) < 1e-6:
+        for i in range(0, len(f)):
+            if abs(f[i] - 42) < 1e-6:
                 return True
         return False
 
@@ -97,10 +97,24 @@ def check_ordered_calc42_solvable(ordered_problem, ordered_operator):
 
 def calc42_solvable(problem):
     for ordered_problem in itertools.permutations(problem):
-        for ordered_operator in itertools.combinations_with_replacement(['+', '-', '*', '/'], 4):
+        for ordered_operator in itertools.product(['+', '-', '*', '/'], repeat=4):
             if check_ordered_calc42_solvable(ordered_problem, ordered_operator):
                 return True
     return False
+
+def generate_problem():
+    random_numbers = [random.randint(0, 99) for _ in range(0, 5)]
+    problem = []
+    for val in random_numbers:
+        if val in range(0, 1):
+            problem.append(0)
+        elif val in range(1, 6):
+            problem.append(random.choice([1, 2]))
+        elif val in range(6, 36):
+            problem.append(random.choice([3, 4, 6, 7, 12]))
+        elif val in range(36, 100):
+            problem.append(random.choice([5, 8, 9, 10, 11, 13]))
+    return problem
 
 @on_command('calc42', aliases=('42点'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def calc42(session: CommandSession):
@@ -136,9 +150,9 @@ async def _():
     global CURRENT_42_PROBLEM_TIME
     bot = nonebot.get_bot()
 
-    problem = [random.randint(0, 13) for _ in range(0, 5)]
+    problem = generate_problem()
     while not calc42_solvable(problem):
-        problem = [random.randint(0, 13) for _ in range(0, 5)]
+        problem = generate_problem()
     CURRENT_42_PROBLEM = problem
 
     CURRENT_42_PROBLEM.sort()
