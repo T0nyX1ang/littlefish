@@ -13,7 +13,7 @@ async def dailystar(session: CommandSession):
 
 async def get_daily_star() -> str:
     r = requests.get('http://saolei.wang/Player/Star.asp') # request
-    p = r.content.decode('gb2312') # page
+    p = r.content.decode('gbk', errors='replace') # page
     b = bs4.BeautifulSoup(p, features='lxml') # structured page
 
     t = b.tr.text.replace('访问我的地盘', '').replace('给我发短消息', '').replace('\n', ' ').replace('\r', ' ').replace('\t', '').strip() # simplify
