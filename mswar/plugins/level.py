@@ -6,16 +6,14 @@ import nonebot
 
 async def get_user_level():
     user_level_result = await fetch(page='/MineSweepingWar/rank/timing/level/count')
-    level_ref = {0: '-', 1: 'E', 2: 'D', 3: 'C', 4: 'B', 5: 'A', 6: 'S', 7: 'SS', 8: 'SSS', 9: '★', 10: '★★', -1: '雷帝'}
-    line = []
+    level_ref = {0: '-', 1: 'E', 2: 'D', 3: 'C', 4: 'B', 5: 'A', 6: 'S', 7: 'SS', 8: 'SSS', 9: '★', 10: '★★'}
+    line = ['等级: 当前 | 合计']
     total = 0
+    data = user_level_result['data']
+    data.reverse()
     for val in user_level_result['data']:
-        line.append('%s 级: %d 人' % (level_ref[val['level']], val['count']))
         total += val['count']
-
-    line.reverse()
-    line.append('合计: %d 人' % total)
-
+        line.append('%s: %d | %d' % (level_ref[val['level']], val['count'], total))
     result_message = ''
     for each_line in line:
         result_message = result_message + each_line + '\n'
