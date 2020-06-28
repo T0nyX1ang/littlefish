@@ -30,7 +30,7 @@ async def from_post_id_with_user(post_id: int) -> str:
             fetched = True
         else:
             retries -= 1
-            time.sleep(0.5)
+            time.sleep(1)
     if retries == 0:
         raise ConnectionError('Unable to get record ID from post ID.')
     return result
