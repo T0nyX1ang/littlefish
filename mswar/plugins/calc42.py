@@ -84,7 +84,7 @@ async def _(session: CommandSession):
 
 @on_command('calc42help', aliases=('42点规则', '42点说明'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def calc42help(session: CommandSession):
-    message = '42点游戏规则(暂定): 每日8-23时的42分, 我会给出5个位于0至13之间的整数, 你需要将这五个整数(可以调换顺序)通过四则运算与括号相连, 使得结果等于42. 回答时以"calc42"或"42点"开头, 加入空格, 并给出算式.'
+    message = '42点游戏规则(暂定): 每日8-23时的42分42秒, 我会给出5个位于0至13之间的整数, 你需要将这五个整数(可以调换顺序)通过四则运算与括号相连, 使得结果等于42. 回答时以"calc42"或"42点"开头, 加入空格, 并给出算式.'
     example_message = '示例: (问题) 1 3 3 8 2, (正确的回答) calc42/42点 (1 + 3 + 3) / (8 - 2), (错误的回答) calc422^8!3&3=1.'
     await session.send(message + '\n' + example_message)
 
