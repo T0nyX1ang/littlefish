@@ -1,9 +1,13 @@
-from nonebot import on_command, CommandSession
+from nonebot import on_command, CommandSession, scheduler
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
 from urllib.parse import quote, unquote
+from apscheduler.triggers.date import DateTrigger
 from .core import fetch, is_online
 import traceback
+import datetime
+
+ID_COLDING_LIST = {}
 
 def format_number(number):
     if type(number) is int and number > 0:
@@ -40,13 +44,8 @@ def format_user_info(user_info):
         result_message = result_message + each_line + '\n'
     return result_message.strip()
 
-async def search_user(name, padding=True):
-    if padding:
-        # If you search user by id, then the user matched with corresponding id will come out
-        query = 'name=' + quote(' ' * 20 + name) + '&page=0&count=1'
-    else:
-        # If you search user by nickname, then the user matched with highest rank will come out
-        query = 'name=' + quote(name) + '&page=0&count=1'
+async def search_user(name):
+    query = 'name=' + quote(name) + '&page=0&count=1'
     result = await fetch(page='/MineSweepingWar/user/search', query=query)
     return result
 
@@ -60,16 +59,20 @@ async def get_user_home_info(uid):
     result = await fetch(page='/MineSweepingWar/user/home', query=query)
     return result
 
-async def get_user_info(search_result):
-    uid = search_result['uid']
+async def get_user_info(name):
+    search_result = await search_user(name)
+    if len(search_result['data']) == 0:
+        return {}
+    else:
+        uid = search_result['data'][0]['uid']
 
     # basic info
     user_info = {}
-    user_info['nickname'] = search_result['nickName']
-    user_info['sex'] = search_result['sex'] 
-    user_info['level'] = search_result['timingLevel']
-    user_info['rank'] = search_result['timingRank']
-    user_info['id'] = search_result['id']
+    user_info['nickname'] = search_result['data'][0]['nickName']
+    user_info['sex'] = search_result['data'][0]['sex'] 
+    user_info['level'] = search_result['data'][0]['timingLevel']
+    user_info['rank'] = search_result['data'][0]['timingRank']
+    user_info['id'] = search_result['data'][0]['id']
 
     # home info
     home_info_result = await get_user_home_info(uid)
@@ -116,65 +119,46 @@ async def get_user_info(search_result):
     else:
         user_info['stat']['beg_win_total'], user_info['stat']['int_win_total'], user_info['stat']['exp_win_total'] = 0, 0, 0
         user_info['stat']['beg_total'], user_info['stat']['int_total'], user_info['stat']['exp_total'] = 0, 0, 0
-        user_info['stat']['beg_win_rate'], user_info['stat']['int_win_rate'], user_info['stat']['exp_win_rate'] = 0.0, 0.0, 0.0     
+        user_info['stat']['beg_win_rate'], user_info['stat']['int_win_rate'], user_info['stat']['exp_win_rate'] = 0.0, 0.0, 0.0
     
-    user_info_message = format_user_info(user_info)
-    return user_info_message
+    return user_info
 
-@on_command('idsearch', aliases=('查询', '查找', 'id'), permission=SUPERUSER | GROUP, only_to_me=False)
-async def idsearch(session: CommandSession):
-    _id = session.get('id')
-    search_result = await get_user_info_by_id(_id)
-    await session.send(search_result)
+def remove_id_from_colding_list(group_id, user_id):
+    global ID_COLDING_LIST
+    if user_id in ID_COLDING_LIST[group_id]:
+        ID_COLDING_LIST[group_id].remove(user_id)
 
-@idsearch.args_parser
+@on_command('info', aliases=('查询', '查找', 'search', 'id', 'name'), permission=SUPERUSER | GROUP, only_to_me=False)
+async def info(session: CommandSession):
+    global ID_COLDING_LIST
+    if session.event['message_type'] == 'group':
+        group_id = session.event['group_id']
+        if group_id not in ID_COLDING_LIST:
+            ID_COLDING_LIST[group_id] = []
+        name = session.get('name')
+        user_info = await get_user_info(name)
+        if user_info:
+            searched_user_id = user_info['id']
+            if searched_user_id not in ID_COLDING_LIST[group_id]:
+                user_info_message = format_user_info(user_info)
+                await session.send(user_info_message)
+                ID_COLDING_LIST[group_id].append(searched_user_id)
+                
+                delta = datetime.timedelta(hours=1)
+                trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
+                scheduler.add_job(
+                    func=remove_id_from_colding_list,
+                    trigger=trigger,
+                    args=(group_id, searched_user_id),
+                    misfire_grace_time=30,
+                )
+        else:
+            await session.send('无法查找到该用户')
+
+@info.args_parser
 async def _(session: CommandSession):
     stripped_arg = session.current_arg_text.strip()
     if session.is_first_run:
-        if stripped_arg:
-            session.state['id'] = stripped_arg
-        else:
-            session.state['id'] = None
-        return
-
-async def get_user_info_by_id(_id: str) -> str: 
-    if not is_online():
-        return '账号处于离线状态，无法使用该功能'
-    try:
-        int(_id) # literal check for integer    
-        search_result = await search_user(_id)
-        user_info = await get_user_info(search_result['data'][0])
-        return user_info
-    except (TypeError, ValueError) as e:
-        logger.error(traceback.format_exc())
-        return '非法的ID输入'
-    except Exception as e:
-        logger.error(traceback.format_exc())
-        return '无法查找到该用户'
-
-@on_command('namesearch', aliases=('昵称', 'name', 'nickname'), permission=SUPERUSER | GROUP, only_to_me=False)
-async def namesearch(session: CommandSession):
-    nickname = session.get('nickname')
-    search_result = await get_user_info_by_nickname(nickname)
-    await session.send(search_result)
-
-@namesearch.args_parser
-async def _(session: CommandSession):
-    stripped_arg = session.current_arg_text.strip()
-    if session.is_first_run:
-        if stripped_arg:
-            session.state['nickname'] = stripped_arg
-        else:
-            session.state['nickname'] = ''
-        return
-
-async def get_user_info_by_nickname(nickname: str) -> str:  
-    if not is_online():
-        return '账号处于离线状态，无法使用该功能'
-    try:    
-        search_result = await search_user(nickname, padding=False)
-        user_info = await get_user_info(search_result['data'][0])
-        return user_info
-    except Exception as e:
-        logger.error(traceback.format_exc())
-        return '无法查找到该用户'
+        if stripped_arg and stripped_arg[0] == '%':
+            stripped_arg = ' ' * 20 + stripped_arg[1:]
+        session.state['name'] = stripped_arg
