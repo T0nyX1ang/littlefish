@@ -1,4 +1,4 @@
-from nonebot import on_natural_language, NLPSession, IntentCommand
+from nonebot import on_natural_language, NLPSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
 from urllib.parse import quote, unquote
