@@ -10,8 +10,8 @@ mswar-bot是一个基于NoneBot的异步IO机器人，用于扫雷联萌(原扫�
 + 雷网 13688 的[小喵](https://github.com/darknessgod/littlemeow/wiki/%E5%B0%8F%E5%96%B5%E4%BD%BF%E7%94%A8%E5%B8%AE%E5%8A%A9%EF%BC%88%E6%9C%80%E5%90%8E%E6%9B%B4%E6%96%B0%E4%BA%8E2020%E5%B9%B44%E6%9C%886%E6%97%A5%EF%BC%89)——本项目的灵感来源。
 + 众多大佬提出的相关意见。
 + 扫雷联萌萌主(开发者)夜夜通宵对项目的包容。
-+ CryptoFucker: 一款可以hook安卓应用加密方式和密码的Xposed插件。
-+ Fiddler: 用于网络抓包的软件。
-+ FDex2: 用于安卓应用的脱壳的Xposed插件。
-+ jadx: 用于dex形式文件的反编译软件。
-+ Genymotion (with adb): 运行安卓应用的虚拟机软件。
++ CryptoFucker：一款可以hook安卓应用加密方式和密码的Xposed插件。
++ Fiddler：用于网络抓包的软件。
++ FDex2：用于安卓应用的脱壳的Xposed插件。
++ jadx：用于dex形式文件的反编译软件。
++ Genymotion (with adb)：运行安卓应用的虚拟机软件。
