@@ -103,7 +103,7 @@ def get_action(action_detail):
         operation, row, column, current_time = each_action.split(':')
         split_action.append([int(operation), int(row), int(column), int(current_time)])
 
-    current, threshold = 0, 2
+    current, threshold = 0, 3
     while current < len(split_action):
         if split_action[current][0] == 2: # press key
             tag_row = split_action[current][1]
