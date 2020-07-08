@@ -333,8 +333,8 @@ async def _():
         groups = await bot.get_group_list() # boardcast to all groups
         for each_group in groups:
             group_id = each_group['group_id']
-            message = get_current_stats(group_id)
             CURRENT_42_PROBLEM_STARTED[group_id] = False
+            message = get_current_stats(group_id)
             await bot.send_group_msg(group_id=group_id, message=message)
     except Exception as e:
         logger.error(traceback.format_exc())
