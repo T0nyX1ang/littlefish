@@ -4,6 +4,7 @@ from nonebot.log import logger
 from nonebot.message import MessageSegment
 from fractions import Fraction
 from .admire import get_admire_message
+from .global_value import CURRENT_42_PROBLEM, CURRENT_42_PROBLEM_STARTED, CURRENT_42_PROBLEM_TIME, CURRENT_42_PROBLEM_PERSON_LIST, CURRENT_42_PROBLEM_VALID_LIST_ORIGINAL, CURRENT_42_PROBLEM_VALID_LIST_SIMPLIFIED
 import nonebot
 import random
 import ast
@@ -11,15 +12,6 @@ import time
 import math
 import itertools
 import traceback
-import hashlib
-
-CURRENT_42_PROBLEM = {}
-CURRENT_42_PROBLEM_STARTED = {}
-CURRENT_42_PROBLEM_TIME = {}
-CURRENT_42_PROBLEM_VALID_LIST = {}
-CURRENT_42_PROBLEM_VALID_LIST['original'] = {}
-CURRENT_42_PROBLEM_VALID_LIST['simplified'] = {}
-CURRENT_42_PROBLEM_PERSON_LIST = {}
 
 def expr_eval(node, simplified, orig_num):
     if isinstance(node, ast.BinOp):
@@ -101,11 +93,9 @@ def judge_equivalent(problem, expr_1, expr_2):
     return False
 
 def validate_calc42(math_expr, group_id):
-    global CURRENT_42_PROBLEM
-    global CURRENT_42_PROBLEM_VALID_LIST
 
     problem = CURRENT_42_PROBLEM[group_id]
-    valid_list = CURRENT_42_PROBLEM_VALID_LIST['simplified'][group_id]
+    valid_list = CURRENT_42_PROBLEM_VALID_LIST_SIMPLIFIED[group_id]
 
     try:
         math_expr = math_expr.replace(' ', '').replace('（','(').replace('）',')')
@@ -121,8 +111,8 @@ def validate_calc42(math_expr, group_id):
                     curr_expr = valid_list[ind]
                     if judge_equivalent(problem, simplified_expr, curr_expr):
                         return (ind + 1)
-                CURRENT_42_PROBLEM_VALID_LIST['simplified'][group_id].append(simplified_expr)
-                CURRENT_42_PROBLEM_VALID_LIST['original'][group_id].append(math_expr)
+                CURRENT_42_PROBLEM_VALID_LIST_SIMPLIFIED[group_id].append(simplified_expr)
+                CURRENT_42_PROBLEM_VALID_LIST_ORIGINAL[group_id].append(math_expr)
                 return 0
             elif math_expr_value != 42:
                 return -1
@@ -134,16 +124,8 @@ def validate_calc42(math_expr, group_id):
         logger.warning(traceback.format_exc())  
         return -3
 
-def convert_solution(group_id, index):
-    global CURRENT_42_PROBLEM_VALID_LIST
-    valid_expr = CURRENT_42_PROBLEM_VALID_LIST['original'][group_id][index]
-    return valid_expr
-
 @on_command('calc42', aliases=('42点'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def calc42(session: CommandSession):
-    global CURRENT_42_PROBLEM_TIME
-    global CURRENT_42_PROBLEM_VALID_LIST
-    global CURRENT_42_PROBLEM_STARTED
 
     if session.event['message_type'] == 'group':
         math_expr = session.get('math_expr')
@@ -156,14 +138,14 @@ async def calc42(session: CommandSession):
             if result == 0:
                 finish_time = time.time() - CURRENT_42_PROBLEM_TIME[group_id]
                 admire_message = get_admire_message()
-                message = MessageSegment.at(current_sender) + ' 恭喜完成第%d个解. 完成时间: %.3f秒, %s' % (len(CURRENT_42_PROBLEM_VALID_LIST['original'][group_id]), finish_time, admire_message)
+                message = MessageSegment.at(current_sender) + ' 恭喜完成第%d个解. 完成时间: %.3f秒, %s' % (len(CURRENT_42_PROBLEM_VALID_LIST_ORIGINAL[group_id]), finish_time, admire_message)
                 if current_sender in CURRENT_42_PROBLEM_PERSON_LIST[group_id]:
                     CURRENT_42_PROBLEM_PERSON_LIST[group_id][current_sender] += 1
                 else:
                     CURRENT_42_PROBLEM_PERSON_LIST[group_id][current_sender] = 1
                 await session.send(message)
             elif result > 0:
-                message = MessageSegment.at(current_sender) + ' 你的结果是正确的，但是与第%d个解[%s]重复了' % (result, convert_solution(group_id, result - 1))
+                message = MessageSegment.at(current_sender) + ' 你的结果是正确的，但是与第%d个解[%s]重复了' % (result, CURRENT_42_PROBLEM_VALID_LIST_ORIGINAL[group_id][result - 1])
                 await session.send(message)
             elif result == -1:
                 message = MessageSegment.at(current_sender) + ' 你的结果是错误的'
@@ -255,10 +237,6 @@ def generate_problem():
 
 @nonebot.scheduler.scheduled_job('cron', hour='8-23', minute=42, second=42, misfire_grace_time=30)
 async def _():
-    global CURRENT_42_PROBLEM
-    global CURRENT_42_PROBLEM_TIME
-    global CURRENT_42_PROBLEM_VALID_LIST
-    global CURRENT_42_PROBLEM_STARTED
     bot = nonebot.get_bot()
 
     try:
@@ -271,8 +249,8 @@ async def _():
             CURRENT_42_PROBLEM[group_id] = problem
             CURRENT_42_PROBLEM[group_id].sort()
             CURRENT_42_PROBLEM_TIME[group_id] = time.time()
-            CURRENT_42_PROBLEM_VALID_LIST['original'][group_id] = []
-            CURRENT_42_PROBLEM_VALID_LIST['simplified'][group_id] = []
+            CURRENT_42_PROBLEM_VALID_LIST_ORIGINAL[group_id] = []
+            CURRENT_42_PROBLEM_VALID_LIST_SIMPLIFIED[group_id] = []
             CURRENT_42_PROBLEM_PERSON_LIST[group_id] = {}
             CURRENT_42_PROBLEM_STARTED[group_id] = True
             message = '本次42点的题目为: %d %d %d %d %d' % (CURRENT_42_PROBLEM[group_id][0], 
@@ -285,11 +263,6 @@ async def _():
         logger.error(traceback.format_exc())
 
 def get_current_stats(group_id):
-    global CURRENT_42_PROBLEM
-    global CURRENT_42_PROBLEM_STARTED
-    global CURRENT_42_PROBLEM_VALID_LIST
-    global CURRENT_42_PROBLEM_PERSON_LIST
-
     line = []
     if group_id in CURRENT_42_PROBLEM and CURRENT_42_PROBLEM[group_id]:
         line.append('本次42点的题目为: %d %d %d %d %d' % (CURRENT_42_PROBLEM[group_id][0], 
@@ -297,16 +270,16 @@ def get_current_stats(group_id):
                                                         CURRENT_42_PROBLEM[group_id][2], 
                                                         CURRENT_42_PROBLEM[group_id][3], 
                                                         CURRENT_42_PROBLEM[group_id][4]))
-        if CURRENT_42_PROBLEM_VALID_LIST['original'][group_id]:
+        if CURRENT_42_PROBLEM_VALID_LIST_ORIGINAL[group_id]:
             line.append('有效求解:')
             total = 1
-            for valid_expr in CURRENT_42_PROBLEM_VALID_LIST['original'][group_id]:
+            for valid_expr in CURRENT_42_PROBLEM_VALID_LIST_ORIGINAL[group_id]:
                 line.append('[%d] %s' % (total, valid_expr))
                 total += 1
         else:
             line.append('当前暂无有效求解')
 
-        if len(CURRENT_42_PROBLEM_VALID_LIST['original'][group_id]) > 0 and not CURRENT_42_PROBLEM_STARTED[group_id]:
+        if len(CURRENT_42_PROBLEM_VALID_LIST_ORIGINAL[group_id]) > 0 and not CURRENT_42_PROBLEM_STARTED[group_id]:
             line.append('--- 本题统计 ---')
             ordered_person = sorted(CURRENT_42_PROBLEM_PERSON_LIST[group_id], key=CURRENT_42_PROBLEM_PERSON_LIST[group_id].get, reverse=True)
             for person in ordered_person:
@@ -320,7 +293,6 @@ def get_current_stats(group_id):
 
 @on_command('current42', aliases=('当前42点', '当前问题'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def current42(session: CommandSession):
-    global CURRENT_42_PROBLEM_STARTED
     group_id = session.event['group_id']
     current_sender = session.event['sender']['user_id']
     if group_id in CURRENT_42_PROBLEM_STARTED and CURRENT_42_PROBLEM_STARTED[group_id]:
@@ -329,7 +301,6 @@ async def current42(session: CommandSession):
 
 @nonebot.scheduler.scheduled_job('cron', hour='8-23', minute=59, second=59, misfire_grace_time=30)
 async def _():
-    global CURRENT_42_PROBLEM_STARTED
     bot = nonebot.get_bot()
     try:
         groups = await bot.get_group_list() # boardcast to all groups

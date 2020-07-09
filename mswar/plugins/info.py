@@ -4,10 +4,9 @@ from nonebot.log import logger
 from urllib.parse import quote, unquote
 from apscheduler.triggers.date import DateTrigger
 from .core import fetch, is_online
+from .global_value import * #CURRENT_ID_COLDING_LIST
 import traceback
 import datetime
-
-ID_COLDING_LIST = {}
 
 def format_number(number):
     if type(number) is int and number > 0:
@@ -124,25 +123,23 @@ async def get_user_info(name):
     return user_info
 
 def remove_id_from_colding_list(group_id, user_id):
-    global ID_COLDING_LIST
-    if user_id in ID_COLDING_LIST[group_id]:
-        ID_COLDING_LIST[group_id].remove(user_id)
+    if user_id in CURRENT_ID_COLDING_LIST[group_id]:
+        CURRENT_ID_COLDING_LIST[group_id].remove(user_id)
 
 @on_command('info', aliases=('查询', '查找', 'search', 'id', 'name'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def info(session: CommandSession):
-    global ID_COLDING_LIST
     if session.event['message_type'] == 'group':
         group_id = session.event['group_id']
-        if group_id not in ID_COLDING_LIST:
-            ID_COLDING_LIST[group_id] = []
+        if group_id not in CURRENT_ID_COLDING_LIST:
+            CURRENT_ID_COLDING_LIST[group_id] = []
         name = session.get('name')
         user_info = await get_user_info(name)
         if user_info:
             searched_user_id = user_info['id']
-            if searched_user_id not in ID_COLDING_LIST[group_id]:
+            if searched_user_id not in CURRENT_ID_COLDING_LIST[group_id]:
                 user_info_message = format_user_info(user_info)
                 await session.send(user_info_message)
-                ID_COLDING_LIST[group_id].append(searched_user_id)
+                CURRENT_ID_COLDING_LIST[group_id].append(searched_user_id)
                 
                 delta = datetime.timedelta(hours=1)
                 trigger = DateTrigger(run_date=datetime.datetime.now() + delta)

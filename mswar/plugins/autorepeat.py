@@ -1,10 +1,8 @@
 from nonebot import on_natural_language, NLPSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
+from .global_value import CURRENT_GROUP_MESSAGE, CURRENT_COMBO_COUNTER
 import traceback
-
-CURRENT_GROUP_MESSAGE = {}
-CURRENT_COMBO_COUNTER = {}
 
 @on_natural_language(permission=SUPERUSER | GROUP, only_short_message=False, only_to_me=False)
 async def _ (session: NLPSession):
