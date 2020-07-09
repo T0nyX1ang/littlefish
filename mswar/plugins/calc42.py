@@ -41,38 +41,36 @@ def expr_eval(node, simplified, orig_num):
             right = '(%s)' % (right)
 
         # calculation and concatenation
+        if lval == 0:
+            left = '0'
+        elif lval == 1:
+            left = '1'
+
+        if rval == 0:
+            right = '0'
+        elif rval == 1:
+            right = '1'
+
         result, new_simplified = None, None
         if isinstance(op, ast.Add):
-            if lval == 0:
-                left = '0'
-            if rval == 0:
-                right = '0'
             result, new_simplified = lval + rval, left + '+' + right
         elif isinstance(op, ast.Sub):
-            if lval == 0:
-                left = '0'
-            if rval == 0:
-                right = '0'
             result, new_simplified = lval - rval, left + '-' + right
         elif isinstance(op, ast.Mult):
-            if lval == 1:
-                left = '1'
-            if rval == 1:
-                right = '1'
             result, new_simplified = lval * rval, left + '*' + right
         elif isinstance(op, ast.Div) and rval != 0:
-            if lval == 1:
-                left = '1'
-            if rval == 1:
-                right = '1'
             result, new_simplified = lval / rval, left + '/' + right
+        elif isinstance(op, ast.Div) and rval == 0:
+            raise ZeroDivisionError('Division by 0.')
         else:
             raise SyntaxError('Only Add, Sub, Mult and Div operators are supported.')
+
         if result == 0:
             new_simplified = '0'
         elif result == 1:
             new_simplified = '1'
         return result, new_simplified, orig_num 
+
     elif isinstance(node, ast.Num):
         number = node.n
         if type(number) is not int:
@@ -94,8 +92,12 @@ def judge_equivalent(problem, expr_1, expr_2):
 
         expr_1_ast = ast.parse(expr_1, mode='eval')
         expr_2_ast = ast.parse(expr_2, mode='eval')
-        if expr_eval(expr_1_ast.body, '', [])[0] == expr_eval(expr_2_ast.body, '', [])[0]:
-            return True
+        try:
+            if expr_eval(expr_1_ast.body, '', [])[0] == expr_eval(expr_2_ast.body, '', [])[0]:
+                return True
+        except Exception as e:
+            logger.warning(traceback.format_exc())
+
     return False
 
 def validate_calc42(math_expr, group_id):
