@@ -3,7 +3,7 @@ from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
 from urllib.parse import quote, unquote
 from .analyze import from_record_id, format_analyze_result
-from .core import fetch, is_online
+from .core import fetch, is_enabled
 from .admire import get_admire_message
 import time
 import traceback
@@ -40,7 +40,7 @@ async def _(session: NLPSession):
     stripped_msg = session.msg.strip()
     keywords = stripped_msg.find('http://tapsss.com')
     start_seq = stripped_msg.find('post=')
-    if keywords == -1 or start_seq == -1 or not is_online():
+    if keywords == -1 or start_seq == -1 or not is_enabled(session.event):
         return
     current = start_seq + 5
     post_id = ''

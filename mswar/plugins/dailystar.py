@@ -1,6 +1,8 @@
 from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
+from .core import is_enabled
+from .global_value import CURRENT_ENABLED
 import nonebot
 import requests
 import bs4
@@ -8,6 +10,9 @@ import traceback
 
 @on_command('dailystar', aliases=('每日一星'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def dailystar(session: CommandSession):
+    if not is_enabled(session.event):
+        session.finish('小鱼睡着了zzz~')
+
     daily_star_info = await get_daily_star()
     await session.send(daily_star_info)
 
@@ -30,8 +35,7 @@ async def _():
     bot = nonebot.get_bot()
     message = await get_daily_star()
     try:
-        groups = await bot.get_group_list() # boardcast to all groups
-        for each_group in groups:
-            await bot.send_group_msg(group_id=each_group['group_id'], message=message)
+        for group_id in CURRENT_ENABLED:
+            await bot.send_group_msg(group_id=group_id, message=message)
     except Exception as e:
         logger.error(traceback.format_exc())

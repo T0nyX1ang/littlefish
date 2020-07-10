@@ -3,8 +3,8 @@ from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
 from urllib.parse import quote, unquote
 from apscheduler.triggers.date import DateTrigger
-from .core import fetch, is_online
-from .global_value import * #CURRENT_ID_COLDING_LIST
+from .core import fetch, is_enabled
+from .global_value import CURRENT_ID_COLDING_LIST
 import traceback
 import datetime
 
@@ -128,29 +128,31 @@ def remove_id_from_colding_list(group_id, user_id):
 
 @on_command('info', aliases=('查询', '查找', 'search', 'id', 'name'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def info(session: CommandSession):
-    if session.event['message_type'] == 'group':
-        group_id = session.event['group_id']
-        if group_id not in CURRENT_ID_COLDING_LIST:
-            CURRENT_ID_COLDING_LIST[group_id] = []
-        name = session.get('name')
-        user_info = await get_user_info(name)
-        if user_info:
-            searched_user_id = user_info['id']
-            if searched_user_id not in CURRENT_ID_COLDING_LIST[group_id]:
-                user_info_message = format_user_info(user_info)
-                await session.send(user_info_message)
-                CURRENT_ID_COLDING_LIST[group_id].append(searched_user_id)
-                
-                delta = datetime.timedelta(hours=1)
-                trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
-                scheduler.add_job(
-                    func=remove_id_from_colding_list,
-                    trigger=trigger,
-                    args=(group_id, searched_user_id),
-                    misfire_grace_time=30,
-                )
-        else:
-            await session.send('无法查找到该用户')
+    if not is_enabled(session.event):
+        session.finish('小鱼睡着了zzz~')
+        
+    group_id = session.event['group_id']
+    if group_id not in CURRENT_ID_COLDING_LIST:
+        CURRENT_ID_COLDING_LIST[group_id] = []
+    name = session.get('name')
+    user_info = await get_user_info(name)
+    if user_info:
+        searched_user_id = user_info['id']
+        if searched_user_id not in CURRENT_ID_COLDING_LIST[group_id]:
+            user_info_message = format_user_info(user_info)
+            await session.send(user_info_message)
+            CURRENT_ID_COLDING_LIST[group_id].append(searched_user_id)
+            
+            delta = datetime.timedelta(hours=1)
+            trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
+            scheduler.add_job(
+                func=remove_id_from_colding_list,
+                trigger=trigger,
+                args=(group_id, searched_user_id),
+                misfire_grace_time=30,
+            )
+    else:
+        await session.send('无法查找到该用户')
 
 @info.args_parser
 async def _(session: CommandSession):

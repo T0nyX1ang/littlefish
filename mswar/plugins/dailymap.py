@@ -1,8 +1,9 @@
 from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
-from .core import fetch, is_online
+from .core import fetch, is_enabled
 from .mswar import get_board, get_board_result
+from .global_value import CURRENT_ENABLED
 import nonebot
 import math
 import traceback
@@ -36,23 +37,20 @@ async def get_daily_map() -> str:
 
 @on_command('dailymap', aliases=('每日一图'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def dailymap(session: CommandSession):
-    if not is_online():
-        await session.send('账号处于离线状态，无法使用该功能')
-        return
+    if not is_enabled(session.event):
+        session.finish('小鱼睡着了zzz~')
+
     daily_map_info = await get_daily_map()
     daily_map_message = format_daily_map(daily_map_info)
     await session.send(format_daily_map(daily_map_info))
 
 @nonebot.scheduler.scheduled_job('cron', hour=0, minute=3, second=0, misfire_grace_time=30)
 async def _():
-    if not is_online():
-        return
     bot = nonebot.get_bot()
     daily_map = await get_daily_map()
     message = format_daily_map(daily_map)
     try:
-        groups = await bot.get_group_list() # boardcast to all groups
-        for each_group in groups:
-            await bot.send_group_msg(group_id=each_group['group_id'], message=message)
+        for group_id in CURRENT_ENABLED:
+            await bot.send_group_msg(group_id=group_id, message=message)
     except Exception as e:
         logger.error(traceback.format_exc())

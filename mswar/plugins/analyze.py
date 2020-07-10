@@ -1,7 +1,7 @@
 from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
-from .core import fetch, is_online
+from .core import fetch, is_enabled
 from .mswar import get_board, get_action, get_result
 from base64 import b64decode
 import gzip
@@ -40,11 +40,23 @@ async def from_post_id(post_id: int) -> str:
     result = await from_record_id(record_result['data']['recordId'])
     return result
 
+async def get_analyze_result(mode: str, target_id: str) -> str:
+    try:
+        mode_ref = {'record': True, 'r': True, '录像': True, 'post': False, 'p': False, '帖子': False}
+        target_id = int(target_id)
+        if mode_ref[mode]:
+            result = await from_record_id(target_id)
+        else:
+            result = await from_post_id(target_id)
+        return format_analyze_result(result)
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        return '无法查询到录像信息'
+
 @on_command('analyze', aliases=('分析'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def analyze(session: CommandSession):
-    if not is_online():
-        await session.send('账号处于离线状态，无法使用该功能')
-        return 
+    if not is_enabled(session.event):
+        session.finish('小鱼睡着了zzz~')
     mode = session.get('mode')
     target_id = session.get('id')
     analyze_result = await get_analyze_result(mode, target_id)
@@ -68,16 +80,3 @@ async def _(session: CommandSession):
                 session.finish('不正确的参数数目')
         else:
             session.finish()
-
-async def get_analyze_result(mode: str, target_id: str) -> str:
-    try:
-        mode_ref = {'record': True, 'r': True, '录像': True, 'post': False, 'p': False, '帖子': False}
-        target_id = int(target_id)
-        if mode_ref[mode]:
-            result = await from_record_id(target_id)
-        else:
-            result = await from_post_id(target_id)
-        return format_analyze_result(result)
-    except Exception as e:
-        logger.error(traceback.format_exc())
-        return '无法查询到录像信息'

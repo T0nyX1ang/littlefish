@@ -2,7 +2,7 @@ from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
 from urllib.parse import quote, unquote
-from .core import fetch, is_online
+from .core import fetch, is_enabled
 import traceback
 
 async def get_classic_rank(_type=0, begin=1, end=10, mode=-1, level=4):
@@ -66,6 +66,9 @@ async def get_advance_rank():
 
 @on_command('ranking', aliases=('排名', 'rank'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def ranking(session: CommandSession):
+    if not is_enabled(session.event):
+        session.finish('小鱼睡着了zzz~')
+
     _type = session.get('type')
     begin = session.get('begin')
     end = session.get('end')
@@ -107,8 +110,6 @@ async def _(session: CommandSession):
         return
 
 async def get_rank(_type: str, begin: str, end: str, mode: str, level: str) -> str: 
-    if not is_online():
-        return '账号处于离线状态，无法使用该功能'
     try:
         type_ref = {'time': 0, '时间': 0, 't': 0, 
                     'bvs': 1, '3bvs': 1, 'b': 1, 

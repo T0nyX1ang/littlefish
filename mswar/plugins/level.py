@@ -1,7 +1,8 @@
 from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
-from .core import fetch, is_online
+from .core import fetch, is_enabled
+from .global_value import CURRENT_ENABLED
 import nonebot
 
 async def get_user_level():
@@ -21,9 +22,9 @@ async def get_user_level():
 
 @on_command('level', aliases=('用户等级'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def level(session: CommandSession):
-    if not is_online():
-        await session.send('账号处于离线状态，无法使用该功能')
-        return
+    if not is_enabled(session.event):
+        session.finish('小鱼睡着了zzz~')
+
     user_level_info = await get_user_level()
     await session.send(user_level_info)
 
@@ -35,7 +36,7 @@ async def _():
     message = await get_user_level()
     try:
         groups = await bot.get_group_list() # boardcast to all groups
-        for each_group in groups:
-            await bot.send_group_msg(group_id=each_group['group_id'], message=message)
+        for group_id in CURRENT_ENABLED:
+            await bot.send_group_msg(group_id=group_id, message=message)
     except Exception as e:
         logger.error(traceback.format_exc())

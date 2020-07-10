@@ -1,6 +1,7 @@
 from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.message import MessageSegment
+from .core import is_enabled
 import random
 
 def get_admire_message(person=''):
@@ -35,6 +36,8 @@ def get_admire_message(person=''):
 
 @on_command('praise', aliases=('膜', '膜拜'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def praise(session: CommandSession):
+    if not is_enabled(session.event):
+        session.finish('小鱼睡着了zzz~')
     person = session.get('person')
     admire_message = get_admire_message(person)
     await session.send(admire_message)
@@ -51,6 +54,8 @@ async def _(session: CommandSession):
 
 @on_command('admire', aliases=('狂膜'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def admire(session: CommandSession):
+    if not is_enabled(session.event):
+        session.finish('小鱼睡着了zzz~')    
     person = session.get('person')
     admire_message = get_admire_message(person)
     for i in range(0, 2):
