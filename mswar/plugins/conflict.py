@@ -11,8 +11,6 @@ async def conflict(session: CommandSession):
         session.finish()
 
     group_id = session.event['group_id']
-    if group_id not in CURRENT_CONFLICT_COUNTER:
-        CURRENT_CONFLICT_COUNTER[group_id] = 0
     if CURRENT_CONFLICT_COUNTER[group_id] < 5:
         CURRENT_CONFLICT_COUNTER[group_id] += 1
         await session.send('小爆')
