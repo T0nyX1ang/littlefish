@@ -30,13 +30,11 @@ async def level(session: CommandSession):
 
 @nonebot.scheduler.scheduled_job('cron', day_of_week=0, hour=0, minute=0, second=0, misfire_grace_time=30)
 async def _():
-    if not is_online():
-        return
     bot = nonebot.get_bot()
     message = await get_user_level()
     try:
-        groups = await bot.get_group_list() # boardcast to all groups
-        for group_id in CURRENT_ENABLED:
-            await bot.send_group_msg(group_id=group_id, message=message)
+        for group_id in CURRENT_ENABLED.keys():
+            if CURRENT_ENABLED[group_id]:
+                await bot.send_group_msg(group_id=group_id, message=message)
     except Exception as e:
         logger.error(traceback.format_exc())

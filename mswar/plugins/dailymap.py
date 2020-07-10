@@ -50,7 +50,8 @@ async def _():
     daily_map = await get_daily_map()
     message = format_daily_map(daily_map)
     try:
-        for group_id in CURRENT_ENABLED:
-            await bot.send_group_msg(group_id=group_id, message=message)
+        for group_id in CURRENT_ENABLED.keys():
+            if CURRENT_ENABLED[group_id]:
+                await bot.send_group_msg(group_id=group_id, message=message)
     except Exception as e:
         logger.error(traceback.format_exc())
