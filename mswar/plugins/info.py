@@ -132,8 +132,6 @@ async def info(session: CommandSession):
         session.finish('小鱼睡着了zzz~')
         
     group_id = session.event['group_id']
-    if group_id not in CURRENT_ID_COLDING_LIST:
-        CURRENT_ID_COLDING_LIST[group_id] = []
     name = session.get('name')
     user_info = await get_user_info(name)
     if user_info:
