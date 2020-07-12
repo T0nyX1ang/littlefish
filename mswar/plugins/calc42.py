@@ -6,6 +6,7 @@ from fractions import Fraction
 from .admire import get_admire_message
 from .core import is_enabled
 from .global_value import CURRENT_ENABLED, CURRENT_42_PROBLEM, CURRENT_42_PROBLEM_STARTED, CURRENT_42_PROBLEM_TIME, CURRENT_42_PROBLEM_PERSON_LIST, CURRENT_42_PROBLEM_VALID_LIST_ORIGINAL, CURRENT_42_PROBLEM_VALID_LIST_SIMPLIFIED
+from .database import DATABASE_42
 import nonebot
 import random
 import ast
@@ -107,7 +108,7 @@ def validate_calc42(math_expr, group_id):
         expr_ast = ast.parse(math_expr, mode='eval')
         if isinstance(expr_ast, ast.Expression):
             math_expr_value, simplified_expr, user_input_numbers = expr_eval(expr_ast.body, '', [])
-            if math_expr_value == 42 and sorted(user_input_numbers) == problem:
+            if math_expr_value == 42 and tuple(sorted(user_input_numbers)) == problem:
                 for ind in range(0, len(valid_list)):
                     curr_expr = valid_list[ind]
                     if judge_equivalent(problem, simplified_expr, curr_expr):
@@ -125,60 +126,9 @@ def validate_calc42(math_expr, group_id):
         logger.warning(traceback.format_exc())  
         return -3
 
-def check_ordered_calc42_solvable(ordered_problem, ordered_operator):
-    try:
-        op_table = {
-            '+': lambda x, y: x + y,
-            '-': lambda x, y: x - y,
-            '*': lambda x, y: x * y,
-            '/': lambda x, y: x / y if abs(y) >= 1e-6 else math.inf
-        }
-        a, b, c, d, e = ordered_problem
-        op1, op2, op3, op4 = ordered_operator
-
-        f = [0.0] * 14
-        f[0]  = op_table[op4](op_table[op3](op_table[op2](op_table[op1](a, b), c), d), e)
-        f[1]  = op_table[op4](op_table[op2](op_table[op1](a, b), op_table[op3](c, d)) ,e)
-        f[2]  = op_table[op4](op_table[op3](op_table[op1](a, op_table[op2](b, c)), d), e)
-        f[3]  = op_table[op4](op_table[op1](a, op_table[op2](op_table[op3](b, c), d)), e)
-        f[4]  = op_table[op4](op_table[op1](a, op_table[op2](b, op_table[op3](c, d))), e)
-        f[5]  = op_table[op1](a, op_table[op4](op_table[op3](op_table[op2](b, c), d), e))
-        f[6]  = op_table[op1](a, op_table[op3](op_table[op2](b, c), op_table[op4](d, e)))
-        f[7]  = op_table[op1](a, op_table[op4](op_table[op2](b, op_table[op3](c, d)), e))
-        f[8]  = op_table[op1](a, op_table[op2](b, op_table[op4](op_table[op3](c, d), e)))
-        f[9]  = op_table[op1](a, op_table[op2](b, op_table[op3](c, op_table[op4](d, e))))
-        f[10] = op_table[op2](op_table[op1](a, b), op_table[op4](op_table[op3](c, d), e))
-        f[11] = op_table[op2](op_table[op1](a, b), op_table[op3](c, op_table[op4](d, e)))
-        f[12] = op_table[op3](op_table[op1](a, op_table[op2](b, c)), op_table[op4](d, e))
-        f[13] = op_table[op3](op_table[op2](op_table[op1](a, b), c), op_table[op4](d, e))
-
-        for i in range(0, len(f)):
-            if abs(f[i] - 42) < 1e-6:
-                return True
-        return False
-
-    except Exception as e:
-        return False
-
-def calc42_solvable(problem):
-    for ordered_problem in itertools.permutations(problem):
-        for ordered_operator in itertools.product(['+', '-', '*', '/'], repeat=4):
-            if check_ordered_calc42_solvable(ordered_problem, ordered_operator):
-                return True
-    return False
-
 def generate_problem():
-    random_numbers = [random.randint(0, 99) for _ in range(0, 5)]
-    problem = []
-    for val in random_numbers:
-        if val in range(0, 1):
-            problem.append(0)
-        elif val in range(1, 8):
-            problem.append(random.choice([1, 2]))
-        elif val in range(8, 41):
-            problem.append(random.choice([3, 4, 6, 7, 12]))
-        elif val in range(41, 100):
-            problem.append(random.choice([5, 8, 9, 10, 11, 13]))
+    problem_list = [k for k in DATABASE_42.keys() if DATABASE_42[k] >= 3]
+    problem = random.choice(problem_list)
     return problem
 
 def get_current_stats(group_id, stats=False):
@@ -200,6 +150,7 @@ def get_current_stats(group_id, stats=False):
 
         if stats:
             line.append('--- 本题统计 ---')
+            line.append('求解完成度: %d/%d' % (len(CURRENT_42_PROBLEM_VALID_LIST_ORIGINAL[group_id]), DATABASE_42[CURRENT_42_PROBLEM[group_id]]))
             ordered_person = sorted(CURRENT_42_PROBLEM_PERSON_LIST[group_id], key=CURRENT_42_PROBLEM_PERSON_LIST[group_id].get, reverse=True)
             for person in ordered_person:
                 line.append(str(MessageSegment.at(person)) + ' 完成%d个解' % (CURRENT_42_PROBLEM_PERSON_LIST[group_id][person]))
@@ -289,12 +240,9 @@ async def _():
 
     try:
         for group_id in CURRENT_ENABLED.keys():
-            if CURRENT_ENABLED[group_id]:
+            if CURRENT_ENABLED[group_id] and not CURRENT_42_PROBLEM_STARTED[group_id]:
                 problem = generate_problem()
-                while not calc42_solvable(problem):
-                    problem = generate_problem()
                 CURRENT_42_PROBLEM[group_id] = problem
-                CURRENT_42_PROBLEM[group_id].sort()
                 CURRENT_42_PROBLEM_TIME[group_id] = time.time()
                 CURRENT_42_PROBLEM_VALID_LIST_ORIGINAL[group_id] = []
                 CURRENT_42_PROBLEM_VALID_LIST_SIMPLIFIED[group_id] = []
