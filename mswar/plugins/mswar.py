@@ -105,15 +105,11 @@ def get_action(action_detail):
 
     current, threshold = 0, 3
     while current < len(split_action):
-        if split_action[current][0] == 2: # press key
+        # find out the release key
+        if (split_action[current][0] == 3):
             tag_row = split_action[current][1]
             tag_col = split_action[current][2]
-            
-            # find out the release key
-            release = current + 1
-            while release < len(split_action) and (split_action[release][0] != 3 or split_action[release][1] != tag_row or split_action[release][2] != tag_col):
-                release += 1
-
+            release = current
             # find out the assurance final key
             if release < len(split_action):
                 final = release + 1
@@ -127,7 +123,6 @@ def get_action(action_detail):
                         final -= 1
                     if final >= 0 and (split_action[release][3] - split_action[final][3] <= threshold):
                         split_action[final][0] = 4
-
         current += 1
     return split_action
 
