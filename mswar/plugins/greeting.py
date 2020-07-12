@@ -23,10 +23,12 @@ def get_greeting_message():
         return '下午好鸭~'
     elif current_hour in [17, 18]:
         return '晚饭吃了吗，吃饱了才有力气破pb~'
-    elif current_hour in [19, 20, 21, 22]:
+    elif current_hour in [19, 20, 21]:
         return '晚上好鸭~'
-    elif current_hour in [23, 0]:
+    elif current_hour in [22, 23]:
         return '晚安，明天也要努力破pb~'
+    elif current_hour in [0]:
+        return '晚安，今天也要努力破pb~'
 
 @on_command('greeting', aliases=('小鱼', 'mswar-bot'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def greeting(session: CommandSession):
