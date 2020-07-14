@@ -79,19 +79,20 @@ def expr_eval(node, simplified, orig_num):
         raise SyntaxError('Only binary operators are supported.')
 
 def judge_equivalent(problem, expr_1, expr_2):
-    for _ in range(0, 10):
+    count = 10
+    random_number = random.sample(range(50000, 100000), len(problem) * count)
+    for current in range(0, count):
         temp_expr_1, temp_expr_2 = expr_1, expr_2
-        for val in problem:
-            random_number = random.randint(50000, 99999)
-            temp_expr_1 = temp_expr_1.replace(chr(val + 97), str(random_number))
-            temp_expr_2 = temp_expr_2.replace(chr(val + 97), str(random_number))
+        for i in range(0, len(problem)):
+            temp_expr_1 = temp_expr_1.replace(chr(problem[i] + 97), str(random_number[i + current * len(problem)]))
+            temp_expr_2 = temp_expr_2.replace(chr(problem[i] + 97), str(random_number[i + current * len(problem)]))
         try:
-            diff = eval(temp_expr_1) - eval(temp_expr_2)
-            if abs(diff) < 1e-6:
+            temp_ast_1 = ast.parse(temp_expr_1, mode='eval').body
+            temp_ast_2 = ast.parse(temp_expr_2, mode='eval').body
+            if expr_eval(temp_ast_1, '', [])[0] == expr_eval(temp_ast_2, '', [])[0]:
                 return True
         except Exception as e:
-            logger.warning(traceback.format_exc())
-
+            print(e, expr_1, temp_expr_1, expr_2, temp_expr_2)
     return False
 
 def validate_calc42(math_expr, group_id):
