@@ -166,9 +166,9 @@ async def finish_game(group_id):
     bot = nonebot.get_bot()
     try:
         if CURRENT_42_PROBLEM_STARTED[group_id]:
+            CURRENT_42_PROBLEM_STARTED[group_id] = False
             message = get_current_stats(group_id, stats=True)
             await bot.send_group_msg(group_id=group_id, message=message)
-            CURRENT_42_PROBLEM_STARTED[group_id] = False
 
             if CURRENT_42_LEADER[group_id] > 0:
                 winner_id = CURRENT_42_LEADER[group_id] 
@@ -286,7 +286,6 @@ async def _():
                 CURRENT_42_PROBLEM_VALID_LIST_ORIGINAL[group_id] = []
                 CURRENT_42_PROBLEM_VALID_LIST_SIMPLIFIED[group_id] = []
                 CURRENT_42_PROBLEM_PERSON_LIST[group_id] = {}
-                CURRENT_42_PROBLEM_STARTED[group_id] = True
                 CURRENT_42_LEADER[group_id] = -1
                 message = '本次42点的题目为: %d %d %d %d %d' % (CURRENT_42_PROBLEM[group_id][0], 
                                                                CURRENT_42_PROBLEM[group_id][1], 
@@ -304,6 +303,8 @@ async def _():
                     misfire_grace_time=30,
                     id=str(group_id),
                 )
+
+                CURRENT_42_PROBLEM_STARTED[group_id] = True
 
     except Exception as e:
         logger.error(traceback.format_exc())
