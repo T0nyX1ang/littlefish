@@ -109,25 +109,25 @@ async def calc42(session: CommandSession):
                 await finish_game(group_id)
         except FTPtsGameError as ge:
             errno, hint = ge.get_details()
+            message = ''
             if errno // 16 == 0:
-                pass
+                return
             elif errno == 0x10:
-                message = '格式错误[待识别的公式过长]'
+                message = '公式过长'
             elif errno == 0x11:
-                message = '格式错误[公式无法被解析]'
+                message = '公式错误'
             elif errno == 0x12:
-                message = '格式错误[不支持的运算符]'
+                message = '符号错误'
             elif errno == 0x13:
-                message = '格式错误[被除数为0]'
+                message = '被除数为0'
             elif errno == 0x14:
-                message = '格式错误[输入非正整数]'
+                message = '数字错误'
             elif errno == 0x15:
-                message = '格式错误[使用数字与题目不一致]'
+                message = '数字错误'
             elif errno == 0x20:
                 message = '答案错误[%s]' % (str(hint))
             elif errno == 0x21:
                 message = '答案与[%s]重复' % (str(hint))
-            message = MessageSegment.at(current_sender) + ' %s' % (message)
             await session.send(message)
         except Exception as e:
             logger.error(traceback.format_exc())
