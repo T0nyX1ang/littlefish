@@ -1,5 +1,5 @@
 nonebot[scheduler]==1.6.0
-42Points==1.0.3
+42Points==1.0.4
 requests>=2.21.0
 keyring>=20.0.1
 pycryptodome>=3.9.6
