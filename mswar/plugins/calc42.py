@@ -100,8 +100,8 @@ async def calc42(session: CommandSession):
         try:
             elapsed = CURRENT_42_APP[group_id].solve(math_expr)
             admire_message = get_admire_message()
-            finish_time = 86400 * elapsed.days + elapsed.seconds + round(elapsed.microseconds / 1000000, 3)
-            message = MessageSegment.at(current_sender) + ' 恭喜完成第%d个解. 完成时间: %s秒, %s' % (CURRENT_42_APP[group_id].get_current_solution_number(), finish_time, admire_message)
+            finish_time = 86400 * elapsed.days + elapsed.seconds + elapsed.microseconds / 1000000
+            message = MessageSegment.at(current_sender) + ' 恭喜完成第%d个解. 完成时间: %.3f秒, %s' % (CURRENT_42_APP[group_id].get_current_solution_number(), finish_time, admire_message)
             CURRENT_42_LEADER[group_id] = current_sender
 
             if current_sender in CURRENT_42_PROBLEM_PERSON_LIST[group_id]:
