@@ -8,6 +8,24 @@ import requests
 import bs4
 import traceback
 
+@on_command('saolei', aliases=('雷网'), permission=SUPERUSER | GROUP, only_to_me=False)
+async def saolei(session: CommandSession):
+    if not is_enabled(session.event):
+        session.finish('小鱼睡着了zzz~')
+
+    saolei_id = session.get('saolei_id')
+    if saolei_id:
+        await session.send('http://saolei.wang/Player/Index.asp?Id=%s' % (saolei_id))
+
+@saolei.args_parser
+async def _(session: CommandSession):
+    stripped_arg = session.current_arg_text.strip()
+    if session.is_first_run:
+        if stripped_arg:
+            session.state['saolei_id'] = stripped_arg
+        else:
+            session.finish()
+
 @on_command('dailystar', aliases=('每日一星'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def dailystar(session: CommandSession):
     if not is_enabled(session.event):
