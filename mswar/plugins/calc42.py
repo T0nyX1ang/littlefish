@@ -3,20 +3,39 @@ from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
 from nonebot.message import MessageSegment
 from apscheduler.triggers.date import DateTrigger
-from fractions import Fraction
+from ftptsgame.exceptions import FTPtsGameError
 from .admire import get_admire_message
 from .core import is_enabled
 from .global_value import CURRENT_ENABLED, CURRENT_42_APP, CURRENT_42_PROBLEM_TIME, CURRENT_42_LEADER, CURRENT_42_PROBLEM_PERSON_LIST
 import nonebot
-import random
 import time
 import datetime
-import itertools
 import traceback
 
+def print_current_problem(group_id):
+    a, b, c, d, e = CURRENT_42_APP[group_id].get_current_problem()
+    message = '本次42点的题目为: %d %d %d %d %d' % (a, b, c, d, e)
+    return message
+
+def print_current_solutions(group_id):
+    current_solutions = CURRENT_42_APP[group_id].get_current_solutions()
+    line = []
+    if len(current_solutions) > 0:
+        line.append('有效求解:')
+        total = 1
+        for valid_expr in current_solutions:
+            line.append('[%d] %s' % (total, valid_expr))
+            total += 1
+    else:
+        line.append('当前暂无有效求解')
+    message = ''
+    for each_line in line:
+        message = message + each_line + '\n'
+    return message.strip()
+
 def get_current_stats(group_id, show_result=False):
-    problem_message = CURRENT_42_APP[group_id].get_current_problem()
-    solution_message = CURRENT_42_APP[group_id].get_current_solved()
+    problem_message = print_current_problem(group_id)
+    solution_message = print_current_solutions(group_id)
     result_message = ''
 
     if show_result:
@@ -37,8 +56,8 @@ async def finish_game(group_id):
     bot = nonebot.get_bot()
     try:
         if CURRENT_42_APP[group_id].is_playing():
-            CURRENT_42_APP[group_id].stop()
             message = get_current_stats(group_id, show_result=True)
+            CURRENT_42_APP[group_id].stop()
             await bot.send_group_msg(group_id=group_id, message=message)
 
             if CURRENT_42_LEADER[group_id] > 0:
@@ -46,7 +65,7 @@ async def finish_game(group_id):
                 winning_message = MessageSegment.at(winner_id) + ' 恭喜取得本次42点接力赛胜利, ' + get_admire_message()
                 await bot.send_group_msg(group_id=group_id, message=winning_message)
     except Exception as e:
-        logger.error(traceback.format_exc())    
+        logger.error(traceback.format_exc())
 
 @on_command('calc42', aliases=('42点'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def calc42(session: CommandSession):
@@ -58,7 +77,6 @@ async def calc42(session: CommandSession):
     group_id = session.event['group_id']
 
     if CURRENT_42_APP[group_id].is_playing():
-
         try:
             CURRENT_42_APP[group_id].solve(math_expr)
             finish_time = time.time() - CURRENT_42_PROBLEM_TIME[group_id]
@@ -85,13 +103,34 @@ async def calc42(session: CommandSession):
                     trigger=trigger,
                     args=(group_id, ),
                     misfire_grace_time=30,
-                    id=str(group_id), 
+                    id=str(group_id),
                 )
             else:
                 await finish_game(group_id)
-        except Exception as e:
-            message = MessageSegment.at(current_sender) + ' %s' % (str(e))
+        except FTPtsGameError as ge:
+            errno, hint = ge.get_details()
+            if errno // 16 == 0:
+                pass
+            elif errno == 0x10:
+                message = '格式错误[待识别的公式过长]'
+            elif errno == 0x11:
+                message = '格式错误[公式无法被解析]'
+            elif errno == 0x12:
+                message = '格式错误[不支持的运算符]'
+            elif errno == 0x13:
+                message = '格式错误[被除数为0]'
+            elif errno == 0x14:
+                message = '格式错误[输入非正整数]'
+            elif errno == 0x15:
+                message = '格式错误[使用数字与题目不一致]'
+            elif errno == 0x20:
+                message = '答案错误[%s]' % (str(hint))
+            elif errno == 0x21:
+                message = '答案与[%s]重复' % (str(hint))
+            message = MessageSegment.at(current_sender) + ' %s' % (message)
             await session.send(message)
+        except Exception as e:
+            logger.error(traceback.format_exc())
 
 @calc42.args_parser
 async def _(session: CommandSession):
@@ -143,9 +182,9 @@ async def _():
                 CURRENT_42_PROBLEM_TIME[group_id] = time.time()
                 CURRENT_42_PROBLEM_PERSON_LIST[group_id] = {}
                 CURRENT_42_LEADER[group_id] = -1
-                CURRENT_42_APP[group_id].start(3, 100)
-                message = CURRENT_42_APP[group_id].get_current_problem()
-                
+                CURRENT_42_APP[group_id].generate_problem('database')
+                CURRENT_42_APP[group_id].start()
+                message = print_current_problem(group_id)
                 delta = datetime.timedelta(minutes=20)
                 trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
                 scheduler.add_job(
