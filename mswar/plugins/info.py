@@ -137,10 +137,9 @@ async def info(session: CommandSession):
     if user_info:
         searched_user_id = user_info['id']
         if searched_user_id not in CURRENT_ID_COLDING_LIST[group_id]:
+            CURRENT_ID_COLDING_LIST[group_id].append(searched_user_id)
             user_info_message = format_user_info(user_info)
             await session.send(user_info_message)
-            CURRENT_ID_COLDING_LIST[group_id].append(searched_user_id)
-            
             delta = datetime.timedelta(hours=1)
             trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
             scheduler.add_job(
