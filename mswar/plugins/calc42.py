@@ -6,9 +6,8 @@ from apscheduler.triggers.date import DateTrigger
 from ftptsgame.exceptions import FTPtsGameError
 from .admire import get_admire_message
 from .core import is_enabled
-from .global_value import CURRENT_ENABLED, CURRENT_42_APP, CURRENT_42_PROBLEM_TIME, CURRENT_42_LEADER, CURRENT_42_PROBLEM_PERSON_LIST
+from .global_value import CURRENT_ENABLED, CURRENT_42_APP, CURRENT_42_LEADER, CURRENT_42_PROBLEM_PERSON_LIST
 import nonebot
-import time
 import datetime
 import traceback
 
@@ -48,9 +47,30 @@ def get_current_stats(group_id, show_result=False):
 
         for each_line in line:
             result_message = result_message + each_line + '\n'
+    else:
+        elapsed = CURRENT_42_APP[group_id].get_elapsed_time().seconds
+        left = 100 + 20 * CURRENT_42_APP[group_id].get_current_solution_number() - elapsed if CURRENT_42_APP[group_id].get_current_solution_number() else 1200 - CURRENT_42_APP[group_id].get_elapsed_time().seconds
+        result_message = '剩余%d秒，冲鸭~' % (left)
 
     stat_message = problem_message + '\n' + solution_message + '\n' + result_message
     return stat_message.strip()
+
+async def ready_finish_game(group_id):
+    bot = nonebot.get_bot()
+    try:
+        if CURRENT_42_APP[group_id].is_playing():
+            await bot.send_group_msg(group_id=group_id, message='剩余30秒，冲鸭~')
+            delta = datetime.timedelta(seconds=30)
+            trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
+            scheduler.add_job(
+                func=finish_game,
+                trigger=trigger,
+                args=(group_id, ),
+                misfire_grace_time=30,
+                id=str(group_id),
+            )
+    except Exception as e:
+        logger.error(traceback.format_exc())
 
 async def finish_game(group_id):
     bot = nonebot.get_bot()
@@ -78,11 +98,10 @@ async def calc42(session: CommandSession):
 
     if CURRENT_42_APP[group_id].is_playing():
         try:
-            CURRENT_42_APP[group_id].solve(math_expr)
-            finish_time = time.time() - CURRENT_42_PROBLEM_TIME[group_id]
+            elapsed = CURRENT_42_APP[group_id].solve(math_expr)
             admire_message = get_admire_message()
-            message = MessageSegment.at(current_sender) + ' 恭喜完成第%d个解. 完成时间: %.3f秒, %s' % (CURRENT_42_APP[group_id].get_current_solution_number(), finish_time, admire_message)
-            CURRENT_42_PROBLEM_TIME[group_id] = time.time() # reset the timer
+            finish_time = 86400 * elapsed.days + elapsed.seconds + round(elapsed.microseconds / 1000000, 3)
+            message = MessageSegment.at(current_sender) + ' 恭喜完成第%d个解. 完成时间: %s秒, %s' % (CURRENT_42_APP[group_id].get_current_solution_number(), finish_time, admire_message)
             CURRENT_42_LEADER[group_id] = current_sender
 
             if current_sender in CURRENT_42_PROBLEM_PERSON_LIST[group_id]:
@@ -95,11 +114,11 @@ async def calc42(session: CommandSession):
 
             if CURRENT_42_APP[group_id].get_current_solution_number() < CURRENT_42_APP[group_id].get_total_solution_number():
                 # Then add a new timer
-                deadline = 100 + 20 * CURRENT_42_APP[group_id].get_current_solution_number()
+                deadline = 70 + 20 * CURRENT_42_APP[group_id].get_current_solution_number()
                 delta = datetime.timedelta(seconds=deadline)
                 trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
                 scheduler.add_job(
-                    func=finish_game,
+                    func=ready_finish_game,
                     trigger=trigger,
                     args=(group_id, ),
                     misfire_grace_time=30,
@@ -179,7 +198,6 @@ async def _():
     try:
         for group_id in CURRENT_ENABLED.keys():
             if CURRENT_ENABLED[group_id] and not CURRENT_42_APP[group_id].is_playing():
-                CURRENT_42_PROBLEM_TIME[group_id] = time.time()
                 CURRENT_42_PROBLEM_PERSON_LIST[group_id] = {}
                 CURRENT_42_LEADER[group_id] = -1
                 CURRENT_42_APP[group_id].generate_problem('database')
@@ -188,7 +206,7 @@ async def _():
                 delta = datetime.timedelta(minutes=20)
                 trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
                 scheduler.add_job(
-                    func=finish_game,
+                    func=ready_finish_game,
                     trigger=trigger,
                     args=(group_id, ),
                     misfire_grace_time=30,
