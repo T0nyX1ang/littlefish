@@ -6,7 +6,7 @@ from apscheduler.triggers.date import DateTrigger
 from ftptsgame.exceptions import FTPtsGameError
 from .admire import get_admire_message
 from .core import is_enabled
-from .global_value import CURRENT_ENABLED, CURRENT_42_APP, CURRENT_42_LEADER, CURRENT_42_PROBLEM_PERSON_LIST
+from .global_value import CURRENT_ENABLED, CURRENT_42_APP
 import nonebot
 import datetime
 import traceback
@@ -32,25 +32,48 @@ def print_current_solutions(group_id):
         message = message + each_line + '\n'
     return message.strip()
 
+def print_results(group_id):
+    line = []
+    line.append('--- 本题统计 ---')
+    line.append('求解完成度: %d/%d' % (CURRENT_42_APP[group_id].get_current_solution_number(), CURRENT_42_APP[group_id].get_total_solution_number()))
+    players = CURRENT_42_APP[group_id].get_current_player_statistics()
+    ordered_players = sorted(players, key=lambda k: len(players[k]), reverse=True)
+    for person in ordered_players:
+        if person > 0:
+            line.append(str(MessageSegment.at(person)) + ' 完成%d个解' % (len(players[person])))
+
+    result_message = ''
+    for each_line in line:
+        result_message = result_message + each_line + '\n'
+
+    return result_message.strip()
+
+def get_deadline(group_id):
+    current_number = CURRENT_42_APP[group_id].get_current_solution_number()
+    total_number = CURRENT_42_APP[group_id].get_total_solution_number()
+    if current_number == 0:
+        return 1200
+    else:
+        if current_number - total_number + 3 > 0:
+            return 160 + 20 * current_number + 60 * (3 - total_number + current_number)
+        else:
+            return 160 + 20 * current_number
+
+def get_leader_id(group_id):
+    players = CURRENT_42_APP[group_id].get_current_player_statistics()
+    return max(players, key=lambda k: max(players[k])) if players else -1
+
 def get_current_stats(group_id, show_result=False):
     problem_message = print_current_problem(group_id)
     solution_message = print_current_solutions(group_id)
     result_message = ''
 
     if show_result:
-        line = []
-        line.append('--- 本题统计 ---')
-        line.append('求解完成度: %d/%d' % (CURRENT_42_APP[group_id].get_current_solution_number(), CURRENT_42_APP[group_id].get_total_solution_number()))
-        ordered_person = sorted(CURRENT_42_PROBLEM_PERSON_LIST[group_id], key=CURRENT_42_PROBLEM_PERSON_LIST[group_id].get, reverse=True)
-        for person in ordered_person:
-            line.append(str(MessageSegment.at(person)) + ' 完成%d个解' % (CURRENT_42_PROBLEM_PERSON_LIST[group_id][person]))
-
-        for each_line in line:
-            result_message = result_message + each_line + '\n'
+        result_message = print_results(group_id)
     else:
         elapsed = CURRENT_42_APP[group_id].get_elapsed_time().seconds
-        left = 100 + 20 * CURRENT_42_APP[group_id].get_current_solution_number() - elapsed if CURRENT_42_APP[group_id].get_current_solution_number() else 1200 - CURRENT_42_APP[group_id].get_elapsed_time().seconds
-        result_message = '剩余%d秒，冲鸭~' % (left)
+        deadline = get_deadline(group_id)
+        result_message = '剩余%d秒，冲鸭~' % (deadline - elapsed)
 
     stat_message = problem_message + '\n' + solution_message + '\n' + result_message
     return stat_message.strip()
@@ -59,8 +82,7 @@ async def ready_finish_game(group_id):
     bot = nonebot.get_bot()
     try:
         if CURRENT_42_APP[group_id].is_playing():
-            await bot.send_group_msg(group_id=group_id, message='剩余30秒，冲鸭~')
-            delta = datetime.timedelta(seconds=30)
+            delta = datetime.timedelta(seconds=60)
             trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
             scheduler.add_job(
                 func=finish_game,
@@ -69,6 +91,7 @@ async def ready_finish_game(group_id):
                 misfire_grace_time=30,
                 id=str(group_id),
             )
+            await bot.send_group_msg(group_id=group_id, message='剩余60秒，冲鸭~')
     except Exception as e:
         logger.error(traceback.format_exc())
 
@@ -77,12 +100,12 @@ async def finish_game(group_id):
     try:
         if CURRENT_42_APP[group_id].is_playing():
             message = get_current_stats(group_id, show_result=True)
+            leader_id = get_leader_id(group_id)
             CURRENT_42_APP[group_id].stop()
             await bot.send_group_msg(group_id=group_id, message=message)
 
-            if CURRENT_42_LEADER[group_id] > 0:
-                winner_id = CURRENT_42_LEADER[group_id] 
-                winning_message = MessageSegment.at(winner_id) + ' 恭喜取得本次42点接力赛胜利, ' + get_admire_message()
+            if leader_id > 0:
+                winning_message = MessageSegment.at(leader_id) + ' 恭喜取得本次42点接力赛胜利, ' + get_admire_message()
                 await bot.send_group_msg(group_id=group_id, message=winning_message)
     except Exception as e:
         logger.error(traceback.format_exc())
@@ -98,23 +121,17 @@ async def calc42(session: CommandSession):
 
     if CURRENT_42_APP[group_id].is_playing():
         try:
-            elapsed = CURRENT_42_APP[group_id].solve(math_expr)
+            elapsed = CURRENT_42_APP[group_id].solve(math_expr, current_sender)
             admire_message = get_admire_message()
             finish_time = 86400 * elapsed.days + elapsed.seconds + elapsed.microseconds / 1000000
             message = MessageSegment.at(current_sender) + ' 恭喜完成第%d个解. 完成时间: %.3f秒, %s' % (CURRENT_42_APP[group_id].get_current_solution_number(), finish_time, admire_message)
-            CURRENT_42_LEADER[group_id] = current_sender
-
-            if current_sender in CURRENT_42_PROBLEM_PERSON_LIST[group_id]:
-                CURRENT_42_PROBLEM_PERSON_LIST[group_id][current_sender] += 1
-            else:
-                CURRENT_42_PROBLEM_PERSON_LIST[group_id][current_sender] = 1
             await session.send(message)
 
             scheduler.remove_job(str(group_id)) # First remove current timer
 
             if CURRENT_42_APP[group_id].get_current_solution_number() < CURRENT_42_APP[group_id].get_total_solution_number():
                 # Then add a new timer
-                deadline = 70 + 20 * CURRENT_42_APP[group_id].get_current_solution_number()
+                deadline = get_deadline(group_id) - 60
                 delta = datetime.timedelta(seconds=deadline)
                 trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
                 scheduler.add_job(
@@ -166,7 +183,7 @@ async def calc42help(session: CommandSession):
         session.finish('小鱼睡着了zzz~')
 
     current_sender = session.event['sender']['user_id']
-    message = '42点游戏规则:\n(1)每日8-23时的42分42秒, 我会给出5个位于0至13之间的整数，你需要将这五个整数(可以调换顺序)通过四则运算与括号相连，使得结果等于42.\n(2)回答时以"calc42"或"42点"开头，加入空格，并给出算式. 如果需要查询等价解说明，请输入"42点等价解"或"等价解说明".\n(3)如果需要查询当前问题，请输入"当前问题"或"当前42点"，机器人会私戳当前问题.\n(4)每个问题如果没有玩家回答，将在20分钟后自动结算.\n(5)每个问题如有玩家回答，将根据当前等价解的个数确定结算时间，每一个解延长20s，第一个解结算时间为2分钟.'
+    message = '42点游戏规则:\n(1)每日8-23时的42分42秒, 我会给出5个位于0至13之间的整数，你需要将这五个整数(可以调换顺序)通过四则运算与括号相连，使得结果等于42.\n(2)回答时以"calc42"或"42点"开头，加入空格，并给出算式. 如果需要查询等价解说明，请输入"42点等价解"或"等价解说明".\n(3)如果需要查询当前问题，请输入"当前问题"或"当前42点"，机器人会私戳当前问题.\n(4)每个问题如果没有玩家回答，将在20分钟后自动结算.\n(5)每个问题如有玩家回答，将根据当前等价解的个数确定结算时间，每一个解延长20s，第一个解结算时间为3分钟，在剩余1分钟时机器人会进行提醒，在剩余解数少于3个时，每个解会延长1*(3-剩余解数)分钟的结算时间.'
     example_message = '示例: (问题) 1 3 3 8 2, (正确的回答) calc42/42点 (1 + 3 + 3) / (8 - 2), (错误的回答) calc422^8!3&3=1.'
     await session.bot.send_private_msg(user_id=current_sender, message=message + '\n' + example_message)
 
@@ -198,12 +215,11 @@ async def _():
     try:
         for group_id in CURRENT_ENABLED.keys():
             if CURRENT_ENABLED[group_id] and not CURRENT_42_APP[group_id].is_playing():
-                CURRENT_42_PROBLEM_PERSON_LIST[group_id] = {}
-                CURRENT_42_LEADER[group_id] = -1
                 CURRENT_42_APP[group_id].generate_problem('database')
                 CURRENT_42_APP[group_id].start()
                 message = print_current_problem(group_id)
-                delta = datetime.timedelta(minutes=20)
+                deadline = get_deadline(group_id)
+                delta = datetime.timedelta(seconds=deadline)
                 trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
                 scheduler.add_job(
                     func=ready_finish_game,
