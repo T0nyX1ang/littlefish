@@ -2,8 +2,16 @@
 
 from nonebot import on_startup, on_command, CommandSession
 from nonebot.permission import SUPERUSER
+from nonebot.log import logger
+from urllib.parse import quote, unquote
 from .core import fetch, is_online, is_enabled
 from .global_value import *
+import json
+
+def save_global_keys():
+    ready_to_save = json.dumps(GLOBAL_KEYS, indent=4)
+    with open(GLOBAL_KEYS_PATH, 'w') as f:
+        f.write(ready_to_save)
 
 @on_command('login', aliases=('登录'), permission=SUPERUSER, only_to_me=False)
 async def login(session: CommandSession):
@@ -12,19 +20,15 @@ async def login(session: CommandSession):
 
 async def login_account() -> str:
     try:
-        # reset uid and token when login
-        keyring.set_password('mswar-account', 'uid', '')
-        keyring.set_password('mswar-account', 'token', '')
-
         # do the login process
-        uid = 'qaqaqaqaq@protonmail.com'
-        password_hash = 'e490e35aadd4caf18b92c13907fa5eb9'
+        uid = GLOBAL_KEYS['connected_uid']
+        password_hash = GLOBAL_KEYS['connected_hash']
         query = 'id=' + quote(uid) + '&password=' + password_hash + '&platform=0'
         credentials = await fetch(page='/MineSweepingWar/user/login', query=query)
         
         # set the credentials
-        keyring.set_password('mswar-account', 'uid', uid)
-        keyring.set_password('mswar-account', 'token', credentials['data']['token'])
+        GLOBAL_KEYS['connected_token'] = credentials['data']['token']
+        save_global_keys()
         return '登录成功'
     except Exception as e:
         logger.error(traceback.format_exc())
@@ -38,8 +42,8 @@ async def logout(session: CommandSession):
 async def logout_account() -> str:
     try:
         # reset uid and token when logout
-        keyring.set_password('mswar-account', 'uid', '')
-        keyring.set_password('mswar-account', 'token', '')
+        GLOBAL_KEYS['connected_token'] = ""
+        save_global_keys()
         return '登出成功'
     except Exception as e:
         logger.error(traceback.format_exc())
