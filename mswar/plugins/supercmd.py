@@ -45,33 +45,26 @@ async def logout_account() -> str:
         logger.error(traceback.format_exc())
         return '登出失败，请重试'
 
-@on_command('status', aliases=('状态', '账号状态'), permission=SUPERUSER, only_to_me=False)
-async def status(session: CommandSession):
-    status_result = await get_status()
-    await session.send(status_result)
-
-async def get_status() -> str:
-    if is_online():
-        return '关联账号状态: 已登录'
-    else:
-        return '关联账号状态: 未登录'
-
 @on_command('debug', aliases=('调试'), permission=SUPERUSER, only_to_me=False)
 async def debug(session: CommandSession):
-    if not is_enabled(session.event):
-        session.finish('小鱼睡着了zzz~')
-    group_id = session.event['group_id']
-    debug_message = await get_debug_message(group_id)
-    await session.send(debug_message)
+    if session.event['message_type'] == 'group':
+        group_id = session.event['group_id']
+        debug_message = await get_debug_message(group_id)
+        await session.send(debug_message)
 
 async def get_debug_message(group_id):
     line = []
     line.append('-- 调试信息 --')
-    line.append('上条群内消息: %s' % (CURRENT_GROUP_MESSAGE[group_id] if len(CURRENT_GROUP_MESSAGE[group_id]) > 0 else '无'))
-    line.append('复读计数器: %d' % (CURRENT_COMBO_COUNTER[group_id]))
-    line.append('42点游戏: %s' % ('游玩中' if CURRENT_42_APP[group_id].is_playing() else '未开始'))
-    line.append('冷却ID: %s' % (str(CURRENT_ID_COLDING_LIST[group_id]).replace('[', '').replace(']', '') if CURRENT_ID_COLDING_LIST[group_id] else '无'))
-    line.append('打架计数器: %d' % (CURRENT_CONFLICT_COUNTER[group_id]))
+    line.append('关联账号: %s' % ('已登录' if is_online() else '未登录'))
+    if group_id in CURRENT_ENABLED:
+        line.append('小鱼状态: %s' % ('已启动' if CURRENT_ENABLED[group_id] else '未启动'))
+        line.append('上条群内消息: %s' % (CURRENT_GROUP_MESSAGE[group_id] if len(CURRENT_GROUP_MESSAGE[group_id]) > 0 else '无'))
+        line.append('复读计数器: %d' % (CURRENT_COMBO_COUNTER[group_id]))
+        line.append('42点游戏: %s' % ('游玩中' if CURRENT_42_APP[group_id].is_playing() else '未开始'))
+        line.append('冷却ID: %s' % (str(CURRENT_ID_COLDING_LIST[group_id]).replace('[', '').replace(']', '') if CURRENT_ID_COLDING_LIST[group_id] else '无'))
+        line.append('打架计数器: %d' % (CURRENT_CONFLICT_COUNTER[group_id]))
+    else:
+        line.append('小鱼状态: %s' % ('未初始化'))
     result_message = ''
     for each_line in line:
         result_message = result_message + each_line + '\n'
