@@ -4,10 +4,18 @@ from nonebot.log import logger
 from nonebot.message import MessageSegment
 from .core import is_enabled
 import datetime
+import random
 
 def get_greeting_message():
     current_time = datetime.datetime.now()
     current_hour = current_time.hour
+    random_number = random.randint(1, 100)
+
+    if random_number <= 5:
+        if current_hour in range(6, 24):
+            return '加油鸭~'
+        else:
+            return '保重鸭~'
 
     if current_hour in [1, 2]:
         return '快去睡觉，别熬夜破pb了~'
