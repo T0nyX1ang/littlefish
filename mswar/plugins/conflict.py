@@ -19,5 +19,5 @@ async def conflict(session: CommandSession):
 async def _():
     for group_id in CURRENT_ENABLED.keys():
         if CURRENT_ENABLED[group_id]:
-            CURRENT_CONFLICT_COUNTER[key] = 0
+            CURRENT_CONFLICT_COUNTER[group_id] = 0
     logger.info('The PONG counter is resumed now ...')
