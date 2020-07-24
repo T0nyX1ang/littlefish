@@ -9,9 +9,8 @@ from .global_value import *
 import json
 
 def save_global_keys():
-    ready_to_save = json.dumps(GLOBAL_KEYS, indent=4)
-    with open(GLOBAL_KEYS_PATH, 'w') as f:
-        f.write(ready_to_save)
+    with open(GLOBAL_KEYS_PATH, 'wb') as f:
+        f.write(PRIMARY_ENCRYPT(json.dumps(GLOBAL_KEYS)))
 
 @on_command('login', aliases=('登录'), permission=SUPERUSER, only_to_me=False)
 async def login(session: CommandSession):
