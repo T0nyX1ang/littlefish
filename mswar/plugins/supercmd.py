@@ -1,16 +1,30 @@
-# Commands only for super users. Debug only.
+# Commands only for super users.
 
-from nonebot import on_startup, on_command, CommandSession
+from nonebot import on_startup, on_command, CommandSession, scheduler
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
 from urllib.parse import quote, unquote
 from .core import fetch, is_online, is_enabled
 from .global_value import *
+import nonebot
 import json
+import traceback
 
 def save_global_keys():
     with open(GLOBAL_KEYS_PATH, 'wb') as f:
         f.write(PRIMARY_ENCRYPT(json.dumps(GLOBAL_KEYS)))
+
+def save_local_data(group_id):
+    group_hash = hashlib.sha3_256(PRIMARY_PASSWORD + str(group_id).encode()).hexdigest()
+    database_path = os.path.join(LOCAL_DATABASE_PATH, '%s.dat') % (group_hash)
+    database = {
+        'group_message': CURRENT_GROUP_MESSAGE[group_id], 
+        'combo_counter': CURRENT_COMBO_COUNTER[group_id], 
+        '42ranking': CURRENT_42_RANKING[group_id], 
+        'conflict_counter': CURRENT_CONFLICT_COUNTER[group_id]
+    }
+    with open(database_path, 'wb') as f:
+        f.write(PRIMARY_ENCRYPT(json.dumps(database)))
 
 @on_command('login', aliases=('登录'), permission=SUPERUSER, only_to_me=False)
 async def login(session: CommandSession):
@@ -72,3 +86,27 @@ async def get_debug_message(group_id):
     for each_line in line:
         result_message = result_message + each_line + '\n'
     return result_message.strip()
+
+@on_command('save', aliases=('存档'), permission=SUPERUSER, only_to_me=False)
+async def save(session: CommandSession):
+    if session.event['message_type'] == 'group':
+        group_id = session.event['group_id']
+        save_message = await get_save_message(group_id) 
+        await session.send(save_message)
+
+async def get_save_message(group_id):
+    try:
+        save_local_data(group_id)
+        return '存档成功'
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        return '存档失败，请重试'
+
+@nonebot.scheduler.scheduled_job('cron', hour='0,4,8,12,16,20', minute=0, second=0, misfire_grace_time=30)
+async def _():
+    try:
+        logger.info('Saving data to disk ...')
+        for group_id in CURRENT_ENABLED.keys():
+            save_local_data(group_id)
+    except Exception as e:
+        logger.error(traceback.format_exc())
