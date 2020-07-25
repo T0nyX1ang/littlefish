@@ -234,15 +234,14 @@ async def calc42equal(session: CommandSession):
     equivalent_message = '关于等价解的说明:\n(1)四则运算的性质得出的等价是等价解;\n(2)中间结果出现0，可以利用加减移动到式子的任何地方;\n(3)中间结果出现1，可以利用乘除移动到式子的任何地方;\n(4)等值子式的交换不认为是等价;\n(5)2*2与2+2不认为是等价.'
     await session.bot.send_private_msg(user_id=current_sender, message=equivalent_message)
 
-@on_command('calc42score', aliases=('42点得分说明'), permission=SUPERUSER | GROUP, only_to_me=False)
+@on_command('calc42score', aliases=('42点得分说明',), permission=SUPERUSER | GROUP, only_to_me=False)
 async def calc42score(session: CommandSession):
     if not is_enabled(session.event):
         session.finish('小鱼睡着了zzz~')
 
     current_sender = session.event['sender']['user_id']
-    equivalent_message = '关于得分的说明:\n(1)每题的得分由"时间分"和"求解分"共同决定;\n(2)时间分:计算当前完成时间与限时的比值，比值小于0.2计5分，0.2-0.5记3分，0.5-0.8记2分，大于0.8记1分;\n(3)求解分:首杀记10分，接力赛胜利记20分，其余求解按照(10*当前解数/总共解数)向下取整记分;\n(4)如果题目AK，求解该题目全员额外加10分.'
-    await session.bot.send_private_msg(user_id=current_sender, message=equivalent_message)
-
+    score_message = '关于得分的说明:\n(1)每题的得分由"时间分"和"求解分"共同决定;\n(2)时间分:计算当前完成时间与限时的比值，比值小于0.2计5分，0.2-0.5记3分，0.5-0.8记2分，大于0.8记1分;\n(3)求解分:首杀记10分，接力赛胜利记20分，其余求解按照(10*当前解数/总共解数)向下取整记分;\n(4)如果题目AK，求解该题目全员额外加10分.'
+    await session.bot.send_private_msg(user_id=current_sender, message=score_message)
 
 @on_command('current42', aliases=('当前42点', '当前问题'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def current42(session: CommandSession):
