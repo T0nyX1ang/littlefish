@@ -37,6 +37,7 @@ CURRENT_COMBO_COUNTER = {}
 
 # calc42 module
 CURRENT_42_APP = {}
+CURRENT_42_RANKING = {}
 
 # info module
 CURRENT_ID_COLDING_LIST = {}
