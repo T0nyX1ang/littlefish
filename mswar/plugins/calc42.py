@@ -240,7 +240,7 @@ async def calc42score(session: CommandSession):
         session.finish('小鱼睡着了zzz~')
 
     current_sender = session.event['sender']['user_id']
-    score_message = '关于得分的说明:\n(1)每题的得分由"时间分"和"求解分"共同决定;\n(2)时间分:计算当前完成时间与限时的比值，比值小于0.2计5分，0.2-0.5记3分，0.5-0.8记2分，大于0.8记1分;\n(3)求解分:首杀记10分，接力赛胜利记20分，其余求解按照(10*当前解数/总共解数)向下取整记分;\n(4)如果题目AK，求解该题目全员额外加10分.'
+    score_message = '关于得分的说明:\n(1)每题的得分由"时间分"和"求解分"共同决定;\n(2)时间分:计算当前完成时间与限时的比值，比值小于0.2计5分，0.2-0.5记3分，0.5-0.8记2分，大于0.8记1分;\n(3)求解分:首杀记10分，接力赛胜利按(20*当前解数/总共解数)向下取整记分，其余求解按照(10*当前解数/总共解数)向下取整记分;\n(4)如果题目AK，求解该题目全员额外加10分.\n(5)显示积分时会进行归一化.'
     await session.bot.send_private_msg(user_id=current_sender, message=score_message)
 
 @on_command('current42', aliases=('当前42点', '当前问题'), permission=SUPERUSER | GROUP, only_to_me=False)
@@ -274,13 +274,35 @@ async def score42(session: CommandSession):
                 result = i
                 break
         score = CURRENT_42_RANKING[group_id][ranking[result]]
+        max_score = CURRENT_42_RANKING[group_id][ranking[0]]
         if result == 0:
             admire_message = get_admire_message()
-            await session.send('当前积分: %d，排名: %d，%s' % (score, result + 1, admire_message))
+            await session.send('当前积分: %.1f，排名: %d，%s' % (100.0, result + 1, admire_message))
         else:
             upper_score = CURRENT_42_RANKING[group_id][ranking[result - 1]]
             distance = upper_score - score
-            await session.send('当前积分: %d，排名: %d，距上一名%d分，冲鸭!' % (score, result + 1, distance))
+            await session.send('当前积分: %.1f，排名: %d，距上一名%.1f分，冲鸭!' % (score / max_score * 100, result + 1, distance / max_score * 100))
+
+@on_command('ranking42', aliases=('42点排名', '42点排行榜'), permission=SUPERUSER | GROUP, only_to_me=False)
+async def ranking42(session: CommandSession):
+    if not is_enabled(session.event):
+        session.finish('小鱼睡着了zzz~')
+
+    group_id = session.event['group_id']
+    ranking = sorted(CURRENT_42_RANKING[group_id], key=lambda x: CURRENT_42_RANKING[group_id][x], reverse=True)
+    line = ['42点积分排行榜:']
+    if ranking:
+        for i in range(0, len(ranking)):
+            if i < 9:
+                line.append('[%d] %.1f [%s]' % (i + 1, CURRENT_42_RANKING[group_id][ranking[i]] / CURRENT_42_RANKING[group_id][ranking[0]] * 100, ranking[i][:4]))
+    else:
+        line.append('当前暂无排名')
+
+    result_message = ''
+    for each_line in line:
+        result_message = result_message + each_line + '\n'
+
+    await session.send(result_message.strip())
 
 @nonebot.scheduler.scheduled_job('cron', hour='8-23', minute=42, second=42, misfire_grace_time=30)
 async def _():
