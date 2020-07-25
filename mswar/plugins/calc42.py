@@ -6,8 +6,9 @@ from apscheduler.triggers.date import DateTrigger
 from ftptsgame.exceptions import FTPtsGameError
 from .admire import get_admire_message
 from .core import is_enabled
-from .global_value import CURRENT_ENABLED, CURRENT_42_APP
+from .global_value import CURRENT_ENABLED, CURRENT_42_APP, CURRENT_42_RANKING
 import nonebot
+import hashlib
 import datetime
 import traceback
 
@@ -33,10 +34,32 @@ def print_current_solutions(group_id):
     return message.strip()
 
 def print_results(group_id):
+    current_solution_number = CURRENT_42_APP[group_id].get_current_solution_number()
+    total_solution_number = CURRENT_42_APP[group_id].get_total_solution_number()
     line = []
     line.append('--- 本题统计 ---')
-    line.append('求解完成度: %d/%d' % (CURRENT_42_APP[group_id].get_current_solution_number(), CURRENT_42_APP[group_id].get_total_solution_number()))
+    line.append('求解完成度: %d/%d' % (current_solution_number, total_solution_number))
+    
+    bonus = 10 if current_solution_number == total_solution_number else 0 # AK Score
+
     players = CURRENT_42_APP[group_id].get_current_player_statistics()
+
+    for player_id in players:
+        player_hash = hashlib.sha3_256(str(player_id).encode()).hexdigest()
+        
+        if player_hash not in CURRENT_42_RANKING[group_id]:
+            CURRENT_42_RANKING[group_id][player_hash] = 0
+        
+        CURRENT_42_RANKING[group_id][player_hash] += bonus
+
+        for problem in players[player_id]:
+            if problem == 1:
+                CURRENT_42_RANKING[group_id][player_hash] += 10
+            elif problem == current_solution_number:
+                CURRENT_42_RANKING[group_id][player_hash] += 20
+            else:
+                CURRENT_42_RANKING[group_id][player_hash] += int(10 * problem / total_solution_number)
+
     ordered_players = sorted(players, key=lambda k: len(players[k]), reverse=True)
     for person in ordered_players:
         if person > 0:
@@ -121,11 +144,26 @@ async def calc42(session: CommandSession):
 
     if CURRENT_42_APP[group_id].is_playing():
         try:
+            current_deadline = get_deadline(group_id)
             elapsed = CURRENT_42_APP[group_id].solve(math_expr, current_sender)
             admire_message = get_admire_message()
             finish_time = 86400 * elapsed.days + elapsed.seconds + elapsed.microseconds / 1000000
-            message = MessageSegment.at(current_sender) + ' 恭喜完成第%d个解. 完成时间: %.3f秒, %s' % (CURRENT_42_APP[group_id].get_current_solution_number(), finish_time, admire_message)
+            message = MessageSegment.at(current_sender) + ' 恭喜完成第%d个解，完成时间: %.3f秒，%s' % (CURRENT_42_APP[group_id].get_current_solution_number(), finish_time, admire_message)
             await session.send(message)
+
+            player_hash = hashlib.sha3_256(str(current_sender).encode()).hexdigest()
+            if player_hash not in CURRENT_42_RANKING[group_id]:
+                CURRENT_42_RANKING[group_id][player_hash] = 0
+
+            # Accumulate time score
+            if finish_time / current_deadline <= 0.2:
+                CURRENT_42_RANKING[group_id][player_hash] += 5
+            elif 0.2 < finish_time / current_deadline <= 0.5:
+                CURRENT_42_RANKING[group_id][player_hash] += 3
+            elif 0.5 < finish_time / current_deadline <= 0.8:
+                CURRENT_42_RANKING[group_id][player_hash] += 2
+            else:
+                CURRENT_42_RANKING[group_id][player_hash] += 1
 
             scheduler.remove_job(str(group_id)) # First remove current timer
 
@@ -183,7 +221,7 @@ async def calc42help(session: CommandSession):
         session.finish('小鱼睡着了zzz~')
 
     current_sender = session.event['sender']['user_id']
-    message = '42点游戏规则:\n(1)每日8-23时的42分42秒, 我会给出5个位于0至13之间的整数，你需要将这五个整数(可以调换顺序)通过四则运算与括号相连，使得结果等于42.\n(2)回答时以"calc42"或"42点"开头，加入空格，并给出算式. 如果需要查询等价解说明，请输入"42点等价解"或"等价解说明".\n(3)如果需要查询当前问题，请输入"当前问题"或"当前42点"，机器人会私戳当前问题.\n(4)每个问题如果没有玩家回答，将在20分钟后自动结算.\n(5)每个问题如有玩家回答，将根据当前等价解的个数确定结算时间，每一个解延长20s，第一个解结算时间为3分钟，在剩余1分钟时机器人会进行提醒，在剩余解数少于3个时，每个解会延长1*(3-剩余解数)分钟的结算时间.'
+    message = '42点游戏规则:\n(1)每日8-23时的42分42秒, 我会给出5个位于0至13之间的整数，你需要将这五个整数(可以调换顺序)通过四则运算与括号相连，使得结果等于42.\n(2)回答时以"calc42"或"42点"开头，加入空格，并给出算式. 如果需要查询等价解说明，请输入"42点等价解"或"等价解说明". 如果需要查询得分说明，请输入"42点得分说明".\n(3)如果需要查询当前问题，请输入"当前问题"或"当前42点"，机器人会私戳当前问题.\n(4)每个问题如果没有玩家回答，将在20分钟后自动结算.\n(5)每个问题如有玩家回答，将根据当前等价解的个数确定结算时间，每一个解延长20s，第一个解结算时间为3分钟，在剩余1分钟时机器人会进行提醒，在剩余解数少于3个时，每个解会延长1*(3-剩余解数)分钟的结算时间.'
     example_message = '示例: (问题) 1 3 3 8 2, (正确的回答) calc42/42点 (1 + 3 + 3) / (8 - 2), (错误的回答) calc422^8!3&3=1.'
     await session.bot.send_private_msg(user_id=current_sender, message=message + '\n' + example_message)
 
@@ -195,6 +233,16 @@ async def calc42equal(session: CommandSession):
     current_sender = session.event['sender']['user_id']
     equivalent_message = '关于等价解的说明:\n(1)四则运算的性质得出的等价是等价解;\n(2)中间结果出现0，可以利用加减移动到式子的任何地方;\n(3)中间结果出现1，可以利用乘除移动到式子的任何地方;\n(4)等值子式的交换不认为是等价;\n(5)2*2与2+2不认为是等价.'
     await session.bot.send_private_msg(user_id=current_sender, message=equivalent_message)
+
+@on_command('calc42score', aliases=('42点得分说明'), permission=SUPERUSER | GROUP, only_to_me=False)
+async def calc42score(session: CommandSession):
+    if not is_enabled(session.event):
+        session.finish('小鱼睡着了zzz~')
+
+    current_sender = session.event['sender']['user_id']
+    equivalent_message = '关于得分的说明:\n(1)每题的得分由"时间分"和"求解分"共同决定;\n(2)时间分:计算当前完成时间与限时的比值，比值小于0.2计5分，0.2-0.5记3分，0.5-0.8记2分，大于0.8记1分;\n(3)求解分:首杀记10分，接力赛胜利记20分，其余求解按照(10*当前解数/总共解数)向下取整记分;\n(4)如果题目AK，求解该题目全员额外加10分.'
+    await session.bot.send_private_msg(user_id=current_sender, message=equivalent_message)
+
 
 @on_command('current42', aliases=('当前42点', '当前问题'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def current42(session: CommandSession):
@@ -208,6 +256,32 @@ async def current42(session: CommandSession):
         await session.bot.send_private_msg(user_id=current_sender, message=message)
     else:
         await session.bot.send_private_msg(user_id=current_sender, message='当前暂无42点问题可供求解')
+
+@on_command('score42', aliases=('42点积分', '42点得分'), permission=SUPERUSER | GROUP, only_to_me=False)
+async def score42(session: CommandSession):
+    if not is_enabled(session.event):
+        session.finish('小鱼睡着了zzz~')
+
+    group_id = session.event['group_id']
+    current_sender = session.event['sender']['user_id']
+    ranking = sorted(CURRENT_42_RANKING[group_id], key=lambda x: CURRENT_42_RANKING[group_id][x], reverse=True)
+    player_hash = hashlib.sha3_256(str(current_sender).encode()).hexdigest()
+    if player_hash not in ranking:
+        await session.send('当前积分: 0，暂无排名')
+    else:
+        result = 0
+        for i in range(0, len(ranking)):
+            if player_hash == ranking[i]:
+                result = i
+                break
+        score = CURRENT_42_RANKING[group_id][ranking[result]]
+        if result == 0:
+            admire_message = get_admire_message()
+            await session.send('当前积分: %d，排名: %d，%s' % (score, result + 1, admire_message))
+        else:
+            upper_score = CURRENT_42_RANKING[group_id][ranking[result - 1]]
+            distance = upper_score - score
+            await session.send('当前积分: %d，排名: %d，距上一名%d分，冲鸭!' % (score, result + 1, distance))
 
 @nonebot.scheduler.scheduled_job('cron', hour='8-23', minute=42, second=42, misfire_grace_time=30)
 async def _():
