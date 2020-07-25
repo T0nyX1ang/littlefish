@@ -15,6 +15,12 @@ async def conflict(session: CommandSession):
         CURRENT_CONFLICT_COUNTER[group_id] += 1
         await session.send('小爆')
 
+@on_command('response', aliases=('小鱼哥哥你来啦[CQ:face,id=111]'), permission=SUPERUSER | GROUP, only_to_me=False)
+async def conflict(session: CommandSession):
+    if not is_enabled(session.event):
+        session.finish()
+    await session.send('小爆妹妹好鸭[CQ:face,id=111]')
+
 @nonebot.scheduler.scheduled_job('cron', hour='0,12', minute=0, second=0, misfire_grace_time=30)
 async def _():
     for group_id in CURRENT_ENABLED.keys():
