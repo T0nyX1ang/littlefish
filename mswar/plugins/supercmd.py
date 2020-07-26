@@ -109,7 +109,7 @@ async def get_save_message(group_id):
         logger.error(traceback.format_exc())
         return '存档失败，请重试'
 
-@nonebot.scheduler.scheduled_job('cron', hour='0,4,8,12,16,20', minute=0, second=0, misfire_grace_time=30)
+@nonebot.scheduler.scheduled_job('cron', hour='*/2', minute=0, second=0, misfire_grace_time=30)
 async def _():
     try:
         logger.info('Saving data to disk ...')
