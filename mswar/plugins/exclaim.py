@@ -46,6 +46,7 @@ def get_cheer_message(person=''):
     message = [
         '%s加油鸭' % (person),
         '%s冲鸭' % (person),
+        '%s加油冲鸭' % (person),
     ]
     return MessageSegment.text(random.choice(message)) + random.choice(exaggeration)
 
