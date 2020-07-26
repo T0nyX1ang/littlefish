@@ -6,10 +6,6 @@ import random
 
 def get_admire_message(person=''):
     exaggeration = [
-        # ! (English exclaimation)
-        '!',
-        '!!',
-        '!!!',
         # ！ (Chinese exclaimation)
         '！',
         '！！',
@@ -30,6 +26,25 @@ def get_admire_message(person=''):
         '%s tql' % (person) if person and str.isascii(person[-1]) else '%stql' % (person),
         '%s NB' % (person) if person and str.isascii(person[-1]) else '%sNB' % (person),
         '%s🐮🍺' % (person),
+        '%s冲鸭' % (person),
+    ]
+    return MessageSegment.text(random.choice(message)) + random.choice(exaggeration)
+
+def get_cheer_message(person=''):
+    exaggeration = [
+        # ！ (Chinese exclaimation)
+        '！',
+        '！！',
+        '！！！',
+        # emoji
+        '💪',
+        '💪💪',
+        '💪💪💪',
+    ]
+    if not person:
+        person = '大佬'
+    message = [
+        '%s加油鸭' % (person),
         '%s冲鸭' % (person),
     ]
     return MessageSegment.text(random.choice(message)) + random.choice(exaggeration)
@@ -62,6 +77,24 @@ async def admire(session: CommandSession):
         await session.send(admire_message)
 
 @admire.args_parser
+async def _(session: CommandSession):
+    stripped_arg = session.current_arg_text.strip()
+    if session.is_first_run:
+        if stripped_arg:
+            session.state['person'] = stripped_arg
+        else:
+            session.state['person'] = ''
+        return
+
+@on_command('cheer', aliases=('加油'), permission=SUPERUSER | GROUP, only_to_me=False)
+async def cheer(session: CommandSession):
+    if not is_enabled(session.event):
+        session.finish('小鱼睡着了zzz~')    
+    person = session.get('person')
+    cheer_message = get_cheer_message(person)
+    await session.send(cheer_message)
+
+@cheer.args_parser
 async def _(session: CommandSession):
     stripped_arg = session.current_arg_text.strip()
     if session.is_first_run:
