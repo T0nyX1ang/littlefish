@@ -4,7 +4,7 @@ from nonebot.log import logger
 from nonebot.message import MessageSegment
 from apscheduler.triggers.date import DateTrigger
 from ftptsgame.exceptions import FTPtsGameError
-from .admire import get_admire_message
+from .exclaim import get_admire_message
 from .core import is_enabled
 from .global_value import CURRENT_ENABLED, CURRENT_42_APP, CURRENT_42_RANKING
 import nonebot

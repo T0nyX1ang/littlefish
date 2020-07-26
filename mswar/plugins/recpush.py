@@ -4,7 +4,7 @@ from nonebot.log import logger
 from urllib.parse import quote, unquote
 from .analyze import from_record_id, format_analyze_result
 from .core import fetch, is_enabled
-from .admire import get_admire_message
+from .exclaim import get_admire_message
 import time
 import traceback
 
