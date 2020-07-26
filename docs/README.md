@@ -1,4 +1,6 @@
-# mswar-bot(小鱼)
+# mswar-bot
+
+## 小鱼
 A bot for minesweeper war. Happy fishing!
 
 ## 简介
