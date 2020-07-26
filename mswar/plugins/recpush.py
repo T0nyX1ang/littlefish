@@ -4,7 +4,7 @@ from nonebot.log import logger
 from urllib.parse import quote, unquote
 from .analyze import from_record_id, format_analyze_result
 from .core import fetch, is_enabled
-from .exclaim import get_admire_message
+from .exclaim import get_admire_message, get_cheer_message
 import time
 import traceback
 
@@ -55,5 +55,7 @@ async def _(session: NLPSession):
             await session.send(format_user_result(result))
         if ('恭喜' and '刷新' and '纪录') in stripped_msg:
             await session.send(get_admire_message(result['name']))
+        if result['solved_bv'] < result['bv']:
+            await session.send(get_cheer_message(result['name']))
     except Exception as e:
         logger.error(traceback.format_exc())

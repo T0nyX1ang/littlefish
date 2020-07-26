@@ -32,10 +32,6 @@ def get_admire_message(person=''):
 
 def get_cheer_message(person=''):
     exaggeration = [
-        # ！ (Chinese exclaimation)
-        '！',
-        '！！',
-        '！！！',
         # emoji
         '💪',
         '💪💪',
