@@ -20,7 +20,7 @@ async def _ (session: NLPSession):
         if CURRENT_COMBO_COUNTER[group_id] < 6:
             CURRENT_COMBO_COUNTER[group_id] += 1
             if CURRENT_COMBO_COUNTER[group_id] == 5:
-                random_number = random.randint(1, 4)
+                random_number = random.randint(1, 20)
                 if random_number > 1:
                     await session.send(CURRENT_GROUP_MESSAGE[group_id])
                 else:
