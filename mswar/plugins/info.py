@@ -138,8 +138,6 @@ async def info(session: CommandSession):
         searched_user_id = user_info['id']
         if searched_user_id not in CURRENT_ID_COLDING_LIST[group_id]:
             CURRENT_ID_COLDING_LIST[group_id].append(searched_user_id)
-            user_info_message = format_user_info(user_info)
-            await session.send(user_info_message)
             delta = datetime.timedelta(hours=1)
             trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
             scheduler.add_job(
@@ -148,6 +146,8 @@ async def info(session: CommandSession):
                 args=(group_id, searched_user_id),
                 misfire_grace_time=30,
             )
+            user_info_message = format_user_info(user_info)
+            await session.send(user_info_message)
     else:
         await session.send('无法查找到该用户')
 
@@ -158,3 +158,29 @@ async def _(session: CommandSession):
         if stripped_arg and stripped_arg[0] == '%':
             stripped_arg = ' ' * 20 + stripped_arg[1:]
         session.state['name'] = stripped_arg
+
+@on_command('personinfo', aliases=('个人信息', '个人成绩'), permission=SUPERUSER | GROUP, only_to_me=False)
+async def personinfo(session: CommandSession):
+    if not is_enabled(session.event):
+        session.finish('小鱼睡着了zzz~')
+        
+    group_id = session.event['group_id']
+    player_id = session.event['sender']['title']
+    name = ' ' * 20 + str(player_id)
+    user_info = await get_user_info(name)
+    if user_info:
+        searched_user_id = user_info['id']
+        if searched_user_id not in CURRENT_ID_COLDING_LIST[group_id]:
+            CURRENT_ID_COLDING_LIST[group_id].append(searched_user_id)
+            delta = datetime.timedelta(hours=1)
+            trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
+            scheduler.add_job(
+                func=remove_id_from_colding_list,
+                trigger=trigger,
+                args=(group_id, searched_user_id),
+                misfire_grace_time=30,
+            )
+            user_info_message = format_user_info(user_info)
+            await session.send(user_info_message)
+    else:
+        await session.send('无法查找到该用户')
