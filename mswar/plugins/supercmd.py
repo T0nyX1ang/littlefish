@@ -6,6 +6,7 @@ from nonebot.log import logger
 from urllib.parse import quote, unquote
 from .core import fetch, is_online, is_enabled
 from .global_value import *
+import shutil
 import nonebot
 import json
 import traceback
@@ -17,6 +18,12 @@ def save_global_keys():
 def save_local_data(group_id):
     group_hash = hashlib.sha3_256(PRIMARY_PASSWORD + str(group_id).encode()).hexdigest()
     database_path = os.path.join(LOCAL_DATABASE_PATH, '%s.dat') % (group_hash)
+    database_backup = os.path.join(LOCAL_DATABASE_PATH, '%s.bak') % (group_hash)
+    
+    # First backup the former database
+    shutil.copyfile(database_path, database_backup)
+    
+    # Then write the latter database
     database = {
         'group_message': CURRENT_GROUP_MESSAGE[group_id], 
         'combo_counter': CURRENT_COMBO_COUNTER[group_id], 
