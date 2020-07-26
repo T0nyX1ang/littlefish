@@ -44,21 +44,21 @@ def print_results(group_id):
 
     players = CURRENT_42_APP[group_id].get_current_player_statistics()
 
-    for player_id in players:
-        player_hash = hashlib.sha3_256(str(player_id).encode()).hexdigest()
-        
-        if player_hash not in CURRENT_42_RANKING[group_id]:
-            CURRENT_42_RANKING[group_id][player_hash] = 0
-        
-        CURRENT_42_RANKING[group_id][player_hash] += bonus
+    for player in players:
+        player_id = str(player)
 
-        for problem in players[player_id]:
+        if player_id not in CURRENT_42_RANKING[group_id]:
+            CURRENT_42_RANKING[group_id][player_id] = 0
+        
+        CURRENT_42_RANKING[group_id][player_id] += bonus
+
+        for problem in players[player]:
             if problem == 1:
-                CURRENT_42_RANKING[group_id][player_hash] += 10
+                CURRENT_42_RANKING[group_id][player_id] += 10
             elif problem == current_solution_number:
-                CURRENT_42_RANKING[group_id][player_hash] += 20
+                CURRENT_42_RANKING[group_id][player_id] += int(20 * problem / total_solution_number)
             else:
-                CURRENT_42_RANKING[group_id][player_hash] += int(10 * problem / total_solution_number)
+                CURRENT_42_RANKING[group_id][player_id] += int(10 * problem / total_solution_number)
 
     ordered_players = sorted(players, key=lambda k: len(players[k]), reverse=True)
     for person in ordered_players:
@@ -151,19 +151,20 @@ async def calc42(session: CommandSession):
             message = MessageSegment.at(current_sender) + ' 恭喜完成第%d个解，完成时间: %.3f秒，%s' % (CURRENT_42_APP[group_id].get_current_solution_number(), finish_time, admire_message)
             await session.send(message)
 
-            player_hash = hashlib.sha3_256(str(current_sender).encode()).hexdigest()
-            if player_hash not in CURRENT_42_RANKING[group_id]:
-                CURRENT_42_RANKING[group_id][player_hash] = 0
+            player_id = str(current_sender)
+
+            if player_id not in CURRENT_42_RANKING[group_id]:
+                CURRENT_42_RANKING[group_id][player_id] = 0
 
             # Accumulate time score
             if finish_time / current_deadline <= 0.2:
-                CURRENT_42_RANKING[group_id][player_hash] += 5
+                CURRENT_42_RANKING[group_id][player_id] += 5
             elif 0.2 < finish_time / current_deadline <= 0.5:
-                CURRENT_42_RANKING[group_id][player_hash] += 3
+                CURRENT_42_RANKING[group_id][player_id] += 3
             elif 0.5 < finish_time / current_deadline <= 0.8:
-                CURRENT_42_RANKING[group_id][player_hash] += 2
+                CURRENT_42_RANKING[group_id][player_id] += 2
             else:
-                CURRENT_42_RANKING[group_id][player_hash] += 1
+                CURRENT_42_RANKING[group_id][player_id] += 1
 
             scheduler.remove_job(str(group_id)) # First remove current timer
 
@@ -264,13 +265,14 @@ async def score42(session: CommandSession):
     group_id = session.event['group_id']
     current_sender = session.event['sender']['user_id']
     ranking = sorted(CURRENT_42_RANKING[group_id], key=lambda x: CURRENT_42_RANKING[group_id][x], reverse=True)
-    player_hash = hashlib.sha3_256(str(current_sender).encode()).hexdigest()
-    if player_hash not in ranking:
+
+    player_id = str(current_sender)
+    if player_id not in ranking:
         await session.send('当前积分: 0，暂无排名')
     else:
         result = 0
         for i in range(0, len(ranking)):
-            if player_hash == ranking[i]:
+            if player_id == ranking[i]:
                 result = i
                 break
         score = CURRENT_42_RANKING[group_id][ranking[result]]
@@ -293,8 +295,13 @@ async def ranking42(session: CommandSession):
     line = ['42点积分排行榜:']
     if ranking:
         for i in range(0, len(ranking)):
-            if i < 9:
-                line.append('[%d] %.1f [%s]' % (i + 1, CURRENT_42_RANKING[group_id][ranking[i]] / CURRENT_42_RANKING[group_id][ranking[0]] * 100, ranking[i][:4]))
+            if i < 10:
+                member_info = await session.bot.get_group_member_info(group_id=group_id, user_id=int(ranking[i]))
+                line.append('[%d] %.1f - %s' % (
+                    i + 1, 
+                    CURRENT_42_RANKING[group_id][ranking[i]] / CURRENT_42_RANKING[group_id][ranking[0]] * 100, 
+                    member_info['card']
+                ))
     else:
         line.append('当前暂无排名')
 
