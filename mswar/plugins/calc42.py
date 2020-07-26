@@ -285,14 +285,14 @@ async def score42(session: CommandSession):
             distance = upper_score - score
             await session.send('当前积分: %.1f，排名: %d，距上一名%.1f分，冲鸭!' % (score / max_score * 100, result + 1, distance / max_score * 100))
 
-@on_command('ranking42', aliases=('42点排名', '42点排行榜'), permission=SUPERUSER | GROUP, only_to_me=False)
+@on_command('ranking42', aliases=('42点排名', '42点排行', '42点排行榜'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def ranking42(session: CommandSession):
     if not is_enabled(session.event):
         session.finish('小鱼睡着了zzz~')
 
     group_id = session.event['group_id']
     ranking = sorted(CURRENT_42_RANKING[group_id], key=lambda x: CURRENT_42_RANKING[group_id][x], reverse=True)
-    line = ['42点积分排行榜:']
+    line = ['42点积分排行榜:', '最高得分: %d' % (CURRENT_42_RANKING[group_id][ranking[0]]), '-- 归一化得分 --']
     if ranking:
         for i in range(0, len(ranking)):
             if i < 10:
