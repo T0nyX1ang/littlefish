@@ -296,11 +296,15 @@ async def ranking42(session: CommandSession):
     if ranking:
         for i in range(0, len(ranking)):
             if i < 10:
-                member_info = await session.bot.get_group_member_info(group_id=group_id, user_id=int(ranking[i]))
+                try:
+                    member_info = await session.bot.get_group_member_info(group_id=group_id, user_id=int(ranking[i]))
+                except Exception as e:
+                    logger.warning('The user [%s] might not inside this group now.' % (ranking[i]))
+                    member_info = None
                 line.append('[%d] %.1f - %s' % (
                     i + 1, 
                     CURRENT_42_RANKING[group_id][ranking[i]] / CURRENT_42_RANKING[group_id][ranking[0]] * 100, 
-                    member_info['card']
+                    member_info['card'] if member_info else '匿名大佬'
                 ))
     else:
         line.append('当前暂无排名')
