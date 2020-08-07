@@ -325,6 +325,8 @@ async def _():
                 CURRENT_42_APP[group_id].start()
                 message = print_current_problem(group_id)
                 deadline = get_deadline(group_id)
+                await bot.send_group_msg(group_id=group_id, message=message)
+
                 delta = datetime.timedelta(seconds=deadline)
                 trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
                 scheduler.add_job(
@@ -334,6 +336,7 @@ async def _():
                     misfire_grace_time=30,
                     id=str(group_id),
                 )
-                await bot.send_group_msg(group_id=group_id, message=message)
     except Exception as e:
         logger.error(traceback.format_exc())
+        if CURRENT_42_APP[group_id].is_playing():
+            CURRENT_42_APP[group_id].stop()
