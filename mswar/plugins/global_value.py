@@ -37,10 +37,12 @@ CURRENT_COMBO_COUNTER = {}
 
 # calc42 module
 CURRENT_42_APP = {}
-CURRENT_42_RANKING = {}
 
 # info module
 CURRENT_ID_COLDING_LIST = {}
 
 # conflict module
 CURRENT_CONFLICT_COUNTER = {}
+
+# group members
+CURRENT_GROUP_MEMBERS = {}

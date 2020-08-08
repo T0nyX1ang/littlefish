@@ -27,11 +27,11 @@ def save_local_data(group_id):
     database = {
         'group_message': CURRENT_GROUP_MESSAGE[group_id], 
         'combo_counter': CURRENT_COMBO_COUNTER[group_id], 
-        '42ranking': CURRENT_42_RANKING[group_id], 
+        'group_members': CURRENT_GROUP_MEMBERS[group_id], 
         'conflict_counter': CURRENT_CONFLICT_COUNTER[group_id]
     }
     with open(database_path, 'wb') as f:
-        f.write(PRIMARY_ENCRYPT(json.dumps(database)))
+        f.write(PRIMARY_ENCRYPT(json.dumps(database, sort_keys=True)))
 
 @on_command('login', aliases=('登录'), permission=SUPERUSER, only_to_me=False)
 async def login(session: CommandSession):
