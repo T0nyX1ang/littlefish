@@ -6,7 +6,7 @@ from apscheduler.triggers.date import DateTrigger
 from ftptsgame.exceptions import FTPtsGameError
 from .exclaim import get_admire_message
 from .core import is_enabled, text_to_picture
-from .global_value import CURRENT_ENABLED, CURRENT_42_APP, CURRENT_42_RANKING
+from .global_value import CURRENT_ENABLED, CURRENT_42_APP, CURRENT_GROUP_MEMBERS
 import nonebot
 import hashlib
 import datetime
@@ -22,10 +22,8 @@ def print_current_solutions(group_id):
     line = []
     if len(current_solutions) > 0:
         line.append('有效求解:')
-        for i in range(0, len(current_solutions) // 2):
-            line.append('[%d] %s [%d] %s' % (2 * i + 1, current_solutions[2 * i].ljust(30), 2 * i + 2, current_solutions[2 * i + 1]))
-        if len(current_solutions) % 2 == 1:
-            line.append('[%d] %s' % (len(current_solutions), current_solutions[-1]))
+        for i in range(0, len(current_solutions)):
+            line.append('[%d] %s' % (i + 1, current_solutions[i]))
     else:
         line.append('当前暂无有效求解')
     message = ''
@@ -47,24 +45,25 @@ def print_results(group_id):
     for player in players:
         player_id = str(player)
 
-        if player_id not in CURRENT_42_RANKING[group_id]:
-            CURRENT_42_RANKING[group_id][player_id] = 0
+        if player_id not in CURRENT_GROUP_MEMBERS[group_id]:
+            CURRENT_GROUP_MEMBERS[group_id][player_id] = {}
+            CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] = 0
         
-        CURRENT_42_RANKING[group_id][player_id] += bonus
+        CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += bonus
 
         for problem in players[player]:
             if problem == 1:
-                CURRENT_42_RANKING[group_id][player_id] += 10
+                CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += 10
             elif problem == current_solution_number:
-                CURRENT_42_RANKING[group_id][player_id] += int(20 * problem / total_solution_number)
+                CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += int(20 * problem / total_solution_number)
             else:
-                CURRENT_42_RANKING[group_id][player_id] += int(10 * problem / total_solution_number)
+                CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += int(10 * problem / total_solution_number)
 
     ordered_players = sorted(players, key=lambda k: len(players[k]), reverse=True)
 
     # 50% AK bonus
-    if players[ordered_players[0]] * 2 >= total_solution_number:
-        CURRENT_42_RANKING[group_id][player_id] += total_solution_number
+    if len(players[ordered_players[0]]) * 2 > total_solution_number:
+        CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += total_solution_number
 
     for person in ordered_players:
         if person > 0:
@@ -102,7 +101,6 @@ async def ready_finish_game(group_id):
                 trigger=trigger,
                 args=(group_id, ),
                 misfire_grace_time=30,
-                id=str(group_id),
             )
             await bot.send_group_msg(group_id=group_id, message='剩余60秒，冲鸭~')
     except Exception as e:
@@ -142,25 +140,27 @@ async def calc42(session: CommandSession):
             message = MessageSegment.at(current_sender) + ' 恭喜完成第%d个解，完成时间: %.3f秒，%s' % (CURRENT_42_APP[group_id].get_current_solution_number(), finish_time, admire_message)
             await session.send(message)
 
-            await session.send('[CQ:image,file=%s]' % text_to_picture(get_current_stats(group_id)))
-
             player_id = str(current_sender)
 
-            if player_id not in CURRENT_42_RANKING[group_id]:
-                CURRENT_42_RANKING[group_id][player_id] = 0
+            if player_id not in CURRENT_GROUP_MEMBERS[group_id]:
+                CURRENT_GROUP_MEMBERS[group_id][player_id] = {}
+                CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] = 0
 
             # Accumulate time score
             if finish_time / current_deadline <= 0.2:
-                CURRENT_42_RANKING[group_id][player_id] += 5
+                CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += 5
             elif 0.2 < finish_time / current_deadline <= 0.5:
-                CURRENT_42_RANKING[group_id][player_id] += 3
+                CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += 3
             elif 0.5 < finish_time / current_deadline <= 0.8:
-                CURRENT_42_RANKING[group_id][player_id] += 2
+                CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += 2
             else:
-                CURRENT_42_RANKING[group_id][player_id] += 1
+                CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += 1
 
             if CURRENT_42_APP[group_id].get_current_solution_number() == CURRENT_42_APP[group_id].get_total_solution_number():
                 await finish_game(group_id) # Then game is over now
+            else:
+                await session.send('[CQ:image,file=%s]' % text_to_picture(get_current_stats(group_id)))
+
         except FTPtsGameError as ge:
             errno, hint = ge.get_details()
             message = ''
@@ -210,7 +210,7 @@ async def calc42help(session: CommandSession):
     如果需要查询得分说明，请输入"42点得分说明".
     (3)将根据每个问题解的个数决定结算时间，10个解对应5分钟的
     结算时间，20分钟封顶，即min{20, 5*([(x-1)/10]+1)}.'''
-    example_message = '示例: (问题) 1 3 3 8 2,\n(正确的回答) calc42/42点 (1+3+3)/(8-2),\n(错误的回答) calc422^8!3&3=1.'
+    example_message = '示例: (问题) 1 3 3 8 2,\n(正确的回答) calc42/42点 (1+3+3)*(8-2),\n(错误的回答) calc422^8!3&3=1.'
     await session.send('[CQ:image,file=%s]' % text_to_picture(message + '\n' + example_message))
 
 @on_command('calc42equal', aliases=('42点等价解', '等价解说明'), permission=SUPERUSER | GROUP, only_to_me=False)
@@ -240,9 +240,10 @@ async def calc42score(session: CommandSession):
     (3)求解分:首杀记10分，接力赛胜利按(20*当前解数/总共解数)
     向下取整记分，其余求解按照(10*当前解数/总共解数)向下取整记分;
     (4)如果题目被完全求解(AK)，求解该题目全员额外加10分.
-    (5)如果题目的一半解均被某名玩家求出，该名玩家额外加(总共解数)分.
+    (5)如果题目多于一半的解均被某名玩家求出，该名玩家额外加(总共
+    解数)分.
     (6)显示积分时会进行归一化.'''
-    session.send('[CQ:image,file=%s]' % text_to_picture(score_message))
+    await session.send('[CQ:image,file=%s]' % text_to_picture(score_message))
 
 @on_command('score42', aliases=('42点积分', '42点得分'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def score42(session: CommandSession):
@@ -251,7 +252,7 @@ async def score42(session: CommandSession):
 
     group_id = session.event['group_id']
     current_sender = session.event['sender']['user_id']
-    ranking = sorted(CURRENT_42_RANKING[group_id], key=lambda x: CURRENT_42_RANKING[group_id][x], reverse=True)
+    ranking = sorted(CURRENT_GROUP_MEMBERS[group_id], key=lambda x: CURRENT_GROUP_MEMBERS[group_id][x]['42score'], reverse=True)
 
     player_id = str(current_sender)
     if player_id not in ranking:
@@ -262,13 +263,13 @@ async def score42(session: CommandSession):
             if player_id == ranking[i]:
                 result = i
                 break
-        score = CURRENT_42_RANKING[group_id][ranking[result]]
-        max_score = CURRENT_42_RANKING[group_id][ranking[0]]
+        score = CURRENT_GROUP_MEMBERS[group_id][ranking[result]]['42score']
+        max_score = CURRENT_GROUP_MEMBERS[group_id][ranking[0]]['42score']
         if result == 0:
             admire_message = get_admire_message()
             await session.send('当前积分: %.1f，排名: %d，%s' % (100.0, result + 1, admire_message))
         else:
-            upper_score = CURRENT_42_RANKING[group_id][ranking[result - 1]]
+            upper_score = CURRENT_GROUP_MEMBERS[group_id][ranking[result - 1]]
             distance = upper_score - score
             await session.send('当前积分: %.1f，排名: %d，距上一名%.1f分，冲鸭!' % (score / max_score * 100, result + 1, distance / max_score * 100))
 
@@ -278,8 +279,8 @@ async def ranking42(session: CommandSession):
         session.finish('小鱼睡着了zzz~')
 
     group_id = session.event['group_id']
-    ranking = sorted(CURRENT_42_RANKING[group_id], key=lambda x: CURRENT_42_RANKING[group_id][x], reverse=True)
-    line = ['42点积分排行榜:', '最高得分: %d' % (CURRENT_42_RANKING[group_id][ranking[0]]), '-- 归一化得分 --']
+    ranking = sorted(CURRENT_GROUP_MEMBERS[group_id], key=lambda x: CURRENT_GROUP_MEMBERS[group_id][x]['42score'], reverse=True)
+    line = ['42点积分排行榜:', '最高得分: %d' % (CURRENT_GROUP_MEMBERS[group_id][ranking[0]]['42score']), '-- 归一化得分 --']
     if ranking:
         for i in range(0, len(ranking)):
             if i < 10:
@@ -290,7 +291,7 @@ async def ranking42(session: CommandSession):
                     member_info = None
                 line.append('[%d] %.1f - %s' % (
                     i + 1, 
-                    CURRENT_42_RANKING[group_id][ranking[i]] / CURRENT_42_RANKING[group_id][ranking[0]] * 100, 
+                    CURRENT_GROUP_MEMBERS[group_id][ranking[i]]['42score'] / CURRENT_GROUP_MEMBERS[group_id][ranking[0]]['42score'] * 100, 
                     member_info['card'] if member_info else '匿名大佬'
                 ))
     else:
@@ -321,7 +322,6 @@ async def _():
                     trigger=trigger,
                     args=(group_id, ),
                     misfire_grace_time=30,
-                    id=str(group_id),
                 )
     except Exception as e:
         logger.error(traceback.format_exc())
