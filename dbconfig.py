@@ -94,6 +94,9 @@ if args.encrypt:
 				with open(os.path.join(GLOBAL_DATABASE_PATH, files), 'r') as f:
 					data = f.read()
 
+				_validate = json.loads(data)
+				data = json.dumps(_validate, sort_keys=True)
+
 				with open(os.path.join(GLOBAL_DATABASE_PATH, filename + '.dat'), 'wb') as f:
 					f.write(PRIMARY_ENCRYPT(data))
 
@@ -105,6 +108,9 @@ if args.encrypt:
 
 				with open(os.path.join(LOCAL_DATABASE_PATH, files), 'r') as f:
 					data = f.read()
+
+				_validate = json.loads(data)
+				data = json.dumps(_validate, sort_keys=True)
 
 				with open(os.path.join(LOCAL_DATABASE_PATH, filename + '.dat'), 'wb') as f:
 					f.write(PRIMARY_ENCRYPT(data))
