@@ -64,7 +64,7 @@ def print_results(group_id):
 
     # 50% AK bonus
     if players[ordered_players[0]] * 2 >= total_solution_number:
-        CURRENT_42_RANKING[group_id][player_id] += 5
+        CURRENT_42_RANKING[group_id][player_id] += total_solution_number
 
     for person in ordered_players:
         if person > 0:
@@ -240,7 +240,8 @@ async def calc42score(session: CommandSession):
     (3)求解分:首杀记10分，接力赛胜利按(20*当前解数/总共解数)
     向下取整记分，其余求解按照(10*当前解数/总共解数)向下取整记分;
     (4)如果题目被完全求解(AK)，求解该题目全员额外加10分.
-    (5)显示积分时会进行归一化.'''
+    (5)如果题目的一半解均被某名玩家求出，该名玩家额外加(总共解数)分.
+    (6)显示积分时会进行归一化.'''
     session.send('[CQ:image,file=%s]' % text_to_picture(score_message))
 
 @on_command('score42', aliases=('42点积分', '42点得分'), permission=SUPERUSER | GROUP, only_to_me=False)
