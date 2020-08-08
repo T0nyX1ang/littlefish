@@ -23,13 +23,13 @@ def format_user_info(user_info):
         '%s (Id: %d) %s' % (user_info['nickname'], user_info['id'], sex_ref[user_info['sex']]),
         '初级记录: %s(%s) | %s(%s)' % (user_info['stat']['best_beg_time'], user_info['stat']['best_beg_time_rank'], 
                                       user_info['stat']['best_beg_bvs'], user_info['stat']['best_beg_bvs_rank']),
-        '初级局数: %d / %d (%.1f%%)' % (user_info['stat']['beg_win_total'], user_info['stat']['beg_total'], user_info['stat']['beg_win_rate']),
+        '初级局数: %.1fw (%.1f%%)' % (user_info['stat']['beg_total'] / 10000, user_info['stat']['beg_win_rate']),
         '中级记录: %s(%s) | %s(%s)' % (user_info['stat']['best_int_time'], user_info['stat']['best_int_time_rank'], 
                                       user_info['stat']['best_int_bvs'], user_info['stat']['best_int_bvs_rank']),
-        '中级局数: %d / %d (%.1f%%)' % (user_info['stat']['int_win_total'], user_info['stat']['int_total'], user_info['stat']['int_win_rate']),
+        '中级局数: %.1fw (%.1f%%)' % (user_info['stat']['int_total'] / 10000, user_info['stat']['int_win_rate']),
         '高级记录: %s(%s) | %s(%s)' % (user_info['stat']['best_exp_time'], user_info['stat']['best_exp_time_rank'], 
                                       user_info['stat']['best_exp_bvs'], user_info['stat']['best_exp_bvs_rank']),
-        '高级局数: %d / %d (%.1f%%)' % (user_info['stat']['exp_win_total'], user_info['stat']['exp_total'], user_info['stat']['exp_win_rate']),
+        '高级局数: %.1fw (%.1f%%)' % (user_info['stat']['exp_total'] / 10000, user_info['stat']['exp_win_rate']),
         '总计: %s(%s) | %s(%s)' % (user_info['stat']['total_time'], user_info['stat']['total_time_rank'], 
                                   user_info['stat']['total_bvs'], user_info['stat']['total_bvs_rank']),
     ]
@@ -37,7 +37,7 @@ def format_user_info(user_info):
         line.append('评价: %s 级, 排位第 %d 名' % (level_ref[user_info['level']] , user_info['rank']))
     else:
         line.append('未加入排名, 无评价')
-    line.append('雷网主页: %s' % user_info['lw_url'])
+    line.append('雷网: %s' % user_info['saoleiID'])
     result_message = ''
     for each_line in line:
         result_message = result_message + each_line + '\n'
@@ -76,9 +76,9 @@ async def get_user_info(name):
     # home info
     home_info_result = await get_user_home_info(uid)
     if home_info_result['data']['saoleiOauth']:
-        user_info['lw_url'] = '(%s) http://saolei.wang/Player/Index.asp?Id=%s' % (home_info_result['data']['saoleiOauth']['name'].strip(), home_info_result['data']['saoleiOauth']['openId'].strip())
+        user_info['saoleiID'] = '%s [%s]' % (home_info_result['data']['saoleiOauth']['name'].strip(), home_info_result['data']['saoleiOauth']['openId'].strip())
     else:
-        user_info['lw_url'] = '暂未关联'
+        user_info['saoleiID'] = '暂未关联'
 
     # career info
     career_result = await get_user_career(uid)
@@ -165,7 +165,9 @@ async def personinfo(session: CommandSession):
         session.finish('小鱼睡着了zzz~')
         
     group_id = session.event['group_id']
-    player_id = session.event['sender']['title']
+    user_id = session.event['sender']['user_id']
+    user_info = await session.bot.get_group_member_info(group_id=group_id, user_id=user_id)
+    player_id = user_info['title']
     name = ' ' * 20 + str(player_id)
     user_info = await get_user_info(name)
     if user_info:
