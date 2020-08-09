@@ -5,7 +5,7 @@ from nonebot.message import MessageSegment
 from apscheduler.triggers.date import DateTrigger
 from ftptsgame.exceptions import FTPtsGameError
 from .exclaim import get_admire_message
-from .core import is_enabled, text_to_picture
+from .core import is_enabled, text_to_picture, get_member_name
 from .global_value import CURRENT_ENABLED, CURRENT_42_APP, CURRENT_GROUP_MEMBERS
 import nonebot
 import hashlib
@@ -44,13 +44,7 @@ def print_results(group_id):
 
     for player in players:
         player_id = str(player)
-
-        if player_id not in CURRENT_GROUP_MEMBERS[group_id]:
-            CURRENT_GROUP_MEMBERS[group_id][player_id] = {}
-            CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] = 0
-        
         CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += bonus
-
         for problem in players[player]:
             if problem == 1:
                 CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += 10
@@ -60,7 +54,6 @@ def print_results(group_id):
                 CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += int(10 * problem / total_solution_number)
 
     ordered_players = sorted(players, key=lambda k: len(players[k]), reverse=True)
-
     # 50% AK bonus
     if len(players[ordered_players[0]]) * 2 > total_solution_number:
         CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += total_solution_number
@@ -141,11 +134,6 @@ async def calc42(session: CommandSession):
             await session.send(message)
 
             player_id = str(current_sender)
-
-            if player_id not in CURRENT_GROUP_MEMBERS[group_id]:
-                CURRENT_GROUP_MEMBERS[group_id][player_id] = {}
-                CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] = 0
-
             # Accumulate time score
             if finish_time / current_deadline <= 0.2:
                 CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += 5
@@ -269,7 +257,7 @@ async def score42(session: CommandSession):
             admire_message = get_admire_message()
             await session.send('当前积分: %.1f，排名: %d，%s' % (100.0, result + 1, admire_message))
         else:
-            upper_score = CURRENT_GROUP_MEMBERS[group_id][ranking[result - 1]]
+            upper_score = CURRENT_GROUP_MEMBERS[group_id][ranking[result - 1]]['42score']
             distance = upper_score - score
             await session.send('当前积分: %.1f，排名: %d，距上一名%.1f分，冲鸭!' % (score / max_score * 100, result + 1, distance / max_score * 100))
 
@@ -284,15 +272,10 @@ async def ranking42(session: CommandSession):
     if ranking:
         for i in range(0, len(ranking)):
             if i < 10:
-                try:
-                    member_info = await session.bot.get_group_member_info(group_id=group_id, user_id=int(ranking[i]))
-                except Exception as e:
-                    logger.warning('The user [%s] might not inside this group now.' % (ranking[i]))
-                    member_info = None
                 line.append('[%d] %.1f - %s' % (
                     i + 1, 
                     CURRENT_GROUP_MEMBERS[group_id][ranking[i]]['42score'] / CURRENT_GROUP_MEMBERS[group_id][ranking[0]]['42score'] * 100, 
-                    member_info['card'] if member_info else '匿名大佬'
+                    get_member_name(group_id=group_id, user_id=ranking[i])
                 ))
     else:
         line.append('当前暂无排名')
