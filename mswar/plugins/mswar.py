@@ -233,6 +233,7 @@ def get_effective_operations(board, action):
 
 def get_board_result(board):
     result = {}
+    result['board'] = board
     result['row'] = get_row(board)
     result['column'] = get_column(board)
 
