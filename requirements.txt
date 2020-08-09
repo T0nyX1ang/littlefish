@@ -3,3 +3,4 @@ nonebot[scheduler]==1.6.0
 requests>=2.21.0
 pycryptodome>=3.9.6
 beautifulsoup4>=4.9.1
+matplotlib>=3.0.3
