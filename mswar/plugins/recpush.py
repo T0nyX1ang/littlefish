@@ -2,7 +2,7 @@ from nonebot import on_natural_language, NLPSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
 from urllib.parse import quote, unquote
-from .analyze import from_record_id, format_analyze_result
+from .analyze import from_record_id, format_analyze_result, generate_board_picture
 from .core import fetch, is_enabled
 from .exclaim import get_admire_message, get_cheer_message
 import time
@@ -50,6 +50,7 @@ async def _(session: NLPSession):
     try:
         post_id = int(post_id) # forcibly convert to int
         result = await from_post_id_with_user(post_id)
+        await session.send(generate_board_picture(result))
         await session.send(format_analyze_result(result))
         if '时间纪录' in stripped_msg:
             await session.send(format_user_result(result))
