@@ -3,9 +3,49 @@ from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
 from .core import fetch, is_enabled
 from .mswar import get_board, get_action, get_result
-from base64 import b64decode
+from .global_value import THEME_RESOURCE
+from base64 import b64encode, b64decode
+from io import BytesIO
+import numpy
+import matplotlib.pyplot as plt
 import gzip
 import traceback
+
+def generate_board_picture(result: dict) -> str:
+    row = result['row']
+    column = result['column']
+    board = result['board']
+    status = result['current_status']
+
+    fig = plt.figure(figsize=(row, column))
+
+    for r in range(0, row):
+        for c in range(0, column):
+            if status[r][c] == 1:
+                cur = THEME_RESOURCE[board[r][c]]
+            elif status[r][c] == 0:
+                if board[r][c] == '9' and result['solved_bv'] < result['bv']: # finished
+                    cur = THEME_RESOURCE['mine']
+                else:
+                    cur = THEME_RESOURCE['normal']
+            elif status[r][c] == -1:
+                cur = THEME_RESOURCE['flag']
+            elif status[r][c] == -2:
+                cur = THEME_RESOURCE['boom']
+            elif status[r][c] == -3:
+                cur = THEME_RESOURCE['error']
+            cimg = numpy.concatenate([cimg, cur], axis=0) if c > 0 else cur
+        himg = numpy.concatenate([himg, cimg], axis=1) if r > 0 else cimg 
+
+    plt.axis('off')
+    plt.imshow(himg)
+    plt.subplots_adjust(wspace=0, hspace=0, left=0, bottom=0, top=1, right=1)
+
+    buf = BytesIO()
+    plt.savefig(buf)
+    data = buf.getvalue()
+    buf.close()
+    return 'base64://' + b64encode(data).decode()
 
 def format_analyze_result(result: dict) -> str:
     line = [
@@ -48,7 +88,7 @@ async def get_analyze_result(mode: str, target_id: str) -> str:
             result = await from_record_id(target_id)
         else:
             result = await from_post_id(target_id)
-        return format_analyze_result(result)
+        return generate_board_picture(result), format_analyze_result(result)
     except Exception as e:
         logger.error(traceback.format_exc())
         return '无法查询到录像信息'
@@ -60,7 +100,8 @@ async def analyze(session: CommandSession):
     mode = session.get('mode')
     target_id = session.get('id')
     analyze_result = await get_analyze_result(mode, target_id)
-    await session.send(analyze_result)
+    await session.send('[CQ:image,file=%s]' % analyze_result[0])
+    await session.send(analyze_result[1])
 
 @analyze.args_parser
 async def _(session: CommandSession):
