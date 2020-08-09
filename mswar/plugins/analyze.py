@@ -17,7 +17,7 @@ def generate_board_picture(result: dict) -> str:
     board = result['board']
     status = result['current_status']
 
-    fig = plt.figure(figsize=(row, column))
+    fig = plt.figure(figsize=(column, row))
 
     for r in range(0, row):
         for c in range(0, column):
@@ -34,8 +34,8 @@ def generate_board_picture(result: dict) -> str:
                 cur = THEME_RESOURCE['boom']
             elif status[r][c] == -3:
                 cur = THEME_RESOURCE['error']
-            cimg = numpy.concatenate([cimg, cur], axis=0) if c > 0 else cur
-        himg = numpy.concatenate([himg, cimg], axis=1) if r > 0 else cimg 
+            cimg = numpy.concatenate([cimg, cur], axis=1) if c > 0 else cur
+        himg = numpy.concatenate([himg, cimg], axis=0) if r > 0 else cimg 
 
     plt.axis('off')
     plt.imshow(himg)
