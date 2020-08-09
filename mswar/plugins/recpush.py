@@ -50,7 +50,7 @@ async def _(session: NLPSession):
     try:
         post_id = int(post_id) # forcibly convert to int
         result = await from_post_id_with_user(post_id)
-        await session.send(generate_board_picture(result))
+        await session.send('[CQ:image,file=%s]' % generate_board_picture(result))
         await session.send(format_analyze_result(result))
         if '时间纪录' in stripped_msg:
             await session.send(format_user_result(result))
