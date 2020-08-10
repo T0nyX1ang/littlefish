@@ -5,9 +5,8 @@ from .core import fetch, is_enabled
 from .mswar import get_board, get_action, get_result
 from .global_value import THEME_RESOURCE
 from base64 import b64encode, b64decode
-from io import BytesIO
 import numpy
-import matplotlib.pyplot as plt
+import cv2
 import gzip
 import traceback
 
@@ -16,9 +15,6 @@ def generate_board_picture(result: dict) -> str:
     column = result['column']
     board = result['board']
     status = result['current_status']
-
-    fig = plt.figure(figsize=(column, row))
-
     for r in range(0, row):
         for c in range(0, column):
             if status[r][c] == 1:
@@ -36,16 +32,8 @@ def generate_board_picture(result: dict) -> str:
                 cur = THEME_RESOURCE['error']
             cimg = numpy.concatenate([cimg, cur], axis=1) if c > 0 else cur
         himg = numpy.concatenate([himg, cimg], axis=0) if r > 0 else cimg 
-
-    plt.axis('off')
-    plt.imshow(himg)
-    plt.subplots_adjust(wspace=0, hspace=0, left=0, bottom=0, top=1, right=1)
-
-    buf = BytesIO()
-    plt.savefig(buf)
-    data = buf.getvalue()
-    buf.close()
-    return 'base64://' + b64encode(data).decode()
+    _, buf = cv2.imencode('.png', himg)
+    return 'base64://' + b64encode(buf).decode()
 
 def format_analyze_result(result: dict) -> str:
     line = [
