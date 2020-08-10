@@ -28,7 +28,8 @@ def save_local_data(group_id):
         'group_message': CURRENT_GROUP_MESSAGE[group_id], 
         'combo_counter': CURRENT_COMBO_COUNTER[group_id], 
         'group_members': CURRENT_GROUP_MEMBERS[group_id], 
-        'conflict_counter': CURRENT_CONFLICT_COUNTER[group_id]
+        'conflict_counter': CURRENT_CONFLICT_COUNTER[group_id],
+        '42_probability_list': CURRENT_42_PROB_LIST[group_id]
     }
     with open(database_path, 'wb') as f:
         f.write(PRIMARY_ENCRYPT(json.dumps(database, sort_keys=True)))
