@@ -45,6 +45,7 @@ CURRENT_COMBO_COUNTER = {}
 
 # calc42 module
 CURRENT_42_APP = {}
+CURRENT_42_PROB_LIST = {}
 
 # info module
 CURRENT_ID_COLDING_LIST = {}
