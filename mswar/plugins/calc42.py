@@ -6,7 +6,7 @@ from apscheduler.triggers.date import DateTrigger
 from ftptsgame.exceptions import FTPtsGameError
 from .exclaim import get_admire_message
 from .core import is_enabled, text_to_picture, get_member_name
-from .global_value import CURRENT_ENABLED, CURRENT_42_APP, CURRENT_GROUP_MEMBERS
+from .global_value import CURRENT_ENABLED, CURRENT_42_APP, CURRENT_42_PROB_LIST, CURRENT_GROUP_MEMBERS
 import nonebot
 import hashlib
 import datetime
@@ -292,11 +292,18 @@ async def _():
     try:
         for group_id in CURRENT_ENABLED.keys():
             if CURRENT_ENABLED[group_id] and not CURRENT_42_APP[group_id].is_playing():
-                CURRENT_42_APP[group_id].generate_problem('database', minimum_solutions=1)
+                CURRENT_42_APP[group_id].generate_problem('probability', prob=CURRENT_42_PROB_LIST[group_id].values())
                 CURRENT_42_APP[group_id].start()
                 message = print_current_problem(group_id)
                 deadline = get_deadline(group_id) - 60
                 await bot.send_group_msg(group_id=group_id, message=message)
+
+                current_problem = CURRENT_42_APP[group_id].get_current_problem()
+                for val in CURRENT_42_PROB_LIST[group_id].keys():
+                    if val == str(current_problem):
+                        CURRENT_42_PROB_LIST[group_id][val] = 0
+                    elif CURRENT_42_PROB_LIST[group_id][val] < 2000:
+                        CURRENT_42_PROB_LIST[group_id][val] = CURRENT_42_PROB_LIST[group_id][val] + 1 
 
                 delta = datetime.timedelta(seconds=deadline)
                 trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
