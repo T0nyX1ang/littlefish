@@ -117,14 +117,3 @@ async def _():
             save_local_data(group_id)
     except Exception as e:
         logger.error(traceback.format_exc())
-
-@nonebot.scheduler.scheduled_job('cron', hour='11,23', minute=0, second=0, misfire_grace_time=30)
-async def _():
-    bot = nonebot.get_bot()
-    try:
-        for group_id in CURRENT_ENABLED.keys():
-            if CURRENT_ENABLED[group_id]:
-                logger.info('Updating group members database ...')
-                await update_database(bot, group_id)
-    except Exception as e:
-        logger.error(traceback.format_exc())
