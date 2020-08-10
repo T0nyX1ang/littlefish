@@ -3,7 +3,7 @@
 
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
-import matplotlib.pyplot as plt
+import cv2
 import os
 import sys
 import json
@@ -15,7 +15,7 @@ RESOURCE_PATH = os.path.join(os.getcwd(), 'resource')
 THEME_RESOURCE = {}
 for file in os.listdir(RESOURCE_PATH):
 	filename = os.path.splitext(file)[0]
-	THEME_RESOURCE[filename] = plt.imread(os.path.join(RESOURCE_PATH, file))
+	THEME_RESOURCE[filename] = cv2.imread(os.path.join(RESOURCE_PATH, file))
 
 # primary password
 PRIMARY_PASSWORD = hashlib.sha3_256(getpass.getpass('Please enter your primary password: ').encode()).digest()
