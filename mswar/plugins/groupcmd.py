@@ -1,7 +1,9 @@
 from nonebot import on_startup, on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP_ADMIN
+from nonebot.log import logger
 from apscheduler.triggers.date import DateTrigger
 from ftptsgame import FTPtsGame
+from ftptsgame.database import DATABASE_42
 from .core import fetch, is_online, is_enabled
 from .global_value import *
 import os
@@ -45,19 +47,21 @@ async def enable(session: CommandSession):
         database = {
             'group_message': '', 
             'combo_counter': 0, 
-            'group_members': {}, 
-            'conflict_counter': 0
+            'group_members': {},
+            'conflict_counter': 0,
+            '42_probability_list': { str(k): 2000 for k in DATABASE_42.keys() }
         }
         with open(database_path, 'wb') as f:
             f.write(PRIMARY_ENCRYPT(json.dumps(database)))
 
     if group_id not in CURRENT_ENABLED: 
-        CURRENT_GROUP_MESSAGE[group_id] = database['group_message']
-        CURRENT_COMBO_COUNTER[group_id] = database['combo_counter']
+        CURRENT_GROUP_MESSAGE[group_id] = database['group_message'] if 'group_message' in database else ''
+        CURRENT_COMBO_COUNTER[group_id] = database['combo_counter'] if 'combo_counter' in database else 0
         CURRENT_42_APP[group_id] = FTPtsGame()
-        CURRENT_GROUP_MEMBERS[group_id] = database['group_members']
+        CURRENT_42_PROB_LIST[group_id] = database['42_probability_list'] if '42_probability_list' in database else { str(k): 2000 for k in DATABASE_42.keys() }
+        CURRENT_GROUP_MEMBERS[group_id] = database['group_members'] if 'group_members' in database else {}
         CURRENT_ID_COLDING_LIST[group_id] = []
-        CURRENT_CONFLICT_COUNTER[group_id] = database['conflict_counter']
+        CURRENT_CONFLICT_COUNTER[group_id] = database['conflict_counter'] if 'conflict_counter' in database else 0
 
     CURRENT_ENABLED[group_id] = True
 
