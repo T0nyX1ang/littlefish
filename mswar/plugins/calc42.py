@@ -127,10 +127,15 @@ async def calc42(session: CommandSession):
     if CURRENT_42_APP[group_id].is_playing():
         try:
             current_deadline = get_deadline(group_id)
+            total_elapsed = CURRENT_42_APP[group_id].get_elapsed_time()
+            left = current_deadline - total_elapsed.seconds
+
             elapsed = CURRENT_42_APP[group_id].solve(math_expr, current_sender)
+            finish_time = elapsed.seconds + elapsed.microseconds / 1000000
+
             admire_message = get_admire_message()
-            finish_time = 86400 * elapsed.days + elapsed.seconds + elapsed.microseconds / 1000000
-            message = MessageSegment.at(current_sender) + ' 恭喜完成第%d个解，完成时间: %.3f秒，%s' % (CURRENT_42_APP[group_id].get_current_solution_number(), finish_time, admire_message)
+
+            message = MessageSegment.at(current_sender) + ' 恭喜完成第%d个解，完成时间: %.3f秒，剩余时间: %d秒，%s' % (CURRENT_42_APP[group_id].get_current_solution_number(), finish_time, left, admire_message)
             await session.send(message)
 
             player_id = str(current_sender)
