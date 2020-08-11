@@ -2,9 +2,11 @@ from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.message import MessageSegment
 from .core import is_enabled
+from .global_value import ADMIRE_RESOURCE
 import random
 
-def get_admire_message(person=''):
+def get_admire_message(person='', without_picture=True):
+    r = random.randint(1, 100)
     exaggeration = [
         # ！ (Chinese exclaimation)
         '！',
@@ -28,7 +30,10 @@ def get_admire_message(person=''):
         '%s🐮🍺' % (person),
         '%s冲鸭' % (person),
     ]
-    return MessageSegment.text(random.choice(message)) + random.choice(exaggeration)
+    if without_picture or r % 2:
+        return MessageSegment.text(random.choice(message)) + random.choice(exaggeration)
+    else:
+        return '[CQ:image,file=base64://%s]' % ADMIRE_RESOURCE[random.choice(list(ADMIRE_RESOURCE.keys()))]
 
 def get_cheer_message(person=''):
     exaggeration = [
@@ -51,7 +56,7 @@ async def praise(session: CommandSession):
     if not is_enabled(session.event):
         session.finish('小鱼睡着了zzz~')
     person = session.get('person')
-    admire_message = get_admire_message(person)
+    admire_message = get_admire_message(person, without_picture=False)
     await session.send(admire_message)
 
 @praise.args_parser
