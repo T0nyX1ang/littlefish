@@ -55,7 +55,7 @@ async def _(session: NLPSession):
         if '时间纪录' in stripped_msg:
             await session.send(format_user_result(result))
         if ('恭喜' and '刷新' and '纪录') in stripped_msg:
-            await session.send(get_admire_message(result['name']))
+            await session.send(get_admire_message(result['name'], without_picture=False))
         if result['solved_bv'] < result['bv']:
             await session.send(get_cheer_message(result['name']))
     except Exception as e:
