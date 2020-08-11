@@ -3,6 +3,7 @@
 
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
+from base64 import b64encode
 import cv2
 import os
 import sys
@@ -10,12 +11,22 @@ import json
 import getpass
 import hashlib
 
-# theme resource
+# resource
 RESOURCE_PATH = os.path.join(os.getcwd(), 'resource')
+THEME_RESOURCE_PATH = os.path.join(RESOURCE_PATH, 'theme')
+ADMIRE_RESOURCE_PATH = os.path.join(RESOURCE_PATH, 'admire')
+
 THEME_RESOURCE = {}
-for file in os.listdir(RESOURCE_PATH):
+for file in os.listdir(THEME_RESOURCE_PATH):
 	filename = os.path.splitext(file)[0]
-	THEME_RESOURCE[filename] = cv2.imread(os.path.join(RESOURCE_PATH, file))
+	THEME_RESOURCE[filename] = cv2.imread(os.path.join(THEME_RESOURCE_PATH, file))
+
+ADMIRE_RESOURCE = {}
+for file in os.listdir(ADMIRE_RESOURCE_PATH):
+	filename = os.path.splitext(file)[0]
+	with open(os.path.join(ADMIRE_RESOURCE_PATH, file), 'rb') as f:
+		fin = f.read()
+		ADMIRE_RESOURCE[filename] = b64encode(fin).decode()
 
 # primary password
 PRIMARY_PASSWORD = hashlib.sha3_256(getpass.getpass('Please enter your primary password: ').encode()).digest()
