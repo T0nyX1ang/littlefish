@@ -84,6 +84,6 @@ async def _():
         for group_id in CURRENT_ENABLED.keys():
             if CURRENT_ENABLED[group_id]:
                 logger.info('Updating group members database ...')
-                await update_group_members(session.bot, group_id)
+                await update_group_members(bot, group_id)
     except Exception as e:
         logger.error(traceback.format_exc())
