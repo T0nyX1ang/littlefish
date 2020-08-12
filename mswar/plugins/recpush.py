@@ -22,7 +22,7 @@ async def from_post_id_with_user(post_id: int) -> str:
     retries, fetched, result = 10, False, {}
     while not fetched and retries > 0:
         record_result = await fetch(page='/MineSweepingWar/post/get', query='postId=%d' % (post_id))
-        if 'data' in record_result and record_result['data'] and 'recordId' in record_result['data'] and 'user' in record_result['data']: 
+        if 'data' in record_result and record_result['data'] and ('recordId' and 'user' and 'recordType') in record_result['data'] and record_result['data']['recordType'] != 0: 
             result = await from_record_id(record_result['data']['recordId'])
             result['name'] = record_result['data']['user']['nickName']
             result['level'] = record_result['data']['user']['timingLevel']

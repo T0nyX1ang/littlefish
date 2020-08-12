@@ -66,7 +66,7 @@ async def from_post_id(post_id: int) -> str:
     # First get the record ID, then use the former function to analyze.
     record_result = await fetch(page='/MineSweepingWar/post/get', query='postId=%d' % (post_id))
     if record_result['data']['recordType'] != 0:
-        session.finish()
+        raise TypeError('Incorrect record type.')
     result = await from_record_id(record_result['data']['recordId'])
     return result
 
