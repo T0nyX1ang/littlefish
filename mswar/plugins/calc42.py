@@ -3,12 +3,10 @@ from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
 from nonebot.message import MessageSegment
 from apscheduler.triggers.date import DateTrigger
-from ftptsgame.exceptions import FTPtsGameError
 from .exclaim import get_admire_message
 from .core import is_enabled, text_to_picture, get_member_name
 from .global_value import CURRENT_ENABLED, CURRENT_42_APP, CURRENT_42_PROB_LIST, CURRENT_GROUP_MEMBERS
 import nonebot
-import hashlib
 import datetime
 import traceback
 
@@ -21,9 +19,10 @@ def print_current_solutions(group_id):
     current_solutions = CURRENT_42_APP[group_id].get_current_solutions()
     line = []
     if len(current_solutions) > 0:
+        players = CURRENT_42_APP[group_id].get_current_player_statistics()
         line.append('有效求解:')
         for i in range(0, len(current_solutions)):
-            line.append('[%d] %s' % (i + 1, current_solutions[i]))
+            line.append('[%d] %s > %s' % (i + 1, current_solutions[i], get_member_name(group_id, str(players[i][0]))))
     else:
         line.append('当前暂无有效求解')
     message = ''
@@ -31,50 +30,13 @@ def print_current_solutions(group_id):
         message = message + each_line + '\n'
     return message.strip()
 
-def print_results(group_id):
-    current_solution_number = CURRENT_42_APP[group_id].get_current_solution_number()
-    total_solution_number = CURRENT_42_APP[group_id].get_total_solution_number()
-    line = []
-    line.append('--- 本题统计 ---')
-    line.append('求解完成度: %d/%d' % (current_solution_number, total_solution_number))
-    
-    bonus = 10 if current_solution_number == total_solution_number else 0 # AK Score
-
-    players = CURRENT_42_APP[group_id].get_current_player_statistics()
-
-    for player in players:
-        player_id = str(player)
-        CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += bonus
-        for problem in players[player]:
-            if problem == 1:
-                CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += 10
-            elif problem == current_solution_number:
-                CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += int(20 * problem / total_solution_number)
-            else:
-                CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += int(10 * problem / total_solution_number)
-
-    ordered_players = sorted(players, key=lambda k: len(players[k]), reverse=True)
-    # 50% AK bonus
-    if len(players[ordered_players[0]]) * 2 > total_solution_number:
-        CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += total_solution_number
-
-    for person in ordered_players:
-        if person > 0:
-            line.append(str(MessageSegment.at(person)) + ' 完成%d个解' % (len(players[person])))
-
-    result_message = ''
-    for each_line in line:
-        result_message = result_message + each_line + '\n'
-
-    return result_message.strip()
-
 def get_deadline(group_id):
     total_number = CURRENT_42_APP[group_id].get_total_solution_number()
     return 300 * (1 + (total_number - 1) // 10) if total_number <= 40 else 1200
 
 def get_leader_id(group_id):
     players = CURRENT_42_APP[group_id].get_current_player_statistics()
-    return max(players, key=lambda k: max(players[k])) if players else -1
+    return players[-1][0]
 
 def get_current_stats(group_id):
     problem_message = print_current_problem(group_id)
@@ -82,6 +44,68 @@ def get_current_stats(group_id):
     result_message = ''
     stat_message = problem_message + '\n' + solution_message + '\n' + result_message
     return stat_message.strip()
+
+def print_results(group_id):
+    current_solution_number = CURRENT_42_APP[group_id].get_current_solution_number()
+    total_solution_number = CURRENT_42_APP[group_id].get_total_solution_number()
+    deadline = get_deadline(group_id)
+    total_time, total_solutions = 0, 0
+    
+    bonus = 10 if current_solution_number == total_solution_number else 0 # AK Score
+
+    players = CURRENT_42_APP[group_id].get_current_player_statistics()
+    
+    player_scores = {}
+    player_solutions = {}
+
+    for each_item in players:
+        player_id, solution_time = each_item
+        if player_id not in player_scores:
+            player_scores[player_id] = bonus
+            player_solutions[player_id] = 0
+
+        solution_time_in_seconds = solution_time.seconds + solution_time.microseconds / 1000000
+        total_time = solution_time_in_seconds
+        total_solutions += 1
+        player_solutions[player_id] += 1
+
+        # Accumulate time score
+        if total_time / deadline <= 0.2:
+            player_scores[player_id] += 5
+        elif 0.2 < total_time / deadline <= 0.5:
+            player_scores[player_id] += 3
+        elif 0.5 < total_time / deadline <= 0.8:
+            player_scores[player_id] += 2
+        else:
+            player_scores[player_id] += 1
+
+        if total_solutions == 1:
+            player_scores[player_id] += 10
+        elif total_solutions == current_solution_number:
+            player_scores[player_id] += int(20 * total_solutions / total_solution_number)
+        else:
+            player_scores[player_id] += int(10 * total_solutions / total_solution_number)
+
+    ordered_players = sorted(player_solutions, key=lambda k: player_solutions[k], reverse=True)
+
+    # 50% AK bonus
+    if player_solutions[ordered_players[0]] * 2 > total_solution_number:
+        player_scores[ordered_players[0]] += total_solution_number
+
+    line = []
+    line.append('--- 本题统计 ---')
+    line.append('求解完成度: %d/%d' % (current_solution_number, total_solution_number))
+
+    for person in ordered_players:
+        if person > 0:
+            line.append(get_member_name(group_id, str(person)) + ' %d解/+%d' % (player_solutions[person], player_scores[person]))
+            CURRENT_GROUP_MEMBERS[group_id][str(person)]['42score'] += player_scores[person]
+
+    result_message = ''
+    for each_line in line:
+        result_message = result_message + each_line + '\n'
+
+    return result_message.strip()
 
 async def ready_finish_game(group_id):
     bot = nonebot.get_bot()
@@ -110,7 +134,7 @@ async def finish_game(group_id):
                 winning_message = MessageSegment.at(leader_id) + ' 恭喜取得本次42点接力赛胜利, ' + get_admire_message()
                 await bot.send_group_msg(group_id=group_id, message=winning_message)
             CURRENT_42_APP[group_id].stop()
-    except Exception as e:
+    except Exception:
         logger.error(traceback.format_exc())
         if CURRENT_42_APP[group_id].is_playing():
             CURRENT_42_APP[group_id].stop()
@@ -138,45 +162,22 @@ async def calc42(session: CommandSession):
             message = MessageSegment.at(current_sender) + ' 恭喜完成第%d个解，完成时间: %.3f秒，剩余时间: %d秒，%s' % (CURRENT_42_APP[group_id].get_current_solution_number(), finish_time, left, admire_message)
             await session.send(message)
 
-            player_id = str(current_sender)
-            # Accumulate time score
-            if finish_time / current_deadline <= 0.2:
-                CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += 5
-            elif 0.2 < finish_time / current_deadline <= 0.5:
-                CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += 3
-            elif 0.5 < finish_time / current_deadline <= 0.8:
-                CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += 2
-            else:
-                CURRENT_GROUP_MEMBERS[group_id][player_id]['42score'] += 1
-
             if CURRENT_42_APP[group_id].get_current_solution_number() == CURRENT_42_APP[group_id].get_total_solution_number():
                 await finish_game(group_id) # Then game is over now
             else:
                 await session.send('[CQ:image,file=%s]' % text_to_picture(get_current_stats(group_id)))
-
-        except FTPtsGameError as ge:
-            errno, hint = ge.get_details()
-            message = ''
-            if errno // 16 == 0:
-                return
-            elif errno == 0x10:
-                message = '公式过长'
-            elif errno == 0x11:
-                message = '公式错误'
-            elif errno == 0x12:
-                message = '符号错误'
-            elif errno == 0x13:
-                message = '被除数为0'
-            elif errno == 0x14:
-                message = '数字错误'
-            elif errno == 0x15:
-                message = '数字错误'
-            elif errno == 0x20:
-                message = '答案错误[%s]' % (str(hint))
-            elif errno == 0x21:
-                message = '答案与[%s]重复' % (str(hint))
-            await session.send(message)
-        except Exception as e:
+        except OverflowError:
+            await session.send('公式过长')
+        except SyntaxError:
+            await session.send('公式错误')
+        except ValueError:
+            await session.send('数字错误')
+        except ArithmeticError as ae:
+            await session.send('答案错误[%s]' % (str(ae)))
+        except LookupError as le:
+            await session.send('答案与[%s]重复' % (str(le)))
+        except Exception:
+            await session.send('未知错误')
             logger.error(traceback.format_exc())
 
 @calc42.args_parser
@@ -193,7 +194,6 @@ async def calc42help(session: CommandSession):
     if not is_enabled(session.event):
         session.finish('小鱼睡着了zzz~')
 
-    current_sender = session.event['sender']['user_id']
     message = '''42点游戏规则:
     (1)每日8-23时的42分42秒, 我会给出5个位于0至13之间的整数，
     玩家需要将这五个整数(可以调换顺序)通过四则运算与括号相连，
@@ -211,7 +211,6 @@ async def calc42equal(session: CommandSession):
     if not is_enabled(session.event):
         session.finish('小鱼睡着了zzz~')
 
-    current_sender = session.event['sender']['user_id']
     equivalent_message = '''关于等价解的说明:
     (1)四则运算的性质得出的等价是等价解;
     (2)中间结果出现0，可以利用加减移动到式子的任何地方;
@@ -225,7 +224,6 @@ async def calc42score(session: CommandSession):
     if not is_enabled(session.event):
         session.finish('小鱼睡着了zzz~')
 
-    current_sender = session.event['sender']['user_id']
     score_message = '''关于得分的说明:
     (1)每题的得分由"时间分"和"求解分"共同决定.
     (2)时间分:计算当前完成时间与限时的比值，
