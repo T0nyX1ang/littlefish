@@ -21,8 +21,8 @@ async def conflict(session: CommandSession):
         session.finish()
     await session.send('小爆妹妹好鸭[CQ:face,id=111]')
 
-@on_command('response', aliases=('你在哈哈啥呢'), permission=SUPERUSER | GROUP, only_to_me=False)
-async def conflict(session: CommandSession):
+@on_command('weirdhappy', aliases=('你在哈哈啥呢'), permission=SUPERUSER | GROUP, only_to_me=False)
+async def weirdhappy(session: CommandSession):
     if not is_enabled(session.event):
         session.finish()
     await session.send('那咋回事呢')
