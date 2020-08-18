@@ -79,10 +79,10 @@ def print_results(group_id):
         else:
             player_scores[player_id] += 1
 
-        if total_solutions == 1:
-            player_scores[player_id] += 10
-        elif total_solutions == current_solution_number:
+        if total_solutions == current_solution_number:
             player_scores[player_id] += int(20 * total_solutions / total_solution_number)
+        elif total_solutions == 1:
+            player_scores[player_id] += 10
         else:
             player_scores[player_id] += int(10 * total_solutions / total_solution_number)
 
@@ -229,7 +229,8 @@ async def calc42score(session: CommandSession):
     (2)时间分:计算当前完成时间与限时的比值，
     比值小于0.2计5分，0.2-0.5记3分，0.5-0.8记2分，大于0.8记1分;
     (3)求解分:首杀记10分，接力赛胜利按(20*当前解数/总共解数)
-    向下取整记分，其余求解按照(10*当前解数/总共解数)向下取整记分;
+    向下取整记分，其余求解按照(10*当前解数/总共解数)向下取整记分,
+    如果题目只有一个解，只按接力赛胜利积分，不计算首杀分数;
     (4)如果题目被完全求解(AK)，求解该题目全员额外加10分;
     (5)如果题目多于一半的解均被某名玩家求出，该名玩家额外加(总共
     解数)分;
