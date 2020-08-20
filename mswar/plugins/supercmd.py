@@ -84,6 +84,7 @@ async def get_debug_message(group_id):
     if group_id in CURRENT_ENABLED:
         line.append('小鱼状态: %s' % ('已启动' if CURRENT_ENABLED[group_id] else '未启动'))
         line.append('上条群内消息: %s' % (CURRENT_GROUP_MESSAGE[group_id] if len(CURRENT_GROUP_MESSAGE[group_id]) > 0 else '无'))
+        line.append('增量复读消息: %s' % (CURRENT_GROUP_MESSAGE_INCREMENT[group_id] if len(CURRENT_GROUP_MESSAGE_INCREMENT[group_id]) > 0 else '空'))
         line.append('复读计数器: %d' % (CURRENT_COMBO_COUNTER[group_id]))
         line.append('42点游戏: %s' % ('游玩中' if CURRENT_42_APP[group_id].is_playing() else '未开始'))
         line.append('冷却ID: %s' % (str(CURRENT_ID_COLDING_LIST[group_id]).replace('[', '').replace(']', '') if CURRENT_ID_COLDING_LIST[group_id] else '无'))
