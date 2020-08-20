@@ -56,6 +56,7 @@ async def enable(session: CommandSession):
 
     if group_id not in CURRENT_ENABLED: 
         CURRENT_GROUP_MESSAGE[group_id] = database['group_message'] if 'group_message' in database else ''
+        CURRENT_GROUP_MESSAGE_INCREMENT[group_id] = database['group_message_increment'] if 'group_message_increment' in database else ''
         CURRENT_COMBO_COUNTER[group_id] = database['combo_counter'] if 'combo_counter' in database else 0
         CURRENT_42_APP[group_id] = FTPtsGame()
         CURRENT_42_PROB_LIST[group_id] = database['42_probability_list'] if '42_probability_list' in database else { str(k): 2000 for k in DATABASE_42.keys() }

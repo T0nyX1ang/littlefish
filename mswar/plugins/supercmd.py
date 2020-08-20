@@ -26,6 +26,7 @@ def save_local_data(group_id):
     # Then write the latter database
     database = {
         'group_message': CURRENT_GROUP_MESSAGE[group_id], 
+        'group_message_increment': CURRENT_GROUP_MESSAGE_INCREMENT[group_id],
         'combo_counter': CURRENT_COMBO_COUNTER[group_id], 
         'group_members': CURRENT_GROUP_MEMBERS[group_id], 
         'conflict_counter': CURRENT_CONFLICT_COUNTER[group_id],
