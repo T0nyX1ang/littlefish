@@ -67,7 +67,7 @@ async def enable(session: CommandSession):
     CURRENT_ENABLED[group_id] = True
 
     await update_group_members(session.bot, group_id)
-    await session.send('小鱼已启动，内核版本 v0.8.2 ~')
+    await session.send('小鱼已启动，内核版本 v0.8.3 ~')
 
 @on_command('disable', aliases=('关闭', '关闭机器人'), permission=SUPERUSER | GROUP_ADMIN, only_to_me=False)
 async def disable(session: CommandSession):
