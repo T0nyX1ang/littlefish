@@ -21,7 +21,7 @@ def get_admire_message(person='', without_picture=True):
         MessageSegment.face(144) + MessageSegment.face(144), 
         MessageSegment.face(144) + MessageSegment.face(144) + MessageSegment.face(144), 
     ]
-    if not person:
+    if not person or len(person) >= 10:
         person = '大佬'
     message = [
         '%s太强了' % (person),
