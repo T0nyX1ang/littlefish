@@ -4,7 +4,7 @@ from nonebot.log import logger
 from urllib.parse import quote, unquote
 from apscheduler.triggers.date import DateTrigger
 from .core import fetch, is_enabled
-from .global_value import CURRENT_ID_COLDING_LIST
+from .global_value import CURRENT_ID_COLDING_LIST, CURRENT_GROUP_MEMBERS
 import traceback
 import datetime
 
@@ -166,8 +166,7 @@ async def personinfo(session: CommandSession):
         
     group_id = session.event['group_id']
     user_id = session.event['sender']['user_id']
-    user_info = await session.bot.get_group_member_info(group_id=group_id, user_id=user_id)
-    player_id = user_info['title']
+    player_id = CURRENT_GROUP_MEMBERS[group_id][str(user_id)]['id']
     name = ' ' * 20 + str(player_id)
     user_info = await get_user_info(name)
     if user_info:
