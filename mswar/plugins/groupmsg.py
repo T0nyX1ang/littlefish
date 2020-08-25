@@ -11,7 +11,7 @@ async def _ (session: NLPSession):
     if not is_enabled(session.event):
         return
 
-    msg = session.msg
+    msg = session.msg.strip() # for mis-input whitespace
     group_id = session.event['group_id']
     user_id = session.event['sender']['user_id']
     if CURRENT_GROUP_MEMBERS[group_id][str(user_id)]['restricted']:
