@@ -39,17 +39,18 @@ async def _ (session: NLPSession):
             CURRENT_GROUP_MESSAGE[group_id] == msg[0: len(CURRENT_GROUP_MESSAGE[group_id])] or cmsg_image_hashes == msg_image_hashes):
 
         if CURRENT_COMBO_COUNTER[group_id] < 6:
-            if cmsg_image_hashes == msg_image_hashes:
+
+            if CURRENT_COMBO_COUNTER[group_id] <= 1:
+                if not CURRENT_GROUP_MESSAGE[group_id]:
+                    CURRENT_GROUP_MESSAGE[group_id] = msg
+                CURRENT_GROUP_MESSAGE_INCREMENT[group_id] = msg[len(CURRENT_GROUP_MESSAGE[group_id]):]
+
+            elif len(cmsg_image_hashes) > 0 and cmsg_image_hashes == msg_image_hashes:
                 CURRENT_GROUP_MESSAGE_INCREMENT[group_id] = ''
                 new_msg = ''
                 for url in extract_image_urls(CURRENT_GROUP_MESSAGE[group_id]):
                     new_msg += '[CQ:image,url=%s]' % (url)
                 CURRENT_GROUP_MESSAGE[group_id] = new_msg
-
-            elif CURRENT_COMBO_COUNTER[group_id] <= 1:
-                if not CURRENT_GROUP_MESSAGE[group_id]:
-                    CURRENT_GROUP_MESSAGE[group_id] = msg
-                CURRENT_GROUP_MESSAGE_INCREMENT[group_id] = msg[len(CURRENT_GROUP_MESSAGE[group_id]):]
 
             elif CURRENT_GROUP_MESSAGE[group_id] + CURRENT_GROUP_MESSAGE_INCREMENT[group_id] * CURRENT_COMBO_COUNTER[group_id] != msg:
                 CURRENT_GROUP_MESSAGE_INCREMENT[group_id] = ''
