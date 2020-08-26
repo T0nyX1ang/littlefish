@@ -36,7 +36,7 @@ def get_deadline(group_id):
 
 def get_leader_id(group_id):
     players = CURRENT_42_APP[group_id].get_current_player_statistics()
-    return players[-1][0]
+    return players[-1][0] if players else -1
 
 def get_current_stats(group_id):
     problem_message = print_current_problem(group_id)
@@ -129,8 +129,8 @@ async def finish_game(group_id):
         if CURRENT_42_APP[group_id].is_playing():
             leader_id = get_leader_id(group_id)
             await bot.send_group_msg(group_id=group_id, message='[CQ:image,file=%s]' % text_to_picture(get_current_stats(group_id)))
-            await bot.send_group_msg(group_id=group_id, message=print_results(group_id))
             if leader_id > 0:
+                await bot.send_group_msg(group_id=group_id, message=print_results(group_id))
                 winning_message = MessageSegment.at(leader_id) + ' 恭喜取得本次42点接力赛胜利, ' + get_admire_message()
                 await bot.send_group_msg(group_id=group_id, message=winning_message)
             CURRENT_42_APP[group_id].stop()
