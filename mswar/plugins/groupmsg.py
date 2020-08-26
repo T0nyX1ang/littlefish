@@ -35,8 +35,9 @@ async def _ (session: NLPSession):
         CURRENT_GROUP_MESSAGE[group_id] = msg
         CURRENT_COMBO_COUNTER[group_id] = 1
 
-    elif len(CURRENT_GROUP_MESSAGE[group_id]) <= len(msg) and (
-            CURRENT_GROUP_MESSAGE[group_id] == msg[0: len(CURRENT_GROUP_MESSAGE[group_id])] or cmsg_image_hashes == msg_image_hashes):
+    elif 0 < len(CURRENT_GROUP_MESSAGE[group_id]) <= len(msg) and (
+            CURRENT_GROUP_MESSAGE[group_id] == msg[0: len(CURRENT_GROUP_MESSAGE[group_id])] or (
+                msg_image_hashes and cmsg_image_hashes == msg_image_hashes)):
 
         if CURRENT_COMBO_COUNTER[group_id] < 6:
 
@@ -45,7 +46,7 @@ async def _ (session: NLPSession):
                     CURRENT_GROUP_MESSAGE[group_id] = msg
                 CURRENT_GROUP_MESSAGE_INCREMENT[group_id] = msg[len(CURRENT_GROUP_MESSAGE[group_id]):]
 
-            elif len(cmsg_image_hashes) > 0 and cmsg_image_hashes == msg_image_hashes:
+            elif msg_image_hashes and cmsg_image_hashes == msg_image_hashes:
                 CURRENT_GROUP_MESSAGE_INCREMENT[group_id] = ''
                 new_msg = ''
                 for url in extract_image_urls(CURRENT_GROUP_MESSAGE[group_id]):
