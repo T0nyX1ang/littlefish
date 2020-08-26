@@ -2,9 +2,15 @@ from nonebot import on_natural_language, NLPSession, on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
 from nonebot.message import MessageSegment
+from nonebot.command.argfilter.extractors import extract_image_urls
 from .global_value import CURRENT_GROUP_MESSAGE, CURRENT_GROUP_MESSAGE_INCREMENT, CURRENT_COMBO_COUNTER, CURRENT_GROUP_MEMBERS
 from .core import is_enabled
 import random
+
+def get_image_hashes(message):
+    image_urls = extract_image_urls(message)
+    image_hashes = [ val.split('/')[-2].split('-')[-1] for val in image_urls ]
+    return image_hashes
 
 @on_natural_language(permission=SUPERUSER | GROUP, only_short_message=False, only_to_me=False)
 async def _ (session: NLPSession):
@@ -14,6 +20,9 @@ async def _ (session: NLPSession):
     msg = session.msg.strip() # for mis-input whitespace
     group_id = session.event['group_id']
     user_id = session.event['sender']['user_id']
+    cmsg_image_hashes = get_image_hashes(CURRENT_GROUP_MESSAGE[group_id])
+    msg_image_hashes = get_image_hashes(msg)
+
     if CURRENT_GROUP_MEMBERS[group_id][str(user_id)]['restricted']:
         message = MessageSegment.at(user_id) + MessageSegment.text(' 在小黑屋里就别水群了，快去干更多有趣的事情吧') + MessageSegment.face(146)
         await session.send(message)
@@ -26,12 +35,22 @@ async def _ (session: NLPSession):
         CURRENT_GROUP_MESSAGE[group_id] = msg
         CURRENT_COMBO_COUNTER[group_id] = 1
 
-    elif len(CURRENT_GROUP_MESSAGE[group_id]) <= len(msg) and CURRENT_GROUP_MESSAGE[group_id] == msg[0: len(CURRENT_GROUP_MESSAGE[group_id])]:
+    elif len(CURRENT_GROUP_MESSAGE[group_id]) <= len(msg) and (
+            CURRENT_GROUP_MESSAGE[group_id] == msg[0: len(CURRENT_GROUP_MESSAGE[group_id])] or cmsg_image_hashes == msg_image_hashes):
+
         if CURRENT_COMBO_COUNTER[group_id] < 6:
-            if CURRENT_COMBO_COUNTER[group_id] <= 1:
+            if cmsg_image_hashes == msg_image_hashes:
+                CURRENT_GROUP_MESSAGE_INCREMENT[group_id] = ''
+                new_msg = ''
+                for url in extract_image_urls(CURRENT_GROUP_MESSAGE[group_id]):
+                    new_msg += '[CQ:image,url=%s]' % (url)
+                CURRENT_GROUP_MESSAGE[group_id] = new_msg
+
+            elif CURRENT_COMBO_COUNTER[group_id] <= 1:
                 if not CURRENT_GROUP_MESSAGE[group_id]:
                     CURRENT_GROUP_MESSAGE[group_id] = msg
                 CURRENT_GROUP_MESSAGE_INCREMENT[group_id] = msg[len(CURRENT_GROUP_MESSAGE[group_id]):]
+
             elif CURRENT_GROUP_MESSAGE[group_id] + CURRENT_GROUP_MESSAGE_INCREMENT[group_id] * CURRENT_COMBO_COUNTER[group_id] != msg:
                 CURRENT_GROUP_MESSAGE_INCREMENT[group_id] = ''
                 CURRENT_GROUP_MESSAGE[group_id] = msg
