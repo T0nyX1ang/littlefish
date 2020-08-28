@@ -43,8 +43,11 @@ def format_user_info(user_info):
         result_message = result_message + each_line + '\n'
     return result_message.strip()
 
-async def search_user(name):
-    query = 'name=' + quote(name) + '&page=0&count=1'
+async def search_user(name, precise=False):
+    if precise:
+        query = 'name=' + quote(name) + '&page=0&count=10'
+    else:
+        query = 'name=' + quote(name) + '&page=0&count=1'
     result = await fetch(page='/MineSweepingWar/user/search', query=query)
     return result
 
@@ -58,20 +61,30 @@ async def get_user_home_info(uid):
     result = await fetch(page='/MineSweepingWar/user/home', query=query)
     return result
 
-async def get_user_info(name):
-    search_result = await search_user(name)
+async def get_user_info(name, precise=False):
+    search_result = await search_user(name, precise)
+    location = 0
     if len(search_result['data']) == 0:
         return {}
     else:
-        uid = search_result['data'][0]['uid']
-
+        if precise:
+            for i in range(0, len(search_result['data'])):
+                if name == search_result['data'][i]['nickName']:
+                    location = i
+                    break
+            if i == len(search_result['data']) - 1:
+                print('search failed')
+                return {} # search failed
+            
+    uid = search_result['data'][location]['uid']
+    
     # basic info
     user_info = {}
-    user_info['nickname'] = search_result['data'][0]['nickName']
-    user_info['sex'] = search_result['data'][0]['sex'] 
-    user_info['level'] = search_result['data'][0]['timingLevel']
-    user_info['rank'] = search_result['data'][0]['timingRank']
-    user_info['id'] = search_result['data'][0]['id']
+    user_info['nickname'] = search_result['data'][location]['nickName']
+    user_info['sex'] = search_result['data'][location]['sex'] 
+    user_info['level'] = search_result['data'][location]['timingLevel']
+    user_info['rank'] = search_result['data'][location]['timingRank']
+    user_info['id'] = search_result['data'][location]['id']
 
     # home info
     home_info_result = await get_user_home_info(uid)
@@ -133,7 +146,10 @@ async def info(session: CommandSession):
         
     group_id = session.event['group_id']
     name = session.get('name')
-    user_info = await get_user_info(name)
+    if name and name[0] == '*':
+        user_info = await get_user_info(name[1:], precise=True)
+    else:
+        user_info = await get_user_info(name)
     if user_info:
         searched_user_id = user_info['id']
         if searched_user_id not in CURRENT_ID_COLDING_LIST[group_id]:
