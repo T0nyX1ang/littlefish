@@ -30,7 +30,8 @@ def save_local_data(group_id):
         'combo_counter': CURRENT_COMBO_COUNTER[group_id], 
         'group_members': CURRENT_GROUP_MEMBERS[group_id], 
         'conflict_counter': CURRENT_CONFLICT_COUNTER[group_id],
-        '42_probability_list': CURRENT_42_PROB_LIST[group_id]
+        '42_probability_list': CURRENT_42_PROB_LIST[group_id],
+        'word_blacklist': CURRENT_WORD_BLACKLIST[group_id],
     }
     with open(database_path, 'wb') as f:
         f.write(PRIMARY_ENCRYPT(json.dumps(database, sort_keys=True)))
@@ -90,6 +91,7 @@ async def get_debug_message(group_id):
         line.append('42点游戏: %s' % ('游玩中' if CURRENT_42_APP[group_id].is_playing() else '未开始'))
         line.append('冷却ID: %s' % (str(CURRENT_ID_COLDING_LIST[group_id]).replace('[', '').replace(']', '') if CURRENT_ID_COLDING_LIST[group_id] else '无'))
         line.append('打架计数器: %d' % (CURRENT_CONFLICT_COUNTER[group_id]))
+        line.append('黑名单词库: %s' % (str(CURRENT_WORD_BLACKLIST[group_id]).replace('[', '').replace(']', '').replace("'", '') if CURRENT_WORD_BLACKLIST[group_id] else '无'))
     else:
         line.append('小鱼状态: %s' % ('未初始化'))
     result_message = ''
