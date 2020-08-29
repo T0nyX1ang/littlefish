@@ -4,6 +4,7 @@
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from base64 import b64encode
+from nonebot.log import logger
 import cv2
 import os
 import sys
@@ -12,6 +13,7 @@ import getpass
 import hashlib
 
 # resource
+logger.info('Loading resource data ...')
 RESOURCE_PATH = os.path.join(os.getcwd(), 'resource')
 THEME_RESOURCE_PATH = os.path.join(RESOURCE_PATH, 'theme')
 ADMIRE_RESOURCE_PATH = os.path.join(RESOURCE_PATH, 'admire')
@@ -20,6 +22,7 @@ THEME_RESOURCE = {}
 for file in os.listdir(THEME_RESOURCE_PATH):
 	filename = os.path.splitext(file)[0]
 	THEME_RESOURCE[filename] = cv2.imread(os.path.join(THEME_RESOURCE_PATH, file))
+	logger.info('%s loaded ...' % os.path.join(THEME_RESOURCE_PATH, file))
 
 ADMIRE_RESOURCE = {}
 for file in os.listdir(ADMIRE_RESOURCE_PATH):
@@ -27,6 +30,7 @@ for file in os.listdir(ADMIRE_RESOURCE_PATH):
 	with open(os.path.join(ADMIRE_RESOURCE_PATH, file), 'rb') as f:
 		fin = f.read()
 		ADMIRE_RESOURCE[filename] = b64encode(fin).decode()
+	logger.info('%s loaded ...' % os.path.join(ADMIRE_RESOURCE_PATH, file))
 
 # primary password
 PRIMARY_PASSWORD = hashlib.sha3_256(getpass.getpass('Please enter your primary password: ').encode()).digest()
@@ -48,6 +52,7 @@ except Exception as e:
 	sys.exit()
 
 # auth module
+logger.info('Initializing global values ...')
 CURRENT_ENABLED = {}
 
 # autorepeat module
@@ -67,3 +72,6 @@ CURRENT_CONFLICT_COUNTER = {}
 
 # group members
 CURRENT_GROUP_MEMBERS = {}
+
+# repeatition word blacklist
+CURRENT_WORD_BLACKLIST = {}
