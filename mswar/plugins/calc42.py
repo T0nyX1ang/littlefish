@@ -5,7 +5,7 @@ from nonebot.message import MessageSegment
 from apscheduler.triggers.date import DateTrigger
 from .exclaim import get_admire_message
 from .core import is_enabled, text_to_picture, get_member_name
-from .global_value import CURRENT_ENABLED, CURRENT_42_APP, CURRENT_42_PROB_LIST, CURRENT_GROUP_MEMBERS
+from .global_value import CURRENT_ENABLED, CURRENT_42_APP, CURRENT_42_PROB_LIST, CURRENT_GROUP_MEMBERS, GAME_FREQUENCY
 import nonebot
 import datetime
 import traceback
@@ -70,14 +70,7 @@ def print_results(group_id):
         player_solutions[player_id] += 1
 
         # Accumulate time score
-        if total_time / deadline <= 0.2:
-            player_scores[player_id] += 5
-        elif 0.2 < total_time / deadline <= 0.5:
-            player_scores[player_id] += 3
-        elif 0.5 < total_time / deadline <= 0.8:
-            player_scores[player_id] += 2
-        else:
-            player_scores[player_id] += 1
+        player_scores[player_id] += int(5 * total_time / deadline)
 
         if total_solutions == current_solution_number:
             player_scores[player_id] += int(20 * total_solutions / total_solution_number)
@@ -95,11 +88,12 @@ def print_results(group_id):
     line = []
     line.append('--- 本题统计 ---')
     line.append('求解完成度: %d/%d' % (current_solution_number, total_solution_number))
+    line.append('积分倍率: %d' % (GAME_FREQUENCY))
 
     for person in ordered_players:
         if person > 0:
             line.append(get_member_name(group_id, str(person)) + ' %d解/+%d' % (player_solutions[person], player_scores[person]))
-            CURRENT_GROUP_MEMBERS[group_id][str(person)]['42score'] += player_scores[person]
+            CURRENT_GROUP_MEMBERS[group_id][str(person)]['42score'] += player_scores[person] * GAME_FREQUENCY
 
     result_message = ''
     for each_line in line:
@@ -195,14 +189,15 @@ async def calc42help(session: CommandSession):
         session.finish('小鱼睡着了zzz~')
 
     message = '''42点游戏规则:
-    (1)每日8-23时的42分42秒, 我会给出5个位于0至13之间的整数，
+    (1)每日某些小时的42分42秒, 会给出5个位于0至13之间的整数，
     玩家需要将这五个整数(可以调换顺序)通过四则运算与括号相连，
     使得结果等于42.
     (2)回答时以"calc42"或"42点"开头，加入空格，并给出算式. 
     如果需要查询等价解说明，请输入"42点等价解"或"等价解说明". 
     如果需要查询得分说明，请输入"42点得分说明".
     (3)将根据每个问题解的个数决定结算时间，10个解对应5分钟的
-    结算时间，20分钟封顶，即min{20, 5*([(x-1)/10]+1)}.'''
+    结算时间，20分钟封顶，即min{20, 5*([(x-1)/10]+1)}.
+    (4)游戏频率:取8-23时中整除%d的小时进行.''' % (GAME_FREQUENCY)
     example_message = '示例: (问题) 1 3 3 8 2,\n(正确的回答) calc42/42点 (1+3+3)*(8-2),\n(错误的回答) calc422^8!3&3=1.'
     await session.send('[CQ:image,file=%s]' % text_to_picture(message + '\n' + example_message))
 
@@ -225,16 +220,16 @@ async def calc42score(session: CommandSession):
         session.finish('小鱼睡着了zzz~')
 
     score_message = '''关于得分的说明:
-    (1)每题的得分由"时间分"和"求解分"共同决定.
-    (2)时间分:计算当前完成时间与限时的比值，
-    比值小于0.2计5分，0.2-0.5记3分，0.5-0.8记2分，大于0.8记1分;
+    (1)每题的得分由"时间分"和"求解分"共同决定;
+    (2)时间分:按照(5*当前完成时间/总限时)向下取整计分;
     (3)求解分:首杀记10分，接力赛胜利按(20*当前解数/总共解数)
     向下取整记分，其余求解按照(10*当前解数/总共解数)向下取整记分,
     如果题目只有一个解，只按接力赛胜利积分，不计算首杀分数;
     (4)如果题目被完全求解(AK)，求解该题目全员额外加10分;
     (5)如果题目多于一半的解均被某名玩家求出，该名玩家额外加(总共
     解数)分;
-    (6)显示积分时会进行归一化.'''
+    (6)积分会根据游戏频率进行相应加倍.
+    (7)显示积分时会进行归一化;'''
     await session.send('[CQ:image,file=%s]' % text_to_picture(score_message))
 
 @on_command('score42', aliases=('42点积分', '42点得分'), permission=SUPERUSER | GROUP, only_to_me=False)
@@ -290,7 +285,7 @@ async def ranking42(session: CommandSession):
 
     await session.send(result_message.strip())
 
-@nonebot.scheduler.scheduled_job('cron', hour='8-23', minute=42, second=42, misfire_grace_time=30)
+@nonebot.scheduler.scheduled_job('cron', hour='8-23/%d' % (GAME_FREQUENCY), minute=42, second=42, misfire_grace_time=30)
 async def _():
     bot = nonebot.get_bot()
     try:

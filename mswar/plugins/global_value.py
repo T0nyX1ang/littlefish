@@ -51,8 +51,12 @@ except Exception as e:
 	print('Wrong password. Please retry running this program again.')
 	sys.exit()
 
-# auth module
 logger.info('Initializing global values ...')
+
+# global game frequency
+GAME_FREQUENCY = 2
+
+# global switch
 CURRENT_ENABLED = {}
 
 # autorepeat module
