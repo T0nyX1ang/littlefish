@@ -15,7 +15,7 @@ async def conflict(session: CommandSession):
         CURRENT_CONFLICT_COUNTER[group_id] += 1
         await session.send('小爆')
 
-@on_command('response', aliases=('小鱼哥哥你来啦[CQ:face,id=111]'), permission=SUPERUSER | GROUP, only_to_me=False)
+@on_command('response', aliases=('小鱼哥哥你来啦[CQ:face,id=111]', '我来玩啦！！！'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def conflict(session: CommandSession):
     if not is_enabled(session.event):
         session.finish()
