@@ -197,7 +197,7 @@ async def calc42help(session: CommandSession):
     如果需要查询得分说明，请输入"42点得分说明".
     (3)将根据每个问题解的个数决定结算时间，10个解对应5分钟的
     结算时间，20分钟封顶，即min{20, 5*([(x-1)/10]+1)}.
-    (4)游戏频率:取8-23时中整除%d的小时进行.''' % (GAME_FREQUENCY)
+    (4)游戏频率:8-23时中每%d小时进行一次游戏.''' % (GAME_FREQUENCY)
     example_message = '示例: (问题) 1 3 3 8 2,\n(正确的回答) calc42/42点 (1+3+3)*(8-2),\n(错误的回答) calc422^8!3&3=1.'
     await session.send('[CQ:image,file=%s]' % text_to_picture(message + '\n' + example_message))
 
