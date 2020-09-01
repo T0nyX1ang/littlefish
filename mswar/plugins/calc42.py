@@ -93,7 +93,7 @@ def print_results(group_id):
     for person in ordered_players:
         if person > 0:
             line.append(get_member_name(group_id, str(person)) + ' %d解/+%d' % (player_solutions[person], player_scores[person]))
-            CURRENT_GROUP_MEMBERS[group_id][str(person)]['42score'] += player_scores[person] * GAME_FREQUENCY
+            CURRENT_GROUP_MEMBERS[group_id][str(person)]['42score'] += player_scores[person] * GAME_FREQUENCY[group_id]
 
     result_message = ''
     for each_line in line:
@@ -197,7 +197,7 @@ async def calc42help(session: CommandSession):
     如果需要查询得分说明，请输入"42点得分说明".
     (3)将根据每个问题解的个数决定结算时间，10个解对应5分钟的
     结算时间，20分钟封顶，即min{20, 5*([(x-1)/10]+1)}.
-    (4)游戏频率:8-23时中每%d小时进行一次游戏.''' % (GAME_FREQUENCY)
+    (4)游戏频率:8-23时中每%d小时进行一次游戏.''' % (GAME_FREQUENCY[group_id])
     example_message = '示例: (问题) 1 3 3 8 2,\n(正确的回答) calc42/42点 (1+3+3)*(8-2),\n(错误的回答) calc422^8!3&3=1.'
     await session.send('[CQ:image,file=%s]' % text_to_picture(message + '\n' + example_message))
 
@@ -285,7 +285,7 @@ async def ranking42(session: CommandSession):
 
     await session.send(result_message.strip())
 
-@nonebot.scheduler.scheduled_job('cron', hour='8-23/%d' % (GAME_FREQUENCY), minute=42, second=42, misfire_grace_time=30)
+@nonebot.scheduler.scheduled_job('cron', hour='8-23/%d' % (GAME_FREQUENCY[group_id]), minute=42, second=42, misfire_grace_time=30)
 async def _():
     bot = nonebot.get_bot()
     try:
