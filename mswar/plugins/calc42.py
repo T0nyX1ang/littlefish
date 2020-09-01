@@ -70,7 +70,7 @@ def print_results(group_id):
         player_solutions[player_id] += 1
 
         # Accumulate time score
-        player_scores[player_id] += int(5 * total_time / deadline)
+        player_scores[player_id] += int(5 * (1 - total_time / deadline))
 
         if total_solutions == current_solution_number:
             player_scores[player_id] += int(20 * total_solutions / total_solution_number)
@@ -286,12 +286,13 @@ async def ranking42(session: CommandSession):
 
     await session.send(result_message.strip())
 
-@nonebot.scheduler.scheduled_job('cron', hour='8-23/%d' % (GAME_FREQUENCY[group_id]), minute=42, second=42, misfire_grace_time=30)
+@nonebot.scheduler.scheduled_job('cron', hour='8-23', minute=42, second=42, misfire_grace_time=30)
 async def _():
+    current_hour = datetime.datetime.now().hour
     bot = nonebot.get_bot()
     try:
         for group_id in CURRENT_ENABLED.keys():
-            if CURRENT_ENABLED[group_id] and not CURRENT_42_APP[group_id].is_playing():
+            if (current_hour - 8) % GAME_FREQUENCY[group_id] == 0 and CURRENT_ENABLED[group_id] and not CURRENT_42_APP[group_id].is_playing():
                 CURRENT_42_APP[group_id].generate_problem('probability', prob=CURRENT_42_PROB_LIST[group_id].values())
                 CURRENT_42_APP[group_id].start()
                 message = print_current_problem(group_id)
