@@ -188,6 +188,7 @@ async def calc42help(session: CommandSession):
     if not is_enabled(session.event):
         session.finish('小鱼睡着了zzz~')
 
+    group_id = session.event['group_id']
     message = '''42点游戏规则:
     (1)每日某些小时的42分42秒, 会给出5个位于0至13之间的整数，
     玩家需要将这五个整数(可以调换顺序)通过四则运算与括号相连，
