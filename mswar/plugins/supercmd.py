@@ -124,8 +124,7 @@ async def setfreq(session: CommandSession):
             freq = session.get('freq')
             if int(freq) in range(1, 24):
                 GAME_FREQUENCY[group_id] = int(freq)
-                save_local_data(group_id)
-                await session.send('游戏频率设定为%d小时/题，将在机器人下次重启时生效' % GAME_FREQUENCY[group_id])
+                await session.send('游戏频率设定为%d小时/题' % GAME_FREQUENCY[group_id])
             else:
                 await session.send('频率设定超限，请重试')
         except Exception as e:
