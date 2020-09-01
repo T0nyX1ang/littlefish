@@ -51,6 +51,7 @@ async def enable(session: CommandSession):
             'conflict_counter': 0,
             '42_probability_list': { str(k): 2000 for k in DATABASE_42.keys() },
             'word_blacklist': [],
+            'game_frequency': 1,
         }
         with open(database_path, 'wb') as f:
             f.write(PRIMARY_ENCRYPT(json.dumps(database)))
@@ -65,6 +66,7 @@ async def enable(session: CommandSession):
         CURRENT_ID_COLDING_LIST[group_id] = []
         CURRENT_CONFLICT_COUNTER[group_id] = database['conflict_counter'] if 'conflict_counter' in database else 0
         CURRENT_WORD_BLACKLIST[group_id] = database['word_blacklist'] if 'word_blacklist' in database else []
+        GAME_FREQUENCY[group_id] = database['game_frequency'] if 'game_frequency' in database else 1
 
     CURRENT_ENABLED[group_id] = True
 

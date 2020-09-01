@@ -32,6 +32,7 @@ def save_local_data(group_id):
         'conflict_counter': CURRENT_CONFLICT_COUNTER[group_id],
         '42_probability_list': CURRENT_42_PROB_LIST[group_id],
         'word_blacklist': CURRENT_WORD_BLACKLIST[group_id],
+        'game_frequency': GAME_FREQUENCY[group_id],
     }
     with open(database_path, 'wb') as f:
         f.write(PRIMARY_ENCRYPT(json.dumps(database, sort_keys=True)))
@@ -88,10 +89,11 @@ async def get_debug_message(group_id):
         line.append('上条群内消息: %s' % (CURRENT_GROUP_MESSAGE[group_id] if len(CURRENT_GROUP_MESSAGE[group_id]) > 0 else '无'))
         line.append('增量复读消息: %s' % (CURRENT_GROUP_MESSAGE_INCREMENT[group_id] if len(CURRENT_GROUP_MESSAGE_INCREMENT[group_id]) > 0 else '空'))
         line.append('复读计数器: %d' % (CURRENT_COMBO_COUNTER[group_id]))
+        line.append('黑名单词库: %s' % (str(CURRENT_WORD_BLACKLIST[group_id]).replace('[', '').replace(']', '').replace("'", '') if CURRENT_WORD_BLACKLIST[group_id] else '无'))
         line.append('42点游戏: %s' % ('游玩中' if CURRENT_42_APP[group_id].is_playing() else '未开始'))
+        line.append('游戏频率: %s小时/题' % (GAME_FREQUENCY[group_id]))
         line.append('冷却ID: %s' % (str(CURRENT_ID_COLDING_LIST[group_id]).replace('[', '').replace(']', '') if CURRENT_ID_COLDING_LIST[group_id] else '无'))
         line.append('打架计数器: %d' % (CURRENT_CONFLICT_COUNTER[group_id]))
-        line.append('黑名单词库: %s' % (str(CURRENT_WORD_BLACKLIST[group_id]).replace('[', '').replace(']', '').replace("'", '') if CURRENT_WORD_BLACKLIST[group_id] else '无'))
     else:
         line.append('小鱼状态: %s' % ('未初始化'))
     result_message = ''
@@ -113,6 +115,30 @@ async def get_save_message(group_id):
     except Exception as e:
         logger.error(traceback.format_exc())
         return '存档失败，请重试'
+
+@on_command('setfreq', aliases=('游戏频率'), permission=SUPERUSER, only_to_me=False)
+async def setfreq(session: CommandSession):
+    if session.event['message_type'] == 'group':
+        group_id = session.event['group_id']
+        try:
+            freq = session.get('freq')
+            if int(freq) in range(1, 24):
+                GAME_FREQUENCY[group_id] = int(freq)
+                save_local_data(group_id)
+                await session.send('游戏频率设定为%d小时/题，将在机器人下次重启时生效' % GAME_FREQUENCY[group_id])
+            else:
+                await session.send('频率设定超限，请重试')
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            session.finish('频率设定失败，请重试')
+
+@setfreq.args_parser
+async def _(session: CommandSession):
+    stripped_arg = session.current_arg_text.strip()
+    if session.is_first_run:
+        if stripped_arg:
+            session.state['freq'] = stripped_arg
+        return
 
 @nonebot.scheduler.scheduled_job('cron', hour='*/2', minute=0, second=0, misfire_grace_time=30)
 async def _():

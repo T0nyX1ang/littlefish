@@ -88,7 +88,7 @@ def print_results(group_id):
     line = []
     line.append('--- 本题统计 ---')
     line.append('求解完成度: %d/%d' % (current_solution_number, total_solution_number))
-    line.append('积分倍率: %d' % (GAME_FREQUENCY))
+    line.append('积分倍率: %d' % (GAME_FREQUENCY[group_id]))
 
     for person in ordered_players:
         if person > 0:

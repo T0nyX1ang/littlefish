@@ -53,9 +53,6 @@ except Exception as e:
 
 logger.info('Initializing global values ...')
 
-# global game frequency
-GAME_FREQUENCY = 2
-
 # global switch
 CURRENT_ENABLED = {}
 
@@ -79,3 +76,6 @@ CURRENT_GROUP_MEMBERS = {}
 
 # repeatition word blacklist
 CURRENT_WORD_BLACKLIST = {}
+
+# global game frequency
+GAME_FREQUENCY = {}
