@@ -32,8 +32,13 @@ async def _ (session: NLPSession):
             return
 
     if CURRENT_GROUP_MEMBERS[group_id][str(user_id)]['restricted']:
-        message = MessageSegment.at(user_id) + MessageSegment.text(' 在小黑屋里就别水群了，快去干更多有趣的事情吧') + MessageSegment.face(146)
-        await session.send(message)
+        try:
+            ban_time = random.randint(1, 60) * 60
+            await session.bot.set_group_ban(group_id=group_id, user_id=user_id, duration=ban_time)
+        except Exception as e:
+            logger.warning('Privilege not enough for banning ...')
+            message = MessageSegment.at(user_id) + MessageSegment.text(' 在小黑屋里就别水群了，快去干更多有趣的事情吧') + MessageSegment.face(146)
+            await session.send(message)
         # clear the counters
         CURRENT_GROUP_MESSAGE_INCREMENT[group_id] = ''
         CURRENT_GROUP_MESSAGE[group_id] = ''
