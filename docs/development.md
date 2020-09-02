@@ -64,6 +64,11 @@
 	setfreq/游戏频率 设定的频率(x小时/题)
 ```
 
++ 重置小黑屋
+```
+	resetroom/重置小黑屋
+```
+
 ## 协议
 + 本项目基于`AGPL 3.0`开源, 详细的协议见[这里](http://www.gnu.org/licenses/agpl-3.0.html)。
 
