@@ -1,4 +1,4 @@
-from nonebot import on_startup, on_command, CommandSession
+from nonebot import on_startup, on_command, CommandSession, on_notice, NoticeSession, on_request, RequestSession
 from nonebot.permission import SUPERUSER, GROUP_ADMIN
 from nonebot.log import logger
 from apscheduler.triggers.date import DateTrigger
@@ -6,6 +6,7 @@ from ftptsgame import FTPtsGame
 from ftptsgame.database import DATABASE_42
 from .core import fetch, is_online, is_enabled
 from .global_value import *
+from .info import get_user_info, format_user_info
 import os
 import sys
 import json
@@ -126,13 +127,35 @@ async def _(session: CommandSession):
         else:
             session.finish()
 
+@on_request('group')
+async def _(session: RequestSession):
+    comment = session.event['comment']
+    player_id = comment[comment.find('答案') + 3:].strip()
+    await session.send('有小伙伴(Id: %s)申请加群了~' % (player_id))
+    name = ' ' * 20 + str(player_id)
+    user_info = await get_user_info(name)
+    user_info_message = format_user_info(user_info)
+    await session.send(user_info_message)
+
+@on_notice('group_increase')
+async def _(session: NoticeSession):
+    group_id = session.event['group_id']
+    await session.send('欢迎大佬，希望大佬天天破pb~')
+    await update_group_members(session.bot, group_id)  # update if new member join the group
+
+@on_notice('group_decrease')
+async def _(session: NoticeSession):
+    leave_id = str(session.event['user_id'])
+    group_id = session.event['group_id']
+    player_id = CURRENT_GROUP_MEMBERS[group_id][leave_id]['id']
+    await session.send('有群员(Id: %s)跑路了[CQ:face,id=111]' % (player_id if player_id else '未知'))
+
 @nonebot.scheduler.scheduled_job('cron', hour='11,23', minute=0, second=0, misfire_grace_time=30)
 async def _():
     bot = nonebot.get_bot()
     try:
         for group_id in CURRENT_ENABLED.keys():
-            if CURRENT_ENABLED[group_id]:
-                logger.info('Updating group members database ...')
-                await update_group_members(bot, group_id)
+            logger.info('Updating group members database ...')
+            await update_group_members(bot, group_id)
     except Exception as e:
         logger.error(traceback.format_exc())
