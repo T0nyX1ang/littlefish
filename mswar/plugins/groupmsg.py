@@ -20,6 +20,7 @@ async def _ (session: NLPSession):
     msg = session.msg.strip() # for mis-input whitespace
     group_id = session.event['group_id']
     user_id = session.event['sender']['user_id']
+    message_id = session.event['message_id']
     cmsg_image_hashes = get_image_hashes(CURRENT_GROUP_MESSAGE[group_id])
     msg_image_hashes = get_image_hashes(msg)
 
@@ -33,7 +34,13 @@ async def _ (session: NLPSession):
 
     if CURRENT_GROUP_MEMBERS[group_id][str(user_id)]['restricted']:
         try:
-            ban_time = random.randint(1, 60) * 60
+            decision = random.randint(1, 100)
+            if decision <= 1:
+                ban_time = random.randint(1, 3) * 86400              
+            if decision <= 10:
+                ban_time = random.randint(1, 24) * 3600
+            else:
+                ban_time = random.randint(1, 60) * 60            
             await session.bot.set_group_ban(group_id=group_id, user_id=user_id, duration=ban_time)
         except Exception as e:
             logger.warning('Privilege not enough for banning ...')
@@ -90,15 +97,38 @@ async def _ (session: NLPSession):
         CURRENT_GROUP_MESSAGE[group_id] = msg
         CURRENT_COMBO_COUNTER[group_id] = 1
 
-@on_command('blacklist', aliases=('小黑屋'), permission=SUPERUSER | GROUP, only_to_me=False)
-async def blacklist(session: CommandSession):
+@on_command('enterroom', aliases=('进入小黑屋'), permission=SUPERUSER | GROUP, only_to_me=False)
+async def enterroom(session: CommandSession):
     if not is_enabled(session.event):
         session.finish('小鱼睡着了zzz~')
         
     group_id = session.event['group_id']
     user_id = session.event['sender']['user_id']
-    restricted_stat = CURRENT_GROUP_MEMBERS[group_id][str(user_id)]['restricted']
-    print(restricted_stat)
-    CURRENT_GROUP_MEMBERS[group_id][str(user_id)]['restricted'] = not restricted_stat
-    message = MessageSegment.at(user_id) + ' %s小黑屋' % ('退出了' if restricted_stat else '进入了') 
+    role = session.event['sender']['role']
+    restricted = CURRENT_GROUP_MEMBERS[group_id][str(user_id)]['restricted']
+    if role != 'member':
+        message = '管理员无法使用小黑屋功能~'
+    elif not restricted:
+        CURRENT_GROUP_MEMBERS[group_id][str(user_id)]['restricted'] = True
+        message = MessageSegment.at(user_id) + ' 进入了小黑屋' 
+    else:
+        message = MessageSegment.at(user_id) + ' 已经在小黑屋中' 
+    await session.send(message)
+
+@on_command('exitroom', aliases=('退出小黑屋'), permission=SUPERUSER | GROUP, only_to_me=False)
+async def exitroom(session: CommandSession):
+    if not is_enabled(session.event):
+        session.finish('小鱼睡着了zzz~')
+        
+    group_id = session.event['group_id']
+    user_id = session.event['sender']['user_id']
+    role = session.event['sender']['role']
+    restricted = CURRENT_GROUP_MEMBERS[group_id][str(user_id)]['restricted']
+    if role != 'member':
+        message = '管理员无法使用小黑屋功能~'
+    elif restricted:
+        CURRENT_GROUP_MEMBERS[group_id][str(user_id)]['restricted'] = False
+        message = MessageSegment.at(user_id) + ' 退出了小黑屋' 
+    else:
+        message = MessageSegment.at(user_id) + ' 已经不在小黑屋中' 
     await session.send(message)
