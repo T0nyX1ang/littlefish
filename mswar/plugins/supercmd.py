@@ -139,6 +139,14 @@ async def _(session: CommandSession):
             session.state['freq'] = stripped_arg
         return
 
+@on_command('resetroom', aliases=('重置小黑屋'), permission=SUPERUSER, only_to_me=False)
+async def resetroom(session: CommandSession):
+    if session.event['message_type'] == 'group':
+        group_id = session.event['group_id']
+        for user_id in CURRENT_GROUP_MEMBERS[group_id]:
+            CURRENT_GROUP_MEMBERS[group_id][user_id]['restricted'] = False
+        await session.send('小黑屋已重置')
+
 @nonebot.scheduler.scheduled_job('cron', hour='*/2', minute=0, second=0, misfire_grace_time=30)
 async def _():
     try:
