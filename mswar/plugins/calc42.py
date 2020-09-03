@@ -70,7 +70,7 @@ def print_results(group_id):
         player_solutions[player_id] += 1
 
         # Accumulate time score
-        player_scores[player_id] += int(5 * (1 - total_time / deadline))
+        player_scores[player_id] += (5 - int(5 * total_time / deadline))
 
         if total_solutions == current_solution_number:
             player_scores[player_id] += int(20 * total_solutions / total_solution_number)
@@ -222,7 +222,7 @@ async def calc42score(session: CommandSession):
 
     score_message = '''关于得分的说明:
     (1)每题的得分由"时间分"和"求解分"共同决定;
-    (2)时间分:按照(5*当前完成时间/总限时)向下取整计分;
+    (2)时间分:按照5-((5*当前完成时间/总限时)向下取整)计分;
     (3)求解分:首杀记10分，接力赛胜利按(20*当前解数/总共解数)
     向下取整记分，其余求解按照(10*当前解数/总共解数)向下取整记分,
     如果题目只有一个解，只按接力赛胜利积分，不计算首杀分数;
