@@ -10,6 +10,7 @@
 ```
     pip install -r requirements.txt
 ```
++ 安装思源宋体(Source Han Serif)
 + 根据Nonebot中的说明修改CQHttp与NoneBot间的相关配置
 + (可选)修改配置`config.py`
 + 运行机器人
