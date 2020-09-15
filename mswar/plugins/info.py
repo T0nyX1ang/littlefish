@@ -53,7 +53,7 @@ async def search_user(name, precise=False):
 
 async def get_user_career(uid):
     query = 'uid=' + quote(uid)
-    result = await fetch(page='/MineSweepingWar/game/timing/career', query=query)
+    result = await fetch(page='/MineSweepingWar/minesweeper/timing/career', query=query)
     return result
 
 async def get_user_home_info(uid):
@@ -84,7 +84,7 @@ async def get_user_info(name, precise=False):
     user_info['sex'] = search_result['data'][location]['sex'] 
     user_info['level'] = search_result['data'][location]['timingLevel']
     user_info['rank'] = search_result['data'][location]['timingRank']
-    user_info['id'] = search_result['data'][location]['id']
+    
 
     # home info
     home_info_result = await get_user_home_info(uid)
@@ -92,6 +92,7 @@ async def get_user_info(name, precise=False):
         user_info['saoleiID'] = '%s [%s]' % (home_info_result['data']['saoleiOauth']['name'].strip(), home_info_result['data']['saoleiOauth']['openId'].strip())
     else:
         user_info['saoleiID'] = '暂未关联'
+    user_info['id'] = home_info_result['data']['user']['id']
 
     # career info
     career_result = await get_user_career(uid)

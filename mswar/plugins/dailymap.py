@@ -22,7 +22,7 @@ def format_daily_map(daily_map: dict) -> str:
     return result_message.strip()
 
 async def get_daily_map() -> str:
-    daily_map_result = await fetch(page='/MineSweepingWar/game/daily/map/today')
+    daily_map_result = await fetch(page='/MineSweepingWar/minesweeper/daily/map/today')
     daily_map_board = get_board(daily_map_result['data']['map']['map'].split('-')[0: -1])
     daily_map = get_board_result(daily_map_board)
     daily_map['id'] = daily_map_result['data']['mapId']

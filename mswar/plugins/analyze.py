@@ -57,7 +57,7 @@ def format_analyze_result(result: dict) -> str:
     return result_message.strip()
 
 async def from_record_id(record_id: int) -> str:   
-    record_file = await fetch(page='/MineSweepingWar/game/record/get', query='recordId=%d' % (record_id))
+    record_file = await fetch(page='/MineSweepingWar/minesweeper/record/get', query='recordId=%d' % (record_id))
     board = get_board(record_file['data']['map'].split('-')[0: -1])
     action = get_action(gzip.decompress(b64decode(record_file['data']['handle'])).decode().split('-'))
     return get_result(board, action)
