@@ -26,8 +26,8 @@ async def _(session: CommandSession):
         else:
             session.finish()
 
-@on_command('dailystar', aliases=('每日一星'), permission=SUPERUSER | GROUP, only_to_me=False)
-async def dailystar(session: CommandSession):
+@on_command('dailystarsaolei', aliases=('每日一星', '雷网每日一星'), permission=SUPERUSER | GROUP, only_to_me=False)
+async def dailystarsaolei(session: CommandSession):
     if not is_enabled(session.event):
         session.finish('小鱼睡着了zzz~')
 
@@ -45,7 +45,7 @@ async def get_daily_star() -> str:
         t = t_new
         t_new = t_new.replace(' | ', '|').replace(' |', '|').replace('| ', '|') # more simplications
 
-    result = '每日一星:\n' + t.replace('    ', '\n').replace('   ', '\n').replace('  ', '\n').replace(' ↑', ' ↑').replace(' ↓', ' ↓').replace(' →', ' →').replace(' ', '\n').replace('　', '\n').replace('|', ' | ') # re-align
+    result = '雷网每日一星:\n' + t.replace('    ', '\n').replace('   ', '\n').replace('  ', '\n').replace(' ↑', ' ↑').replace(' ↓', ' ↓').replace(' →', ' →').replace(' ', '\n').replace('　', '\n').replace('|', ' | ') # re-align
     return result
 
 @nonebot.scheduler.scheduled_job('cron', hour=0, minute=1, second=30, misfire_grace_time=30)
