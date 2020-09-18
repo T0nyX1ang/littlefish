@@ -12,7 +12,7 @@ async def get_daily_star():
     daily_star_id = daily_star['data']['user']['id']
     name = ' ' * 20 + str(daily_star_id)
     user_info = await get_user_info(name)
-    user_info_message = format_user_info(user_info)
+    user_info_message = '联萌每日一星:\n' + format_user_info(user_info)
     return user_info_message
 
 @on_command('dailystar', aliases=('今日之星', '联萌每日一星'), permission=SUPERUSER | GROUP, only_to_me=False)
