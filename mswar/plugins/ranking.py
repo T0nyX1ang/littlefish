@@ -64,6 +64,14 @@ async def get_advance_rank():
         current_message += '[%d] %s (Id: %d) - 进步 %d 名' % (each_player['rank'], each_player['user']['nickName'], each_player['user']['id'], each_player['stage']) + '\n'
     return current_message.strip()
 
+async def get_visit_rank():
+    query = 'page=0&count=10'
+    advance_rank = await fetch(page='/MineSweepingWar/rank/user/visit/list', query=query)
+    current_message = ''
+    for each_player in advance_rank['data']:
+        current_message += '[%d] %s (Id: %d) - 人气 %d 度' % (each_player['rank'], each_player['user']['nickName'], each_player['user']['id'], each_player['stage']) + '\n'
+    return current_message.strip()    
+
 @on_command('ranking', aliases=('排名', 'rank'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def ranking(session: CommandSession):
     if not is_enabled(session.event):
@@ -117,7 +125,8 @@ async def get_rank(_type: str, begin: str, end: str, mode: str, level: str) -> s
                     'nonguessing': 3, '无猜': 3, 'n': 3,  
                     'coin': 4, '财富': 4, 'o': 4, 
                     'chaos': 5, '乱斗': 5, 'c': 5,
-                    'advance': 6, '进步': 6, 'a': 6}
+                    'advance': 6, '进步': 6, 'a': 6,
+                    'visit': 7, '人气': 7, 'v': 7}
         mode_ref = {'all': -1, 'nf': 0, 'fl': 1, '全部': -1, '盲扫': 0, '标旗': 1, 'a': -1, 'n': 0, 'f': 1}
         level_ref = {'all': 4, 'beg': 1, 'int': 2, 'exp': 3, 'a': 4, 'b': 1, 'i': 2, 'e': 3, '全部': 4, '初级': 1, '中级': 2, '高级': 3}
         _type = type_ref[_type.lower()]
@@ -137,6 +146,8 @@ async def get_rank(_type: str, begin: str, end: str, mode: str, level: str) -> s
             rank = await get_chaos_rank()
         elif _type == 6:
             rank = await get_advance_rank()
+        elif _type == 7:
+            rank = await get_visit_rank()
         return rank
     except Exception as e:
         logger.error(traceback.format_exc())
