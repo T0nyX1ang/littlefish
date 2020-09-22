@@ -32,6 +32,14 @@ for file in os.listdir(ADMIRE_RESOURCE_PATH):
 		ADMIRE_RESOURCE[filename] = b64encode(fin).decode()
 	logger.info('%s loaded ...' % os.path.join(ADMIRE_RESOURCE_PATH, file))
 
+# message policy
+POLICY_PATH = os.path.join(os.getcwd(), 'policy.json')
+if os.path.isfile(POLICY_PATH):
+	with open(POLICY_PATH, 'r') as f:
+		POLICY = json.loads(f.read())
+else:
+	POLICY = None
+
 # primary password
 PRIMARY_PASSWORD = hashlib.sha3_256(getpass.getpass('Please enter your primary password: ').encode()).digest()
 PRIMARY_ENCRYPT = lambda message: AES.new(PRIMARY_PASSWORD, AES.MODE_ECB).encrypt(pad(message.encode(), AES.block_size))
