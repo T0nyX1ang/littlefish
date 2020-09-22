@@ -33,12 +33,13 @@ async def get_endless_rank():
     return current_message.strip()
 
 async def get_nonguessing_rank():
-    query = 'page=0&count=10'
-    nonguessing_rank = await fetch(page='/MineSweepingWar/rank/nonguessing/list', query=query)
-    current_message = ''
-    for each_player in nonguessing_rank['data']:
-        current_message += '[%d] %s (Id: %d) - 通过 %d 关' % (each_player['rank'], each_player['user']['nickName'], each_player['user']['id'], each_player['stage']) + '\n'
-    return current_message.strip()
+    # query = 'page=0&count=10'
+    # nonguessing_rank = await fetch(page='/MineSweepingWar/rank/nonguessing/list', query=query)
+    # current_message = ''
+    # for each_player in nonguessing_rank['data']:
+    #     current_message += '[%d] %s (Id: %d) - 通过 %d 关' % (each_player['rank'], each_player['user']['nickName'], each_player['user']['id'], each_player['stage']) + '\n'
+    # return current_message.strip()
+    return '无猜模式排名暂不开放'
 
 async def get_coin_rank():
     query = 'page=0&count=10'
