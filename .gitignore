@@ -131,4 +131,4 @@ dmypy.json
 # Local configurations and databases
 database/
 config.py
-override.json
+policy.json
