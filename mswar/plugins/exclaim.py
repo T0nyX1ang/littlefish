@@ -1,7 +1,7 @@
 from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.message import MessageSegment
-from .core import is_enabled
+from .core import check_policy
 from .global_value import ADMIRE_RESOURCE
 import random
 
@@ -53,7 +53,7 @@ def get_cheer_message(person=''):
 
 @on_command('praise', aliases=('膜', '膜拜'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def praise(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'exclaim'):
         session.finish('小鱼睡着了zzz~')
     person = session.get('person')
     admire_message = get_admire_message(person, without_picture=False)
@@ -71,7 +71,7 @@ async def _(session: CommandSession):
 
 @on_command('admire', aliases=('狂膜'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def admire(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'exclaim'):
         session.finish('小鱼睡着了zzz~')    
     person = session.get('person')
     admire_message = get_admire_message(person)
@@ -90,7 +90,7 @@ async def _(session: CommandSession):
 
 @on_command('cheer', aliases=('加油'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def cheer(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'exclaim'):
         session.finish('小鱼睡着了zzz~')    
     person = session.get('person')
     cheer_message = get_cheer_message(person)

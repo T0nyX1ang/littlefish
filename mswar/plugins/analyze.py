@@ -1,7 +1,7 @@
 from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
-from .core import fetch, is_enabled
+from .core import fetch, check_policy
 from .mswar import get_board, get_action, get_result
 from .global_value import THEME_RESOURCE
 from base64 import b64encode, b64decode
@@ -85,7 +85,7 @@ async def get_analyze_result(mode: str, target_id: str) -> str:
 
 @on_command('analyze', aliases=('分析'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def analyze(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'analyze'):
         session.finish('小鱼睡着了zzz~')
     mode = session.get('mode')
     target_id = session.get('id')

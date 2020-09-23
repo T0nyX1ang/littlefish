@@ -2,7 +2,7 @@ from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
 from urllib.parse import quote, unquote
-from .core import fetch, is_enabled
+from .core import fetch, check_policy
 import traceback
 
 async def get_classic_rank(_type=0, begin=1, end=10, mode=-1, level=4):
@@ -75,7 +75,7 @@ async def get_visit_rank():
 
 @on_command('ranking', aliases=('排名', 'rank'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def ranking(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'ranking'):
         session.finish('小鱼睡着了zzz~')
 
     _type = session.get('type')

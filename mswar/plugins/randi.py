@@ -1,13 +1,13 @@
 from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
-from .core import is_enabled
+from .core import check_policy
 import traceback
 import random
 
 @on_command('randi', aliases=('随机数'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def randi(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'randi'):
         session.finish('小鱼睡着了zzz~')
 
     begin = session.get('begin')

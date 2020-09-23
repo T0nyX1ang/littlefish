@@ -2,7 +2,7 @@ from nonebot import on_startup, on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP, GROUP_ADMIN
 from nonebot.log import logger
 from nonebot.message import MessageSegment
-from .core import is_enabled
+from .core import check_policy
 import datetime
 import random
 
@@ -40,7 +40,7 @@ def get_greeting_message():
 
 @on_command('greeting', aliases=('小鱼', 'mswar-bot'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def greeting(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'greeting'):
         session.finish('小鱼睡着了zzz~')
 
     greeting_message = get_greeting_message()

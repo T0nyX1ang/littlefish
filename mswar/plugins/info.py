@@ -3,7 +3,7 @@ from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
 from urllib.parse import quote, unquote
 from apscheduler.triggers.date import DateTrigger
-from .core import fetch, is_enabled
+from .core import fetch, check_policy
 from .global_value import CURRENT_ID_COLDING_LIST, CURRENT_GROUP_MEMBERS
 import traceback
 import datetime
@@ -142,7 +142,7 @@ def remove_id_from_colding_list(group_id, user_id):
 
 @on_command('info', aliases=('查询', '查找', 'search', 'id', 'name'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def info(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'info'):
         session.finish('小鱼睡着了zzz~')
         
     group_id = session.event['group_id']
@@ -178,7 +178,7 @@ async def _(session: CommandSession):
 
 @on_command('personinfo', aliases=('个人信息', '个人成绩'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def personinfo(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'info'):
         session.finish('小鱼睡着了zzz~')
         
     group_id = session.event['group_id']
