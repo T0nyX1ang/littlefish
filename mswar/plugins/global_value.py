@@ -35,9 +35,15 @@ for file in os.listdir(ADMIRE_RESOURCE_PATH):
 # message policy
 POLICY_PATH = os.path.join(os.getcwd(), 'policy.json')
 if os.path.isfile(POLICY_PATH):
-	with open(POLICY_PATH, 'r') as f:
-		POLICY = json.loads(f.read())
+	try:
+		with open(POLICY_PATH, 'r') as f:
+			POLICY = json.loads(f.read())
+			logger.info('Policy file is loaded ...')
+	except Exception as e:
+		logger.error('Failed to load the policy file, please try again ...')
+		sys.exit()
 else:
+	logger.info('No policy file is found, using PASS policy in all groups ...')
 	POLICY = None
 
 # primary password
@@ -56,7 +62,7 @@ try:
 	with open(GLOBAL_KEYS_PATH, 'rb') as f:
 		GLOBAL_KEYS = json.loads(PRIMARY_DECRYPT(f.read()))
 except Exception as e:
-	print('Wrong password. Please retry running this program again.')
+	logger.error('Wrong password. Please retry running this program again.')
 	sys.exit()
 
 logger.info('Initializing global values ...')
