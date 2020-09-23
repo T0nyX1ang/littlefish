@@ -4,7 +4,7 @@ from nonebot.log import logger
 from nonebot.message import MessageSegment
 from nonebot.command.argfilter.extractors import extract_image_urls
 from .global_value import CURRENT_GROUP_MESSAGE, CURRENT_GROUP_MESSAGE_INCREMENT, CURRENT_COMBO_COUNTER, CURRENT_GROUP_MEMBERS, CURRENT_WORD_BLACKLIST
-from .core import is_enabled
+from .core import check_policy
 import random
 
 def get_image_hashes(message):
@@ -14,7 +14,7 @@ def get_image_hashes(message):
 
 @on_natural_language(permission=SUPERUSER | GROUP, only_short_message=False, only_to_me=False)
 async def _ (session: NLPSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'groupmsg'):
         return
 
     msg = session.msg.strip() # for mis-input whitespace
@@ -99,7 +99,7 @@ async def _ (session: NLPSession):
 
 @on_command('enterroom', aliases=('进入小黑屋'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def enterroom(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'groupmsg'):
         session.finish('小鱼睡着了zzz~')
         
     group_id = session.event['group_id']
@@ -117,7 +117,7 @@ async def enterroom(session: CommandSession):
 
 @on_command('exitroom', aliases=('退出小黑屋'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def exitroom(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'groupmsg'):
         session.finish('小鱼睡着了zzz~')
         
     group_id = session.event['group_id']
