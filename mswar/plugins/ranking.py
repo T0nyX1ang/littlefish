@@ -70,7 +70,7 @@ async def get_visit_rank():
     advance_rank = await fetch(page='/MineSweepingWar/rank/user/visit/list', query=query)
     current_message = ''
     for each_player in advance_rank['data']:
-        current_message += '[%d] %s (Id: %d) - 人气 %d 度' % (each_player['rank'], each_player['user']['nickName'], each_player['user']['id'], each_player['stage']) + '\n'
+        current_message += '[%d] %s (Id: %d) - 人气 %d 度' % (each_player['rank'], each_player['user']['nickName'], each_player['user']['id'], each_player['score']) + '\n'
     return current_message.strip()    
 
 @on_command('ranking', aliases=('排名', 'rank'), permission=SUPERUSER | GROUP, only_to_me=False)
