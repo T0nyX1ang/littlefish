@@ -291,29 +291,9 @@ async def _():
     current_hour = datetime.datetime.now().hour
     bot = nonebot.get_bot()
     try:
-        for group_id in CURRENT_ENABLED.keys():
+        for group_id in CURRENT_ENABLED.keys() and check_boardcast_policy(group_id, 'enable'):
             if (current_hour - 8) % GAME_FREQUENCY[group_id] == 0 and CURRENT_ENABLED[group_id] and not CURRENT_42_APP[group_id].is_playing():
-                CURRENT_42_APP[group_id].generate_problem('probability', prob=CURRENT_42_PROB_LIST[group_id].values())
-                CURRENT_42_APP[group_id].start()
-                message = print_current_problem(group_id)
-                deadline = get_deadline(group_id) - 60
-                await bot.send_group_msg(group_id=group_id, message=message)
-
-                current_problem = CURRENT_42_APP[group_id].get_current_problem()
-                for val in CURRENT_42_PROB_LIST[group_id].keys():
-                    if val == str(current_problem):
-                        CURRENT_42_PROB_LIST[group_id][val] = 0
-                    elif CURRENT_42_PROB_LIST[group_id][val] < 2000:
-                        CURRENT_42_PROB_LIST[group_id][val] = CURRENT_42_PROB_LIST[group_id][val] + 1 
-
-                delta = datetime.timedelta(seconds=deadline)
-                trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
-                scheduler.add_job(
-                    func=ready_finish_game,
-                    trigger=trigger,
-                    args=(group_id, ),
-                    misfire_grace_time=30,
-                )
+                await start_calc42()
     except Exception as e:
         logger.error(traceback.format_exc())
         if CURRENT_42_APP[group_id].is_playing():

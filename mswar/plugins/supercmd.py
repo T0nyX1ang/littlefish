@@ -6,6 +6,7 @@ from nonebot.log import logger
 from urllib.parse import quote, unquote
 from .core import fetch, is_online, is_enabled
 from .global_value import *
+from .calc42 import start_calc42
 import shutil
 import nonebot
 import json
@@ -146,6 +147,12 @@ async def resetroom(session: CommandSession):
         for user_id in CURRENT_GROUP_MEMBERS[group_id]:
             CURRENT_GROUP_MEMBERS[group_id][user_id]['restricted'] = False
         await session.send('小黑屋已重置')
+
+@on_command('manual42', aliases=('手动42点'), permission=SUPERUSER, only_to_me=False)
+async def manual42(session: CommandSession):
+    if session.event['message_type'] == 'group':
+        group_id = session.event['group_id']
+        await start_calc42(session.bot, group_id)
 
 @nonebot.scheduler.scheduled_job('cron', hour='*/2', minute=0, second=0, misfire_grace_time=30)
 async def _():
