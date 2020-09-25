@@ -4,7 +4,7 @@ from nonebot.log import logger
 from nonebot.message import MessageSegment
 from apscheduler.triggers.date import DateTrigger
 from .exclaim import get_admire_message
-from .core import is_enabled, text_to_picture, get_member_name
+from .core import check_policy, check_boardcast_policy, text_to_picture, get_member_name
 from .global_value import CURRENT_ENABLED, CURRENT_42_APP, CURRENT_42_PROB_LIST, CURRENT_GROUP_MEMBERS, GAME_FREQUENCY
 import nonebot
 import datetime
@@ -135,7 +135,7 @@ async def finish_game(group_id):
 
 @on_command('calc42', aliases=('42点'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def calc42(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'calc42'):
         session.finish('小鱼睡着了zzz~')
 
     math_expr = session.get('math_expr')
@@ -185,7 +185,7 @@ async def _(session: CommandSession):
 
 @on_command('calc42help', aliases=('42点规则', '42点说明'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def calc42help(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'calc42'):
         session.finish('小鱼睡着了zzz~')
 
     group_id = session.event['group_id']
@@ -204,7 +204,7 @@ async def calc42help(session: CommandSession):
 
 @on_command('calc42equal', aliases=('42点等价解', '等价解说明'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def calc42equal(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'calc42'):
         session.finish('小鱼睡着了zzz~')
 
     equivalent_message = '''关于等价解的说明:
@@ -217,7 +217,7 @@ async def calc42equal(session: CommandSession):
 
 @on_command('calc42score', aliases=('42点得分说明',), permission=SUPERUSER | GROUP, only_to_me=False)
 async def calc42score(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'calc42'):
         session.finish('小鱼睡着了zzz~')
 
     score_message = '''关于得分的说明:
@@ -235,7 +235,7 @@ async def calc42score(session: CommandSession):
 
 @on_command('score42', aliases=('42点积分', '42点得分'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def score42(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'calc42'):
         session.finish('小鱼睡着了zzz~')
 
     group_id = session.event['group_id']
@@ -263,7 +263,7 @@ async def score42(session: CommandSession):
 
 @on_command('ranking42', aliases=('42点排名', '42点排行', '42点排行榜'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def ranking42(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'calc42'):
         session.finish('小鱼睡着了zzz~')
 
     group_id = session.event['group_id']
@@ -285,6 +285,29 @@ async def ranking42(session: CommandSession):
         result_message = result_message + each_line + '\n'
 
     await session.send(result_message.strip())
+
+async def start_calc42(bot, group_id):
+    CURRENT_42_APP[group_id].generate_problem('probability', prob=CURRENT_42_PROB_LIST[group_id].values())
+    CURRENT_42_APP[group_id].start()
+    message = print_current_problem(group_id)
+    deadline = get_deadline(group_id) - 60
+    await bot.send_group_msg(group_id=group_id, message=message)
+
+    current_problem = CURRENT_42_APP[group_id].get_current_problem()
+    for val in CURRENT_42_PROB_LIST[group_id].keys():
+        if val == str(current_problem):
+            CURRENT_42_PROB_LIST[group_id][val] = 0
+        elif CURRENT_42_PROB_LIST[group_id][val] < 2000:
+            CURRENT_42_PROB_LIST[group_id][val] = CURRENT_42_PROB_LIST[group_id][val] + 1 
+
+    delta = datetime.timedelta(seconds=deadline)
+    trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
+    scheduler.add_job(
+        func=ready_finish_game,
+        trigger=trigger,
+        args=(group_id, ),
+        misfire_grace_time=30,
+    )
 
 @nonebot.scheduler.scheduled_job('cron', hour='8-23', minute=42, second=42, misfire_grace_time=30)
 async def _():

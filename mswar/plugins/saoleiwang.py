@@ -1,7 +1,7 @@
 from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
-from .core import is_enabled
+from .core import check_policy, check_boardcast_policy
 from .global_value import CURRENT_ENABLED
 import nonebot
 import requests
@@ -10,7 +10,7 @@ import traceback
 
 @on_command('saolei', aliases=('雷网'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def saolei(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'saoleiwang'):
         session.finish('小鱼睡着了zzz~')
 
     saolei_id = session.get('saolei_id')
@@ -28,7 +28,7 @@ async def _(session: CommandSession):
 
 @on_command('dailystarsaolei', aliases=('每日一星', '雷网每日一星'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def dailystarsaolei(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'saoleiwang'):
         session.finish('小鱼睡着了zzz~')
 
     daily_star_info = await get_daily_star()
@@ -54,7 +54,7 @@ async def _():
     message = await get_daily_star()
     try:
         for group_id in CURRENT_ENABLED.keys():
-            if CURRENT_ENABLED[group_id]:
+            if CURRENT_ENABLED[group_id] and check_boardcast_policy(group_id, 'saoleiwang'):
                 await bot.send_group_msg(group_id=group_id, message=message)
     except Exception as e:
         logger.error(traceback.format_exc())

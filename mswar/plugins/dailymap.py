@@ -1,7 +1,7 @@
 from nonebot import on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
-from .core import fetch, is_enabled
+from .core import fetch, check_policy, check_boardcast_policy
 from .mswar import get_board, get_board_result
 from .global_value import CURRENT_ENABLED
 import nonebot
@@ -37,7 +37,7 @@ async def get_daily_map() -> str:
 
 @on_command('dailymap', aliases=('每日一图'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def dailymap(session: CommandSession):
-    if not is_enabled(session.event):
+    if not check_policy(session.event, 'dailymap'):
         session.finish('小鱼睡着了zzz~')
 
     daily_map_info = await get_daily_map()
@@ -51,7 +51,7 @@ async def _():
     message = format_daily_map(daily_map)
     try:
         for group_id in CURRENT_ENABLED.keys():
-            if CURRENT_ENABLED[group_id]:
+            if CURRENT_ENABLED[group_id] and check_boardcast_policy(group_id, 'dailymap'):
                 await bot.send_group_msg(group_id=group_id, message=message)
     except Exception as e:
         logger.error(traceback.format_exc())
