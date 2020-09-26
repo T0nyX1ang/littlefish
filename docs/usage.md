@@ -256,17 +256,20 @@
     # 无尽排行榜
     rank/ranking/排名 [e]ndless/无尽
 
-    # 无猜排行榜
+    # 无猜排行榜(目前暂时不开放)
     rank/ranking/排名 [n]onguessing/无猜 
 
     # 雷币排行榜
-    rank/ranking/排名 c[o]in/财富
+    rank/ranking/排名 c[o]in/coins/财富
 
     # 乱斗排行榜
     rank/ranking/排名 [c]haos/乱斗 
 
     # 进步排行榜    
-    rank/ranking/排名 [a]dvance/进步 
+    rank/ranking/排名 [a]dvance/进步
+
+    # 人气排行榜
+    rank/ranking/排名 [v]isit/人气    
 ```
 
 > 娱乐功能的排行榜仅支持查询对应排行榜前 10 名用户，后面设定的参数会被直接忽略。
