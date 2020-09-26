@@ -46,7 +46,7 @@ async def get_coin_rank():
     coin_rank = await fetch(page='/MineSweepingWar/rank/coin/list', query=query)
     current_message = ''
     for each_player in coin_rank['data']:
-        current_message += '[%d] %s (Id: %d) - 获得 %d 币' % (each_player['rank'], each_player['user']['nickName'], each_player['user']['id'], each_player['stage']) + '\n'
+        current_message += '[%d] %s (Id: %d) - 拥有 %d 币' % (each_player['rank'], each_player['user']['nickName'], each_player['user']['id'], each_player['stage']) + '\n'
     return current_message.strip()
 
 async def get_chaos_rank():
@@ -124,7 +124,7 @@ async def get_rank(_type: str, begin: str, end: str, mode: str, level: str) -> s
                     'bvs': 1, '3bvs': 1, 'b': 1, 
                     'endless': 2, '无尽': 2, 'e': 2,
                     'nonguessing': 3, '无猜': 3, 'n': 3,  
-                    'coin': 4, '财富': 4, 'o': 4, 
+                    'coin': 4, 'coins': 4, '财富': 4, 'o': 4, 
                     'chaos': 5, '乱斗': 5, 'c': 5,
                     'advance': 6, '进步': 6, 'a': 6,
                     'visit': 7, '人气': 7, 'v': 7}
