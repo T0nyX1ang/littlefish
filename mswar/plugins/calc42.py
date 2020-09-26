@@ -316,7 +316,7 @@ async def _():
     try:
         for group_id in CURRENT_ENABLED.keys():
             if (current_hour - 8) % GAME_FREQUENCY[group_id] == 0 and CURRENT_ENABLED[group_id] and not CURRENT_42_APP[group_id].is_playing() and check_boardcast_policy(group_id, 'calc42'):
-                await start_calc42()
+                await start_calc42(bot, group_id)
     except Exception as e:
         logger.error(traceback.format_exc())
         if CURRENT_42_APP[group_id].is_playing():
