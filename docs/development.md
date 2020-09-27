@@ -83,20 +83,39 @@
 + 为了使机器人在不同的群内使用不同的功能，可以新建一个权限控制文件`policy.json`，内部的结构需要写成这样:
 ```json
 	{
-		"plugin_name": {
-			"groups": [ 1, 2, 3 ],
-			"users": [ 4, 5, 6 ]
+		"qq_group_number": {
+			"plugin_name": [ 1, 2, 3 ],
+			"another_plugin_name": [ 4, 5, 6 ]
 		}, 
-		"another_plugin_name": {
-			"groups": [ 1, 2, 3 ],
-			"users": [ 4, 5, 6 ]			
-		}
+		"another_qq_group_number": {
+			"plugin_name": [ 1, 2, 3 ],
+			"another_plugin_name": [ 4, 5, 6 ]
+		}, 
 	}
 ```
 
-> `plugin_name`为`./mswar/plugins/*.py`中的文件名，`groups`里面写群号，`users`里面写用户QQ号，采用白名单策略，即用户需要在`groups`中出现的群组里面，也需要在`users`中出现的用户里面，才可以触发`plugin_name`中包含的**所有**命令。在配置文件中**请勿包含注释**。
+* `plugin_name`为`./mswar/plugins/*.py`中的文件名，`qq_group_number`里面写群号，`[ ... ]`里面写用户QQ号，对每个群组单独配置，并遵循如下规则:
+	+ 如果机器人所在群组不在配置文件`qq_group_number`中，自动放行;
+	+ 如果机器人所在群组在配置文件`qq_group_number`中，但所执行函数不在`plugin_name`中，自动放行;
+	+ 如果机器人所在群组在配置文件`qq_group_number`中，所执行函数也在`plugin_name`中，根据用户QQ是否在允许放行列表`[ ... ]`中进行放行;
+	+ 当`qq_group_number`和`plugin_name`均已设置，定时触发的任务所在函数在`plugin_name`中时，自动**拒绝**放行;
+	+ 在配置文件中**不能包含注释**，否则会解析错误。
 
 > 此功能较为复杂，**不建议**使用，或者仅建议在小范围内使用，项目本身不提供配置文件，需要自行编写。
+
+### 精细权限控制的例子
+```json
+	{
+		"a0": {
+			"b": [ 1 ],
+			"c": [ 2 ],
+			"d": [ ]
+		}, 
+		"a1": {}
+	}
+```
+
+> 上述例子表明，机器人在`a0`群中，只响应用户`1`触发的`b`命令(准确是函数中包含的所有命令)，与用户`2`触发的`c`命令，同时不响应任何用户触发的`d`命令，且如果`b, c, d`三个命令中含有定时命令，均不会被触发，其余命令没有限制，机器人在`a1`群中，响应用户的所有命令，机器人在其余加入的群中，响应用户的所有命令。
 
 ## 协议
 + 本项目基于`AGPL 3.0`开源, 详细的协议见[这里](http://www.gnu.org/licenses/agpl-3.0.html)。
