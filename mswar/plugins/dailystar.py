@@ -23,7 +23,7 @@ async def dailystar(session: CommandSession):
     daily_star_message = await get_daily_star()
     await session.send(daily_star_message)
 
-@nonebot.scheduler.scheduled_job('cron', hour=0, minute=4, second=30, misfire_grace_time=30)
+@nonebot.scheduler.scheduled_job('cron', hour=0, minute=1, second=30, misfire_grace_time=30)
 async def _():
     bot = nonebot.get_bot()
     message = await get_daily_star()
