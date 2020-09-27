@@ -44,7 +44,7 @@ if os.path.isfile(POLICY_PATH):
 		sys.exit()
 else:
 	logger.info('No policy file is found, using PASS policy in all groups ...')
-	POLICY = None
+	POLICY = {}
 
 # primary password
 PRIMARY_PASSWORD = hashlib.sha3_256(getpass.getpass('Please enter your primary password: ').encode()).digest()
