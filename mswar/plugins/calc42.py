@@ -82,7 +82,7 @@ def print_results(group_id):
     ordered_players = sorted(player_solutions, key=lambda k: player_solutions[k], reverse=True)
 
     # 50% AK bonus
-    if player_solutions[ordered_players[0]] * 2 > total_solution_number:
+    if ordered_players and player_solutions[ordered_players[0]] * 2 > total_solution_number:
         player_scores[ordered_players[0]] += total_solution_number
 
     line = []
@@ -122,12 +122,14 @@ async def finish_game(group_id):
     try:
         if CURRENT_42_APP[group_id].is_playing():
             leader_id = get_leader_id(group_id)
-            await bot.send_group_msg(group_id=group_id, message='[CQ:image,file=%s]' % text_to_picture(get_current_stats(group_id)))
+            current_stats = get_current_stats(group_id)
+            game_results = print_results(group_id)
+            CURRENT_42_APP[group_id].stop()
+            await bot.send_group_msg(group_id=group_id, message='[CQ:image,file=%s]' % text_to_picture(current_stats))
             if leader_id > 0:
-                await bot.send_group_msg(group_id=group_id, message=print_results(group_id))
+                await bot.send_group_msg(group_id=group_id, message=game_results)
                 winning_message = MessageSegment.at(leader_id) + ' 恭喜取得本次42点接力赛胜利, ' + get_admire_message()
                 await bot.send_group_msg(group_id=group_id, message=winning_message)
-            CURRENT_42_APP[group_id].stop()
     except Exception:
         logger.error(traceback.format_exc())
         if CURRENT_42_APP[group_id].is_playing():
