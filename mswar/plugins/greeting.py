@@ -1,6 +1,5 @@
-from nonebot import on_startup, on_command, CommandSession
-from nonebot.permission import SUPERUSER, GROUP, GROUP_ADMIN
-from nonebot.log import logger
+from nonebot import on_command, CommandSession
+from nonebot.permission import SUPERUSER, GROUP
 from nonebot.message import MessageSegment
 from .core import check_policy
 import datetime
@@ -17,13 +16,23 @@ def get_greeting_message():
         else:
             return '保重鸭~'
 
+    elif random_number >= 80:
+        if current_hour in [7, 8, 9, 10]:
+            return '--. --- ... ... / -- --- .-. -. .. -. --.'
+        elif current_hour in [13, 14, 15, 16]:
+            return '--. --- --- -.. / .. ..-. -. .-. -. --- --- -.'
+        elif current_hour in [19, 20, 21]:
+            return '--. --- --- -.. / . ...- . -. .. -. --.'
+        elif current_hour in [22, 23]:
+            return '--. --- --- -.. / -. .. --. .... -'
+
     if current_hour in [1, 2]:
         return '快去睡觉，别熬夜破pb了~'
     elif current_hour in [3, 4, 5]:
         return '小鱼睡着了zzz~'
-    elif current_hour in [6, 7]:
+    elif current_hour in [6]:
         return '早起的鸟儿有pb破~'
-    elif current_hour in [8, 9, 10]:
+    elif current_hour in [7, 8, 9, 10]:
         return '早上好鸭~'
     elif current_hour in [11, 12]:
         return '午饭吃了吗，吃饱了才有力气破pb~'
