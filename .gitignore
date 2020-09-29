@@ -132,3 +132,6 @@ dmypy.json
 database/
 config.py
 policy.json
+
+# easter eggs
+easter.py
