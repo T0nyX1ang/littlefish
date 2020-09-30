@@ -20,7 +20,7 @@ def get_greeting_message():
         if current_hour in [7, 8, 9, 10]:
             return '--. --- ... ... / -- --- .-. -. .. -. --.'
         elif current_hour in [13, 14, 15, 16]:
-            return '--. --- --- -.. / .. ..-. -. .-. -. --- --- -.'
+            return '--. --- --- -.. / .. ..-. - . .-. -. --- --- -.'
         elif current_hour in [19, 20, 21]:
             return '--. --- --- -.. / . ...- . -. .. -. --.'
         elif current_hour in [22, 23]:
