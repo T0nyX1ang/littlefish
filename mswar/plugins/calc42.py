@@ -170,7 +170,7 @@ async def calc42(session: CommandSession):
             await session.send(message)
 
             if CURRENT_42_APP[group_id].get_current_solution_number() == CURRENT_42_APP[group_id].get_total_solution_number():
-                trigger = DateTrigger(run_date=datetime.datetime.now() + 1)
+                trigger = DateTrigger(run_date=datetime.datetime.now() + datetime.timedelta(seconds=1))
                 scheduler.add_job(
                     func=finish_game,
                     trigger=trigger,
@@ -178,7 +178,7 @@ async def calc42(session: CommandSession):
                     misfire_grace_time=30,
                 )
             else:
-                trigger = DateTrigger(run_date=datetime.datetime.now() + 1)
+                trigger = DateTrigger(run_date=datetime.datetime.now() + datetime.timedelta(seconds=1))
                 scheduler.add_job(
                     func=send_current_stats,
                     trigger=trigger,
