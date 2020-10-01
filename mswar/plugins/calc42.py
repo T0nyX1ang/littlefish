@@ -104,7 +104,7 @@ def print_results(group_id):
 async def send_current_stats(group_id):
     bot = nonebot.get_bot()
     try:
-        current_stats = text_to_picture(get_current_stats[group_id])
+        current_stats = text_to_picture(get_current_stats(group_id))
         await bot.send_group_msg(group_id=group_id, message='[CQ:image,file=%s]' % current_stats)
     except Exception as e:
         logger.error(traceback.format_exc())
@@ -170,7 +170,7 @@ async def calc42(session: CommandSession):
             await session.send(message)
 
             if CURRENT_42_APP[group_id].get_current_solution_number() == CURRENT_42_APP[group_id].get_total_solution_number():
-                trigger = DateTrigger(run_date=datetime.datetime.now() + datetime.timedelta(seconds=1))
+                trigger = DateTrigger(run_date=datetime.datetime.now())
                 scheduler.add_job(
                     func=finish_game,
                     trigger=trigger,
@@ -178,7 +178,7 @@ async def calc42(session: CommandSession):
                     misfire_grace_time=30,
                 )
             else:
-                trigger = DateTrigger(run_date=datetime.datetime.now() + datetime.timedelta(seconds=1))
+                trigger = DateTrigger(run_date=datetime.datetime.now())
                 scheduler.add_job(
                     func=send_current_stats,
                     trigger=trigger,
