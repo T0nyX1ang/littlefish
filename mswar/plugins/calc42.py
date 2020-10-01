@@ -101,6 +101,14 @@ def print_results(group_id):
 
     return result_message.strip()
 
+async def send_current_stats(group_id):
+    bot = nonebot.get_bot()
+    try:
+        current_stats = text_to_picture(get_current_stats[group_id])
+        await bot.send_group_msg(group_id=group_id, message='[CQ:image,file=%s]' % current_stats)
+    except Exception as e:
+        logger.error(traceback.format_exc())
+
 async def ready_finish_game(group_id):
     bot = nonebot.get_bot()
     try:
@@ -125,11 +133,11 @@ async def finish_game(group_id):
             current_stats = get_current_stats(group_id)
             game_results = print_results(group_id)
             CURRENT_42_APP[group_id].stop()
-            await bot.send_group_msg(group_id=group_id, message='[CQ:image,file=%s]' % text_to_picture(current_stats))
             if leader_id > 0:
                 await bot.send_group_msg(group_id=group_id, message=game_results)
                 winning_message = MessageSegment.at(leader_id) + ' 恭喜取得本次42点接力赛胜利, ' + get_admire_message()
                 await bot.send_group_msg(group_id=group_id, message=winning_message)
+            await bot.send_group_msg(group_id=group_id, message='[CQ:image,file=%s]' % text_to_picture(current_stats))
     except Exception:
         logger.error(traceback.format_exc())
         if CURRENT_42_APP[group_id].is_playing():
@@ -155,13 +163,29 @@ async def calc42(session: CommandSession):
 
             admire_message = get_admire_message()
 
-            message = MessageSegment.at(current_sender) + ' 恭喜完成第%d个解，完成时间: %.3f秒，剩余时间: %d秒，%s' % (CURRENT_42_APP[group_id].get_current_solution_number(), finish_time, left, admire_message)
+            message = MessageSegment.at(current_sender) + ' 恭喜完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒，%s' % (
+                CURRENT_42_APP[group_id].get_current_solution_number(),
+                CURRENT_42_APP[group_id].get_total_solution_number(),
+                finish_time, left, admire_message)
             await session.send(message)
 
             if CURRENT_42_APP[group_id].get_current_solution_number() == CURRENT_42_APP[group_id].get_total_solution_number():
-                await finish_game(group_id) # Then game is over now
+                trigger = DateTrigger(run_date=datetime.datetime.now() + 1)
+                scheduler.add_job(
+                    func=finish_game,
+                    trigger=trigger,
+                    args=(group_id, ),
+                    misfire_grace_time=30,
+                )
             else:
-                await session.send('[CQ:image,file=%s]' % text_to_picture(get_current_stats(group_id)))
+                trigger = DateTrigger(run_date=datetime.datetime.now() + 1)
+                scheduler.add_job(
+                    func=send_current_stats,
+                    trigger=trigger,
+                    args=(group_id, ),
+                    misfire_grace_time=30,
+                )                
+
         except OverflowError:
             await session.send('公式过长')
         except SyntaxError:
