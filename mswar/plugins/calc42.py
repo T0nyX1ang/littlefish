@@ -88,6 +88,8 @@ def print_results(group_id):
     line = []
     line.append('--- 本题统计 ---')
     line.append('求解完成度: %d/%d' % (current_solution_number, total_solution_number))
+    if current_solution_number < total_solution_number:
+        line.append('剩余解法: %s' % ', '.join(CURRENT_42_APP[group_id].get_remaining_solutions()))
     line.append('积分倍率: %d' % (GAME_FREQUENCY[group_id]))
 
     for person in ordered_players:
@@ -218,7 +220,7 @@ async def calc42help(session: CommandSession):
     message = '''42点游戏规则:
     (1)每日某些小时的42分42秒, 会给出5个位于0至13之间的整数，
     玩家需要将这五个整数(可以调换顺序)通过四则运算与括号相连，
-    使得结果等于42.
+    使得结果的绝对值等于42.
     (2)回答时以"calc42"或"42点"开头，加入空格，并给出算式. 
     如果需要查询等价解说明，请输入"42点等价解"或"等价解说明". 
     如果需要查询得分说明，请输入"42点得分说明".
@@ -237,8 +239,8 @@ async def calc42equal(session: CommandSession):
     (1)四则运算的性质得出的等价是等价解;
     (2)中间结果出现0，可以利用加减移动到式子的任何地方;
     (3)中间结果出现1，可以利用乘除移动到式子的任何地方;
-    (4)等值子式的交换不认为是等价;
-    (5)2*2与2+2不认为是等价.'''
+    (4)等值子式的交换等价;
+    (5)2*2与2+2等价，4/2与4-2等价.'''
     await session.send('[CQ:image,file=%s]' % text_to_picture(equivalent_message))
 
 @on_command('calc42score', aliases=('42点得分说明',), permission=SUPERUSER | GROUP, only_to_me=False)
