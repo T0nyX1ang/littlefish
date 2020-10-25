@@ -4,6 +4,7 @@ from nonebot.log import logger
 from .core import check_policy
 from .global_value import CURRENT_CONFLICT_COUNTER, CURRENT_ENABLED
 import nonebot
+import random
 
 @on_command('conflict', aliases=('打架', '嘭[CQ:face,id=146]'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def conflict(session: CommandSession):
@@ -11,6 +12,9 @@ async def conflict(session: CommandSession):
         session.finish()
 
     group_id = session.event['group_id']
+    if random.randint(1, 100) >= 90:
+        CURRENT_CONFLICT_COUNTER[group_id] = 5
+        session.finish('打累了，别打了[CQ:face,id=111]')
     if CURRENT_CONFLICT_COUNTER[group_id] < 5:
         CURRENT_CONFLICT_COUNTER[group_id] += 1
         await session.send('小爆')
