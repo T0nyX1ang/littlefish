@@ -1,5 +1,5 @@
 nonebot[scheduler]==1.6.0
-42Points==1.1.0
+42Points==1.2.0
 requests>=2.21.0
 pycryptodome>=3.9.6
 beautifulsoup4>=4.9.1
