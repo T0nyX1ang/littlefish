@@ -69,10 +69,14 @@ async def enable(session: CommandSession):
         CURRENT_WORD_BLACKLIST[group_id] = database['word_blacklist'] if 'word_blacklist' in database else []
         GAME_FREQUENCY[group_id] = database['game_frequency'] if 'game_frequency' in database else 1
 
-    CURRENT_ENABLED[group_id] = True
-
     await update_group_members(session.bot, group_id)
-    await session.send('小鱼已启动，内核版本 v0.9.1 ~')
+
+    if group_id not in CURRENT_ENABLED:
+        await session.send('小鱼已启动，内核版本 %s' % LATEST_CHANGELOG)
+    else:
+        await session.send('小鱼已启动，内核版本 %s ~' % VERSION)
+
+    CURRENT_ENABLED[group_id] = True
 
 @on_command('disable', aliases=('关闭', '关闭机器人'), permission=SUPERUSER | GROUP_ADMIN, only_to_me=False)
 async def disable(session: CommandSession):
