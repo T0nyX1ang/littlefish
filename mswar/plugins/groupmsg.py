@@ -114,5 +114,5 @@ async def _(session: CommandSession):
         if prepare and 1 <= prepare[0] <= 1440:
             session.state['duration'] = int(prepare[0]) * 60
         else:
-            session.state['duration'] = 1800
+            session.state['duration'] = random.randint(1, 120) * 60
         return
