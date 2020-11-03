@@ -2,7 +2,7 @@ from nonebot import on_natural_language, NLPSession, on_command, CommandSession
 from nonebot.permission import SUPERUSER, GROUP
 from nonebot.log import logger
 from nonebot.message import MessageSegment
-from nonebot.command.argfilter.extractors import extract_text, extract_image_urls
+from nonebot.command.argfilter.extractors import extract_text, extract_image_urls, extract_numbers
 from .global_value import CURRENT_GROUP_MESSAGE, CURRENT_GROUP_MESSAGE_INCREMENT, CURRENT_COMBO_COUNTER, CURRENT_GROUP_MEMBERS, CURRENT_WORD_BLACKLIST
 from .core import check_policy
 import random
@@ -46,30 +46,7 @@ async def _ (session: NLPSession):
             CURRENT_COMBO_COUNTER[group_id] = 0
             return
 
-    if CURRENT_GROUP_MEMBERS[group_id][str(user_id)]['restricted']:
-        try:
-            decision = random.randint(1, 100)
-            if decision <= 1:
-                ban_time = random.randint(1, 3) * 86400              
-            if decision <= 10:
-                ban_time = random.randint(1, 24) * 3600
-            else:
-                ban_time = random.randint(1, 60) * 60            
-            await session.bot.set_group_ban(group_id=group_id, user_id=user_id, duration=ban_time)
-        except Exception as e:
-            logger.warning('Privilege not enough for banning ...')
-            message = MessageSegment.at(user_id) + MessageSegment.text(' 在小黑屋里就别水群了，快去干更多有趣的事情吧') + MessageSegment.face(146)
-            await session.send(message)
-        # clear the counters
-        CURRENT_GROUP_MESSAGE_INCREMENT[group_id] = ''
-        CURRENT_GROUP_MESSAGE[group_id] = ''
-        CURRENT_COMBO_COUNTER[group_id] = 0        
-    elif group_id not in CURRENT_GROUP_MESSAGE:
-        CURRENT_GROUP_MESSAGE_INCREMENT[group_id] = ''
-        CURRENT_GROUP_MESSAGE[group_id] = msg
-        CURRENT_COMBO_COUNTER[group_id] = 1
-
-    elif 0 < len(CURRENT_GROUP_MESSAGE[group_id]) <= len(msg) and (
+    if 0 < len(CURRENT_GROUP_MESSAGE[group_id]) <= len(msg) and (
             CURRENT_GROUP_MESSAGE[group_id] == msg[0: len(CURRENT_GROUP_MESSAGE[group_id])] or (
                 msg_image_hashes and cmsg_image_hashes == msg_image_hashes)):
 
@@ -121,31 +98,21 @@ async def enterroom(session: CommandSession):
         
     group_id = session.event['group_id']
     user_id = session.event['sender']['user_id']
-    role = session.event['sender']['role']
-    restricted = CURRENT_GROUP_MEMBERS[group_id][str(user_id)]['restricted']
-    if role != 'member':
-        message = '管理员无法使用小黑屋功能~'
-    elif not restricted:
-        CURRENT_GROUP_MEMBERS[group_id][str(user_id)]['restricted'] = True
-        message = MessageSegment.at(user_id) + ' 进入了小黑屋' 
-    else:
-        message = MessageSegment.at(user_id) + ' 已经在小黑屋中' 
-    await session.send(message)
+    duration = session.get('duration')
+    try:     
+        await session.bot.set_group_ban(group_id=group_id, user_id=user_id, duration=duration)
+    except Exception as e:
+        logger.warning('Privilege not enough for banning ...')
+        message = MessageSegment.at(user_id) + MessageSegment.text('权限不足，无法使用小黑屋~')
+        await session.send(message)
 
-@on_command('exitroom', aliases=('退出小黑屋'), permission=SUPERUSER | GROUP, only_to_me=False)
-async def exitroom(session: CommandSession):
-    if not check_policy(session.event, 'groupmsg'):
-        session.finish('小鱼睡着了zzz~')
-        
-    group_id = session.event['group_id']
-    user_id = session.event['sender']['user_id']
-    role = session.event['sender']['role']
-    restricted = CURRENT_GROUP_MEMBERS[group_id][str(user_id)]['restricted']
-    if role != 'member':
-        message = '管理员无法使用小黑屋功能~'
-    elif restricted:
-        CURRENT_GROUP_MEMBERS[group_id][str(user_id)]['restricted'] = False
-        message = MessageSegment.at(user_id) + ' 退出了小黑屋' 
-    else:
-        message = MessageSegment.at(user_id) + ' 已经不在小黑屋中' 
-    await session.send(message)
+@enterroom.args_parser
+async def _(session: CommandSession):
+    stripped_arg = session.current_arg_text.strip()
+    if session.is_first_run:
+        prepare = extract_numbers(stripped_arg)
+        if prepare and 1 <= prepare[0] <= 1440:
+            session.state['duration'] = int(prepare[0]) * 60
+        else:
+            session.state['duration'] = 1800
+        return
