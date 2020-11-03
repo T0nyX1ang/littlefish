@@ -12,6 +12,17 @@ import json
 import getpass
 import hashlib
 
+# document and version
+DOCS_PATH = os.path.join(os.getcwd(), 'docs')
+with open(os.path.join(DOCS_PATH, 'changelog.md'), 'r', encoding='utf-8') as f:
+	CHANGELOG = f.read()
+LATEST_CHANGELOG = CHANGELOG.split('##')[1].strip().replace('#', '')
+VERSION = LATEST_CHANGELOG.splitlines()[0]
+logger.info('Changelog file is loaded ...')
+logger.info('Current version: %s' % VERSION)
+if 'dev' in VERSION:
+	logger.warning('This version is unstable, some API might be changing frequency, please handle with care !')
+
 # resource
 logger.info('Loading resource data ...')
 RESOURCE_PATH = os.path.join(os.getcwd(), 'resource')
