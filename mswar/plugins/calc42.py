@@ -240,7 +240,8 @@ async def calc42equal(session: CommandSession):
     (2)中间结果出现0，可以利用加减移动到式子的任何地方;
     (3)中间结果出现1，可以利用乘除移动到式子的任何地方;
     (4)等值子式的交换等价;
-    (5)2*2与2+2等价，4/2与4-2等价.'''
+    (5)2*2与2+2等价，4/2与4-2等价;
+    (6)a+b=c时，1/1型的等价.'''
     await session.send('[CQ:image,file=%s]' % text_to_picture(equivalent_message))
 
 @on_command('calc42score', aliases=('42点得分说明',), permission=SUPERUSER | GROUP, only_to_me=False)
