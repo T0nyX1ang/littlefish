@@ -45,15 +45,7 @@ async def enable(session: CommandSession):
         with open(database_path, 'rb') as f:
             database = json.loads(PRIMARY_DECRYPT(f.read()))
     else: # default database
-        database = {
-            'group_message': '', 
-            'combo_counter': 0, 
-            'group_members': {},
-            'conflict_counter': 0,
-            '42_probability_list': { str(k): 2000 for k in DATABASE_42.keys() },
-            'word_blacklist': [],
-            'game_frequency': 1,
-        }
+        database = {}
         with open(database_path, 'wb') as f:
             f.write(PRIMARY_ENCRYPT(json.dumps(database)))
 
