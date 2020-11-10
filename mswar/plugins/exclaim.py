@@ -42,7 +42,7 @@ def get_cheer_message(person=''):
         '💪💪',
         '💪💪💪',
     ]
-    if not person:
+    if not person or len(person) >= 10:
         person = '大佬'
     message = [
         '%s加油鸭' % (person),
