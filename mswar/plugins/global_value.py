@@ -73,7 +73,7 @@ try:
 	with open(GLOBAL_KEYS_PATH, 'rb') as f:
 		GLOBAL_KEYS = json.loads(PRIMARY_DECRYPT(f.read()))
 except Exception as e:
-	logger.error('Wrong password. Please retry running this program again.')
+	logger.error('Wrong password. Please retry by running this program again.')
 	sys.exit()
 
 logger.info('Initializing global values ...')
