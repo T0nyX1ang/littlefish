@@ -10,7 +10,8 @@ import random
 async def conflict(session: CommandSession):
     if not check_policy(session.event, 'conflict'):
         session.finish()
-    group_id = session.event['group_id']
+
+    
     if CURRENT_CONFLICT_COUNTER[group_id] < 5:
         if random.randint(1, 100) >= 90:
             CURRENT_CONFLICT_COUNTER[group_id] = 5
@@ -22,8 +23,11 @@ async def conflict(session: CommandSession):
 async def conflict_terminate(session: CommandSession):
     if not check_policy(session.event, 'conflict'):
         session.finish()
+    
+    group_id = session.event['group_id']
+    if CURRENT_CONFLICT_COUNTER[group_id] < 5:
         CURRENT_CONFLICT_COUNTER[group_id] = 5
-    await session.send('满意了，不打了[CQ:face,id=111]')
+        await session.send('满意了，不打了[CQ:face,id=111]')
 
 @on_command('response', aliases=('小鱼哥哥你来啦[CQ:face,id=111]', '我来玩啦！！！'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def conflict(session: CommandSession):
