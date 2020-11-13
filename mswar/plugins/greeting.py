@@ -16,16 +16,6 @@ def get_greeting_message():
         else:
             return '保重鸭~'
 
-    elif random_number >= 80:
-        if current_hour in [7, 8, 9, 10]:
-            return '--. --- ... ... / -- --- .-. -. .. -. --.'
-        elif current_hour in [13, 14, 15, 16]:
-            return '--. --- --- -.. / .. ..-. - . .-. -. --- --- -.'
-        elif current_hour in [19, 20, 21]:
-            return '--. --- --- -.. / . ...- . -. .. -. --.'
-        elif current_hour in [22, 23]:
-            return '--. --- --- -.. / -. .. --. .... -'
-
     if current_hour in [1, 2]:
         return '快去睡觉，别熬夜破pb了~'
     elif current_hour in [3, 4, 5]:
