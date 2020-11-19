@@ -11,7 +11,7 @@ async def conflict(session: CommandSession):
     if not check_policy(session.event, 'conflict'):
         session.finish()
 
-    
+    group_id = session.event['group_id']
     if CURRENT_CONFLICT_COUNTER[group_id] < 5:
         if random.randint(1, 100) >= 90:
             CURRENT_CONFLICT_COUNTER[group_id] = 5
