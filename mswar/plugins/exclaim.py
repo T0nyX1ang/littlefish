@@ -21,7 +21,7 @@ def get_admire_message(person='', without_picture=True):
         MessageSegment.face(144) + MessageSegment.face(144), 
         MessageSegment.face(144) + MessageSegment.face(144) + MessageSegment.face(144), 
     ]
-    if not person or len(person) >= 10:
+    if not person:
         person = '大佬'
     message = [
         '%s太强了' % (person),
@@ -42,7 +42,7 @@ def get_cheer_message(person=''):
         '💪💪',
         '💪💪💪',
     ]
-    if not person or len(person) >= 10:
+    if not person:
         person = '大佬'
     message = [
         '%s加油鸭' % (person),
