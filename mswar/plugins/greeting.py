@@ -8,9 +8,9 @@ import random
 def get_greeting_message():
     current_time = datetime.datetime.now()
     current_hour = current_time.hour
-    random_number = random.randint(1, 100)
+    rare = random.randint(1, 100) <= 5
 
-    if random_number <= 5:
+    if rare:
         if current_hour in range(6, 24):
             return '加油鸭~'
         else:
@@ -20,9 +20,9 @@ def get_greeting_message():
         return '快去睡觉，别熬夜破pb了~'
     elif current_hour in [3, 4, 5]:
         return '小鱼睡着了zzz~'
-    elif current_hour in [6]:
+    elif current_hour in [6, 7]:
         return '早起的鸟儿有pb破~'
-    elif current_hour in [7, 8, 9, 10]:
+    elif current_hour in [8, 9, 10]:
         return '早上好鸭~'
     elif current_hour in [11, 12]:
         return '午饭吃了吗，吃饱了才有力气破pb~'
