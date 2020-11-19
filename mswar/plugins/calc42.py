@@ -241,8 +241,8 @@ async def calc42score(session: CommandSession):
     (1-1/(总解数))]分;
     (4)如果题目多于一半的解均被某名玩家求出，该名玩家额外加(该
     玩家给出的解数)分;
-    (5)积分会根据游戏频率进行相应加倍.
-    (6)显示积分时会进行归一化;'''
+    (5)积分会根据游戏频率进行相应加倍;
+    (6)显示积分时会进行归一化.'''
     await session.send('[CQ:image,file=%s]' % text_to_picture(score_message))
 
 @on_command('score42', aliases=('42点积分', '42点得分'), permission=SUPERUSER | GROUP, only_to_me=False)
