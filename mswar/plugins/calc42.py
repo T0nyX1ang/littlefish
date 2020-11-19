@@ -32,7 +32,7 @@ def print_current_solutions(group_id):
 
 def get_deadline(group_id):
     total_number = CURRENT_42_APP[group_id].get_total_solution_number()
-    return 300 * (1 + (total_number - 1) // 10) if total_number <= 40 else 1200
+    return 180 * (1 + (total_number - 1) // 5) if total_number <= 20 else 900
 
 def get_leader_id(group_id):
     players = CURRENT_42_APP[group_id].get_current_player_statistics()
@@ -69,21 +69,21 @@ def print_results(group_id):
         total_solutions += 1
         player_solutions[player_id] += 1
 
-        # Accumulate time score
-        player_scores[player_id] += (5 - int(5 * total_time / deadline))
+        # Accumulate score
+        time_ratio = total_time / deadline
+        solution_ratio = total_solutions / total_solution_number
 
-        if total_solutions == current_solution_number:
-            player_scores[player_id] += int(20 * total_solutions / total_solution_number)
-        elif total_solutions == 1:
-            player_scores[player_id] += 10
-        else:
-            player_scores[player_id] += int(10 * total_solutions / total_solution_number)
+        time_score = 5 - int(5 * time_ratio)
+        normal_score = int(10 * (solution_ratio ** (2 - time_ratio)))
+        first_bonus = 5 * (total_solutions == 1)
+        last_bonus = int(normal_score * (1 - 1 / total_solutions)) * (total_solution_number == total_solutions)
+        player_scores[player_id] += (time_score + normal_score + first_bonus + last_bonus)
 
     ordered_players = sorted(player_solutions, key=lambda k: player_solutions[k], reverse=True)
 
     # 50% AK bonus
     if ordered_players and player_solutions[ordered_players[0]] * 2 > total_solution_number:
-        player_scores[ordered_players[0]] += total_solution_number
+        player_scores[ordered_players[0]] += player_solutions[ordered_players[0]]
 
     line = []
     line.append('--- 本题统计 ---')
@@ -108,22 +108,6 @@ async def send_current_stats(group_id):
     try:
         current_stats = text_to_picture(get_current_stats(group_id))
         await bot.send_group_msg(group_id=group_id, message='[CQ:image,file=%s]' % current_stats)
-    except Exception as e:
-        logger.error(traceback.format_exc())
-
-async def ready_finish_game(group_id):
-    bot = nonebot.get_bot()
-    try:
-        if CURRENT_42_APP[group_id].is_playing():
-            delta = datetime.timedelta(seconds=60)
-            trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
-            scheduler.add_job(
-                func=finish_game,
-                trigger=trigger,
-                args=(group_id, ),
-                misfire_grace_time=30,
-            )
-            await bot.send_group_msg(group_id=group_id, message='剩余60秒，冲鸭~')
     except Exception as e:
         logger.error(traceback.format_exc())
 
@@ -224,8 +208,8 @@ async def calc42help(session: CommandSession):
     (2)回答时以"calc42"或"42点"开头，加入空格，并给出算式. 
     如果需要查询等价解说明，请输入"42点等价解"或"等价解说明". 
     如果需要查询得分说明，请输入"42点得分说明".
-    (3)将根据每个问题解的个数决定结算时间，10个解对应5分钟的
-    结算时间，20分钟封顶，即min{20, 5*([(x-1)/10]+1)}.
+    (3)将根据每个问题解的个数决定结算时间，5个解对应3分钟的
+    结算时间，15分钟封顶，即min{15, 3*([(x-1)/5]+1)}.
     (4)游戏频率:8-23时中每%d小时进行一次游戏.''' % (GAME_FREQUENCY[group_id])
     example_message = '示例: (问题) 1 3 3 8 2,\n(正确的回答) calc42/42点 (1+3+3)*(8-2),\n(错误的回答) calc422^8!3&3=1.'
     await session.send('[CQ:image,file=%s]' % text_to_picture(message + '\n' + example_message))
@@ -250,16 +234,15 @@ async def calc42score(session: CommandSession):
         session.finish('小鱼睡着了zzz~')
 
     score_message = '''关于得分的说明:
-    (1)每题的得分由"时间分"和"求解分"共同决定;
-    (2)时间分:按照5-((5*当前完成时间/总限时)向下取整)计分;
-    (3)求解分:首杀记10分，接力赛胜利按(20*当前解数/总共解数)
-    向下取整记分，其余求解按照(10*当前解数/总共解数)向下取整记分,
-    如果题目只有一个解，只按接力赛胜利积分，不计算首杀分数;
-    (4)如果题目被完全求解(AK)，求解该题目全员额外加10分;
-    (5)如果题目多于一半的解均被某名玩家求出，该名玩家额外加(总共
-    解数)分;
-    (6)积分会根据游戏频率进行相应加倍.
-    (7)显示积分时会进行归一化;'''
+    (1)每题的得分由"当前总时间/总限时(记为m)"和"当前解数/总解
+    数(记为n)"共同决定，得分的计算公式为[10*n^(2-m)]+5-5*[m];
+    (2)如果题目被完全求解(AK)，求解该题目全员额外加10分;
+    (3)首杀玩家额外加5分，最后一个解玩家额外加[10*n^(2-m)*
+    (1-1/(总解数))]分;
+    (4)如果题目多于一半的解均被某名玩家求出，该名玩家额外加(该
+    玩家给出的解数)分;
+    (5)积分会根据游戏频率进行相应加倍.
+    (6)显示积分时会进行归一化;'''
     await session.send('[CQ:image,file=%s]' % text_to_picture(score_message))
 
 @on_command('score42', aliases=('42点积分', '42点得分'), permission=SUPERUSER | GROUP, only_to_me=False)
@@ -319,7 +302,7 @@ async def start_calc42(bot, group_id):
     CURRENT_42_APP[group_id].generate_problem('probability', prob=CURRENT_42_PROB_LIST[group_id].values())
     CURRENT_42_APP[group_id].start()
     message = print_current_problem(group_id)
-    deadline = get_deadline(group_id) - 60
+    deadline = get_deadline(group_id)
     await bot.send_group_msg(group_id=group_id, message=message)
 
     current_problem = CURRENT_42_APP[group_id].get_current_problem()
@@ -332,10 +315,12 @@ async def start_calc42(bot, group_id):
     delta = datetime.timedelta(seconds=deadline)
     trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
     scheduler.add_job(
-        func=ready_finish_game,
+        func=finish_game,
         trigger=trigger,
         args=(group_id, ),
         misfire_grace_time=30,
+        id='calc42_process',
+        replace_existing=True,
     )
 
 @nonebot.scheduler.scheduled_job('cron', hour='8-23', minute=42, second=42, misfire_grace_time=30)
