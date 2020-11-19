@@ -25,9 +25,13 @@ async def conflict_terminate(session: CommandSession):
         session.finish()
     
     group_id = session.event['group_id']
-    if CURRENT_CONFLICT_COUNTER[group_id] < 5:
+    is_satisfied = random.randint(1, 10000) != 6666
+    if CURRENT_CONFLICT_COUNTER[group_id] < 5 and is_satisfied:
         CURRENT_CONFLICT_COUNTER[group_id] = 5
         await session.send('满意了，不打了[CQ:face,id=111]')
+    else:
+        CURRENT_CONFLICT_COUNTER[group_id] = 0
+        await session.send('不满意，接着打[CQ:face,id=178][CQ:face,id=146]')
 
 @on_command('response', aliases=('小鱼哥哥你来啦[CQ:face,id=111]', '我来玩啦！！！'), permission=SUPERUSER | GROUP, only_to_me=False)
 async def conflict(session: CommandSession):
