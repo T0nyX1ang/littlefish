@@ -76,7 +76,7 @@ def print_results(group_id):
         time_score = 5 - int(5 * time_ratio)
         normal_score = int(10 * (solution_ratio ** (2 - time_ratio)))
         first_bonus = 5 * (total_solutions == 1)
-        last_bonus = int(normal_score * (1 - 1 / total_solutions)) * (total_solution_number == total_solutions)
+        last_bonus = int(normal_score * (1 - 1 / total_solution_number)) * (current_solution_number == total_solutions)
         player_scores[player_id] += (time_score + normal_score + first_bonus + last_bonus)
 
     ordered_players = sorted(player_solutions, key=lambda k: player_solutions[k], reverse=True)
