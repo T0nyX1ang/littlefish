@@ -1,4 +1,4 @@
-# mswar-bot
+# littlefish
 
 ## 小鱼
 A bot for minesweeper war. Happy fishing!
