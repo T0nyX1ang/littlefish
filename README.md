@@ -1,2 +1,2 @@
-# mswar-bot
+# littlefish
 A bot for minesweeper war.
