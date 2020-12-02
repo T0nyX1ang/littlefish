@@ -130,7 +130,7 @@ dmypy.json
 
 # Local configurations and databases
 database/
-config.py
+.env.*
 policy.json
 
 # easter eggs
