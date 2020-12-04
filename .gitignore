@@ -128,10 +128,11 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Local configurations and databases
-database/
+# Local configurations, databases and logs
 .env.*
 policy.json
+database/
+logs/
 
 # easter eggs
 easter.py
