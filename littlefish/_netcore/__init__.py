@@ -44,25 +44,25 @@ def _generate_headers(validate_hash: str):
     timestamp = str(int(time.time() * 1000))
     api_key_r = mswar_uid + mswar_token + timestamp + validate_hash + 'api'
     headers = {
-        "Host": mswar_host,
-        "User-Agent": "okhttp/4.7.2",
-        "Accept-Encoding": "gzip",
-        "api-key": hashlib.md5(api_key_r.encode()).hexdigest(),
-        "Connection": "Keep-Alive",
-        "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
-        "channel": "Android",
-        "device": "",
-        "version": mswar_version,
-        "time-stamp": timestamp,
-        "token": mswar_token,
-        "uid": mswar_uid,
+        'Host': mswar_host,
+        'User-Agent': 'okhttp/4.7.2',
+        'Accept-Encoding': 'gzip',
+        'api-key': hashlib.md5(api_key_r.encode()).hexdigest(),
+        'Connection': 'Keep-Alive',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+        'channel': 'Android',
+        'device': '',
+        'version': mswar_version,
+        'time-stamp': timestamp,
+        'token': mswar_token,
+        'uid': mswar_uid,
     }
     if len(validate_hash) == 0:
-        headers.pop("Content-Type")
+        headers.pop('Content-Type')
     return headers
 
 
-async def fetch(page: str="", query: str=""):
+async def fetch(page: str='', query: str=''):
     """
     General module for fetching data from remote server.
 

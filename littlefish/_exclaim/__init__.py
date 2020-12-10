@@ -44,15 +44,15 @@ resource_location = os.path.join(os.getcwd(),
 
 try:
     resource_database = []
-    logger.info("Constructing resource database ...")
-    with open(resource_location, "r", encoding="utf-8") as f:
+    logger.info('Constructing resource database ...')
+    with open(resource_location, 'r', encoding='utf-8') as f:
         csv_reader = csv.reader(f, delimiter=plugin_config.resource_separator)
         for line in csv_reader:
-            logger.debug("Loading resource: %s, TYPE=%s, IMG=%s" % tuple(line))
+            logger.debug('Loading resource: %s, TYPE=%s, IMG=%s' % tuple(line))
             resource_database.append(line)
 except Exception:
     resource_database = []
-    logger.warning("Failed to load resource database, feature limited.")
+    logger.warning('Failed to load resource database, feature limited.')
 
 
 def _get_body(_type: str, _image: str):
@@ -61,15 +61,15 @@ def _get_body(_type: str, _image: str):
         row[0] for row in resource_database
         if _type == row[1] and _image == row[2]
     ]
-    return random.choice(body_all) if body_all else "太强了"
+    return random.choice(body_all) if body_all else '太强了'
 
 
 def _get_ending(_type: str):
     """A database filter to generate required message ending."""
     ending_all = [
-        row[0] for row in resource_database if row[1] == f"-{_type}"
+        row[0] for row in resource_database if row[1] == f'-{_type}'
     ]
-    return random.choice(ending_all) if ending_all else "！"
+    return random.choice(ending_all) if ending_all else '！'
 
 
 def exclaim_msg(person: str, _type: str, include_image: bool):
@@ -84,16 +84,16 @@ def exclaim_msg(person: str, _type: str, include_image: bool):
     if the resource file is empty.
     """
     if not person:
-        person = "大佬"  # default person
+        person = '大佬'  # default person
 
     if include_image and random.randint(0, 1):
-        image_data = _get_body(_type=_type, _image="1")
+        image_data = _get_body(_type=_type, _image='1')
         image_path = os.path.join(os.getcwd(), image_data)
-        message = f"[CQ:image,file=file:///{image_path}]"
+        message = f'[CQ:image,file=file:///{image_path}]'
         return message  # return the image only
 
-    msg_body = _get_body(_type=_type, _image="0")
+    msg_body = _get_body(_type=_type, _image='0')
     msg_ending = _get_ending(_type=_type)
     # beautify visualizations
-    return person + " " * (person[-1].isascii() and 
+    return person + ' ' * (person[-1].isascii() and 
                            msg_body[0].isascii()) + msg_body + msg_ending
