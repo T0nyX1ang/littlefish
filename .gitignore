@@ -135,6 +135,6 @@ easter.py
 .env.*
 policy.json
 resource.csv
+resource/
 database/
 logs/
-resource/*
