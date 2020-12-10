@@ -131,9 +131,10 @@ dmypy.json
 # easter eggs
 easter.py
 
-# Local configurations, databases and logs
+# Local configurations, resources, databases and logs
 .env.*
 policy.json
 resource.csv
 database/
 logs/
+resource/*
