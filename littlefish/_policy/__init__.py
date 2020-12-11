@@ -7,19 +7,23 @@ The policy file should be a valid json file, which contains the
 following information. Please note that the json file should not
 contain any annotations.
 {
-    bot_id: {
+    "bot_id": {
         // config for this bot
-        group_id: {
+        "group_id": {
             // config for this group
-            +: [1, 2, 3], // this should be the whitelist
-            -: [4, 5, 6]  // this should be the blacklist
+            "command": {
+                "+": [1, 2, 3], // this should be the whitelist
+                "-": [4, 5, 6], // this should be the blacklist
+                "@": true // this should be the boardcast option
+            }
+            // config for another command
         }
-        another_group_id: {
+        "another_group_id": {
             // config for another group
         }
     }
-    another_bid: {
-        another_group_id: {
+    "another_bot_id": {
+        "another_group_id": {
             // config for another group
         }
         // config for another group
@@ -35,12 +39,15 @@ if the sender appears in the whitelist AND doesn't appear in the black-
 list, the checker will allow the command, or it will block the command.
 Please note that, when a whitelist/blacklist key doesn' exist, the
 checker will assume the whitelist/blacklist doesn't exist and allow
-the command on the whitelist/blacklist level.
+the command on the whitelist/blacklist level. About the boardcasting
+feature, you need to enable it manually in the configuration, or it
+is disabled in default.
 
 How to use?
 The checker is wrapped as a nonebot.rule.Rule, you can use it in any
 commands containing the keyword argument 'rule'. The policy config will
-be reloaded on every startup of the bot itself.
+be reloaded on every startup of the bot itself. The boardcast is wrapped
+as a normal decorator, you need to decorate the function only.
 """
 
 import nonebot
@@ -78,12 +85,12 @@ def check(command_name: str) -> Rule:
         sid = event.user_id
         try:
             # Check the whitelist policy by name.
-            in_whitelist = ('+' not in policy_config[bid][gid][_name] or
-                            sid in policy_config[bid][gid][_name]['+'])
+            in_whitelist = ('+' not in policy_config[bid][gid][_name]
+                            or sid in policy_config[bid][gid][_name]['+'])
 
             # Check the blacklist policy by name.
-            in_blacklist = ('-' not in policy_config[bid][gid][_name] or
-                            sid not in policy_config[bid][gid][_name]['-'])
+            in_blacklist = ('-' not in policy_config[bid][gid][_name]
+                            or sid not in policy_config[bid][gid][_name]['-'])
 
             # Combine the whitelist and blacklist together
             return in_whitelist and in_blacklist
@@ -92,3 +99,24 @@ def check(command_name: str) -> Rule:
             return True
 
     return Rule(_check)
+
+
+def boardcast(command_name: str) -> bool:
+    """Check the policy of each boardcast by name."""
+    _name = command_name
+    allowed = [ (bid, gid) for bid in policy_config.keys()
+                for gid in policy_config[bid].keys()
+                if '@' in policy_config[bid][gid][_name]
+                and policy_config[bid][gid][_name]['@'] ]
+
+    def wrapper(func):
+        """A wrapper for the checker."""
+
+        async def _check() -> None:
+            """Check the policy of the boardcast."""
+            logger.info('Checking boardcast: [%s].' % _name)
+            await func(allowed)
+        
+        return _check
+    
+    return wrapper
