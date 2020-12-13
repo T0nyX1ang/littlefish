@@ -106,7 +106,8 @@ def boardcast(command_name: str) -> bool:
     _name = command_name
     allowed = [ (bid, gid) for bid in policy_config.keys()
                 for gid in policy_config[bid].keys()
-                if '@' in policy_config[bid][gid][_name]
+                if _name in policy_config[bid][gid]
+                and '@' in policy_config[bid][gid][_name]
                 and policy_config[bid][gid][_name]['@'] ]
 
     def wrapper(func):
