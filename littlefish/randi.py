@@ -1,4 +1,12 @@
-"""Generate random integers."""
+"""
+Generate random integers.
+
+Invoke this command by: [begin] [end] [count] [extras]
+Available extra commands:
+r: allow repetitions
+a: ascending order (prior to d)
+d: descending order
+"""
 
 from nonebot import on_command
 from nonebot.permission import GROUP
