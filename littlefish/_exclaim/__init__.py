@@ -18,11 +18,13 @@ How to create a resource database manually?
 First, enter the item's name, it can be plain texts, or CQ codes if
 it's not an image, and it must be a relative path to the working dir-
 ectory if it's an image. Then, enter a separator, and enter the type
-of the item, currently it could be 1 (for admiration) or 2 (for cheers).
-If you think the item is a body, enter 1 or 2; if you think the item
-is an ending, enter -1 or -2. Last, enter another separator, and enter 
-whether the item is an image, 0 for no, and 1 for yes. If you handles 
-nicely, the database will be working after a reload of this module.
+of the item, currently it could be 1 (for admiration), 2 (for cheers)
+or 3 (for errors).
+If you think the item is a body, enter a positive integer; if you think
+the item is an ending, enter a negative integer (according to type). 
+Last, enter another separator, and enter whether the item is an image,
+enter 0 for no, and 1 for yes. If you handles nicely, the database will
+be working after a reload of this module.
 
 Warnings:
 Make sure you have at least 1 image if you want to set the parameter
@@ -93,7 +95,7 @@ def exclaim_msg(person: str, _type: str, include_image: bool):
         return message  # return the image only
 
     msg_body = _get_body(_type=_type, _image='0')
-    msg_ending = _get_ending(_type=_type)
+    msg_ending = _get_ending(_type=_type) * random.randint(1, 3)
     # beautify visualizations
     return person + ' ' * (person[-1].isascii() and 
                            msg_body[0].isascii()) + msg_body + msg_ending
