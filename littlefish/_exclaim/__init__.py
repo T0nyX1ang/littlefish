@@ -74,19 +74,18 @@ def _get_ending(_type: str):
     return random.choice(ending_all) if ending_all else '！'
 
 
-def exclaim_msg(person: str, _type: str, include_image: bool):
+def exclaim_msg(person: str, _type: str, include_image: bool,
+                max_repeat: int=3):
     """
     Get exclaiming message from the database.
     
     This should be the only function being called when this package
     is imported. The message will be made up of 3 parts: person,
-    body and ending. If the include_image parameter is set to True,
-    an image will be sent. Please note that the resource should be
-    specified explicitly, and the message won't be sent successfully
-    if the resource file is empty.
+    body and ending (with a maximum repetition). If the include_image
+    parameter is set to True, an image will be sent. Please note that
+    the resource should be specified explicitly, and the message won't
+    be sent successfully if the resource file is empty.
     """
-    if not person:
-        person = '大佬'  # default person
 
     if include_image and random.randint(0, 1):
         image_data = _get_body(_type=_type, _image='1')
@@ -95,7 +94,11 @@ def exclaim_msg(person: str, _type: str, include_image: bool):
         return message  # return the image only
 
     msg_body = _get_body(_type=_type, _image='0')
-    msg_ending = _get_ending(_type=_type) * random.randint(1, 3)
+    msg_ending = _get_ending(_type=_type) * random.randint(1, max_repeat)
+
     # beautify visualizations
+    if not person:
+        return msg_body + msg_ending
+
     return person + ' ' * (person[-1].isascii() and 
                            msg_body[0].isascii()) + msg_body + msg_ending
