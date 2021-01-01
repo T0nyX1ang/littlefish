@@ -15,10 +15,8 @@ from littlefish._policy import check
 from littlefish._exclaim import exclaim_msg
 import random
 
-randi = on_command(cmd='randi',
-                   aliases={'随机数'},
-                   permission=GROUP,
-                   rule=check('randi'))
+randi = on_command(cmd='randi', aliases={'随机数'},
+                   permission=GROUP, rule=check('randi'))
 
 
 @randi.handle()
