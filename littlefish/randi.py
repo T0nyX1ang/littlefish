@@ -31,7 +31,7 @@ async def randi(bot: Bot, event: Event, state: dict):
         message = get_randi(begin, end, count, extras)
         await bot.send(event=event, message=message)
     except Exception:
-        await bot.send(event=event, message=exclaim_msg('[randi]', '3', False))
+        await bot.send(event=event, message=exclaim_msg('\x00', '3', False))
 
 
 def get_randi(begin: int, end: int, count: int, extras: list):
