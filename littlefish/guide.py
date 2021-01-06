@@ -6,21 +6,18 @@ is included here.
 """
 
 from nonebot import on_command
-from nonebot.permission import GROUP
 from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._policy import check
 
-guide = on_command(cmd='guide', aliases={'指南'},
-                   permission=GROUP, rule=check('guide'))
+guide = on_command(cmd='guide', aliases={'指南'}, rule=check('guide'))
 
 backup_guide = on_command(cmd='backupguide', aliases={'备用指南'},
-                          permission=GROUP, rule=check('guide'))
+                          rule=check('guide'))
 
 get_package = on_command(cmd='getpackage', aliases={'安装包', '安装链接'},
-                         permission=GROUP, rule=check('guide'))
+                         rule=check('guide'))
 
-ms_guide = on_command(cmd='msguide', aliases={'扫雷指南'},
-                      permission=GROUP, rule=check('guide'))
+ms_guide = on_command(cmd='msguide', aliases={'扫雷指南'}, rule=check('guide'))
 
 
 @guide.handle()
