@@ -14,6 +14,7 @@ import math
 import traceback
 from nonebot import on_command
 from nonebot.log import logger
+from nonebot.permission import GROUP
 from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._mswar.analyzer import get_board, get_board_result
 from littlefish._netcore import fetch
@@ -59,7 +60,7 @@ async def get_daily_map() -> str:
 
 
 dailymap = on_command(cmd='dailymap', aliases={'每日一图'},
-                      rule=check('dailymap'))
+                      permission=GROUP, rule=check('dailymap'))
 
 
 @dailymap.handle()
