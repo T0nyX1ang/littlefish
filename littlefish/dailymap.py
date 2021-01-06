@@ -19,6 +19,8 @@ from littlefish._mswar.analyzer import get_board, get_board_result
 from littlefish._netcore import fetch
 from littlefish._policy import check, boardcast
 
+scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
+
 
 def format_daily_map(daily_map: dict) -> str:
     """Formatter for information."""
@@ -67,9 +69,8 @@ async def dailymap(bot: Bot, event: Event, state: dict):
     await bot.send(event=event, message=format_daily_map(daily_map_info))
 
 
-@nonebot.scheduler.scheduled_job('cron',
-                                 hour=0, minute=3, second=0,
-                                 misfire_grace_time=30)
+@scheduler.scheduled_job('cron', hour=0, minute=3, second=0,
+                         misfire_grace_time=30)
 @boardcast('dailymap')
 async def _(allowed: list):
     """Scheduled dailymap boardcast at 00:03:00."""

@@ -19,7 +19,8 @@ First, enter the item's name, it can be plain texts, or CQ codes if
 it's not an image, and it must be a relative path to the working dir-
 ectory if it's an image. Then, enter a separator, and enter the type
 of the item, currently it could be 1 (for admiration), 2 (for cheers)
-or 3 (for errors).
+, 3 (for errors) or 10-19 (for daily routines). Finally, enter a sepa-
+rator and a weight to determine the probability of selection.
 If you think the item is a body, enter a positive integer; if you think
 the item is an ending, enter a negative integer (according to type). 
 Last, enter another separator, and enter whether the item is an image,
@@ -38,11 +39,11 @@ import random
 import nonebot
 from .config import Config
 from nonebot.log import logger
+from nonebot.adapters.cqhttp import Message
 
 global_config = nonebot.get_driver().config
 plugin_config = Config(**global_config.dict())
-resource_location = os.path.join(os.getcwd(),
-                                  plugin_config.resource_location)
+resource_location = os.path.join(os.getcwd(), plugin_config.resource_location)
 
 try:
     resource_database = []
@@ -50,7 +51,8 @@ try:
     with open(resource_location, 'r', encoding='utf-8') as f:
         csv_reader = csv.reader(f, delimiter=plugin_config.resource_separator)
         for line in csv_reader:
-            logger.debug('Loading resource: %s, TYPE=%s, IMG=%s' % tuple(line))
+            logger.debug('Loading resource: %s, TYPE=%s, IMG=%s, WEIGHT=%s' %
+                         tuple(line))
             resource_database.append(line)
 except Exception:
     resource_database = []
@@ -59,23 +61,20 @@ except Exception:
 
 def _get_body(_type: str, _image: str):
     """A database filter to generate required message body."""
-    body_all = [
-        row[0] for row in resource_database
-        if _type == row[1] and _image == row[2]
-    ]
-    return random.choice(body_all) if body_all else '太强了'
+    body_all = [[row[0]] * int(row[3]) for row in resource_database
+                if _type == row[1] and _image == row[2]]
+    return random.choice(sum(body_all, [])) if body_all else '太强了'
 
 
 def _get_ending(_type: str):
     """A database filter to generate required message ending."""
-    ending_all = [
-        row[0] for row in resource_database if row[1] == f'-{_type}'
-    ]
-    return random.choice(ending_all) if ending_all else '！'
+    ending_all = [[row[0]] * int(row[3]) for row in resource_database
+                  if row[1] == f'-{_type}']
+    return random.choice(sum(ending_all, [])) if ending_all else '！'
 
 
 def exclaim_msg(person: str, _type: str, include_image: bool,
-                max_repeat: int=3):
+                max_repeat: int = 3):
     """
     Get exclaiming message from the database.
     
@@ -91,14 +90,14 @@ def exclaim_msg(person: str, _type: str, include_image: bool,
         image_data = _get_body(_type=_type, _image='1')
         image_path = os.path.join(os.getcwd(), image_data)
         message = f'[CQ:image,file=file:///{image_path}]'
-        return message  # return the image only
+        return Message(message)  # return the image only
 
     msg_body = _get_body(_type=_type, _image='0')
     msg_ending = _get_ending(_type=_type) * random.randint(1, max_repeat)
 
     # beautify visualizations
     if not person:
-        return msg_body + msg_ending
+        return Message(msg_body + msg_ending)
 
-    return person + ' ' * (person[-1].isascii() and 
-                           msg_body[0].isascii()) + msg_body + msg_ending
+    return Message(person + ' ' * (person[-1].isascii() and 
+        msg_body[0].isascii()) + msg_body + msg_ending)

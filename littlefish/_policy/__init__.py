@@ -54,7 +54,7 @@ import nonebot
 import json
 import os
 from nonebot.log import logger
-from nonebot.adapters.cqhttp import Bot, Event
+from nonebot.adapters.cqhttp import Bot, Event, GroupMessageEvent
 from nonebot.rule import Rule
 from .config import Config
 
@@ -73,13 +73,16 @@ except Exception:
     logger.warning('Failed to load policy file, using empty policy file ...')
 
 
-def check(command_name: str) -> Rule:
+def check(command_name: str, event_type: Event=GroupMessageEvent) -> Rule:
     """Check the policy of each command by name."""
     _name = command_name
 
     async def _check(bot: Bot, event: Event, state: dict) -> bool:
         """A rule wrapper for each command."""
         logger.debug('Checking command: [%s].' % _name)
+        if not isinstance(event, event_type):
+            return False
+
         bid = f'{event.self_id}'
         gid = f'{event.group_id}'
         sid = event.user_id
@@ -89,13 +92,12 @@ def check(command_name: str) -> Rule:
                             or sid in policy_config[bid][gid][_name]['+'])
 
             # Check the blacklist policy by name.
-            in_blacklist = ('-' not in policy_config[bid][gid][_name]
-                            or sid not in policy_config[bid][gid][_name]['-'])
+            not_in_blacklist = ('-' not in policy_config[bid][gid][_name]
+                                or sid not in policy_config[bid][gid][_name]['-'])
 
             # Combine the whitelist and blacklist together
-            return in_whitelist and in_blacklist
+            return in_whitelist and not_in_blacklist
         except Exception:
-            logger.debug('No policy config found for this command.')
             return True
 
     return Rule(_check)

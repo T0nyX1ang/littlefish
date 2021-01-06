@@ -9,29 +9,12 @@ d: descending order
 """
 
 from nonebot import on_command
-from nonebot.permission import GROUP
 from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._policy import check
 from littlefish._exclaim import exclaim_msg
 import random
 
-randi = on_command(cmd='randi', aliases={'随机数'},
-                   permission=GROUP, rule=check('randi'))
-
-
-@randi.handle()
-async def randi(bot: Bot, event: Event, state: dict):
-    """Generate random integers."""
-    args = str(event.message).split()
-    try:
-        begin = int(args[0])
-        end = int(args[1])
-        count = int(args[2])
-        extras = args[3:]
-        message = get_randi(begin, end, count, extras)
-        await bot.send(event=event, message=message)
-    except Exception:
-        await bot.send(event=event, message=exclaim_msg('', '3', False, 1))
+randi = on_command(cmd='randi', aliases={'随机数'}, rule=check('randi'))
 
 
 def get_randi(begin: int, end: int, count: int, extras: list):
@@ -52,3 +35,18 @@ def get_randi(begin: int, end: int, count: int, extras: list):
 
     return '随机结果: ' + str(result).replace('[', '').replace(
         ']', '').replace(',', '')
+
+
+@randi.handle()
+async def randi(bot: Bot, event: Event, state: dict):
+    """Generate random integers."""
+    args = str(event.message).split()
+    try:
+        begin = int(args[0])
+        end = int(args[1])
+        count = int(args[2])
+        extras = args[3:]
+        message = get_randi(begin, end, count, extras)
+        await bot.send(event=event, message=message)
+    except Exception:
+        await bot.send(event=event, message=exclaim_msg('', '3', False, 1))
