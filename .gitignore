@@ -134,7 +134,6 @@ easter.py
 # Local configurations, resources, databases and logs
 .env.*
 policy.json
-resource.csv
-resource/
-database/
+resource*
+database*
 logs/
