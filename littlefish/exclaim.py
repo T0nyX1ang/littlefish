@@ -12,7 +12,7 @@ admire = on_command(cmd='admire', aliases={'膜'}, rule=check('exclaim'))
 
 praise = on_command(cmd='praise', aliases={'狂膜'}, rule=check('exclaim'))
 
-cheer = on_command(cmd='cheer', aliases={'加油'}, rule=check('exclaim'))
+cheer = on_command(cmd='cheer', aliases={'加油 '}, rule=check('exclaim'))
 
 cheer_ending = on_endswith(msg='加油', priority=10, rule=check('exclaim'))
 
