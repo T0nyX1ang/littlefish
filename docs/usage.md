@@ -210,13 +210,7 @@
 
 ```
     # 精确ID查询
-    info/id/name/search/查询/查找 %用户ID
-
-    # 精确昵称查询
-    info/id/name/search/查询/查找 *用户昵称 
-
-    # 模糊查询
-    info/id/name/search/查询/查找 用户昵称 
+    id/联萌 %用户ID
 ```
 
 + 个人信息查询：本功能需要群主给以查询用户ID命名的头衔，查询结果与上文一致。
