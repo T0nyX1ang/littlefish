@@ -29,3 +29,10 @@ class AccountConfig(BaseSettings):
         extra = "ignore"
 
 
+class PVPConfig(BaseSettings):
+
+    # Configuration goes here.
+    autopvp_uid: str = ""
+
+    class Config:
+        extra = "ignore"
