@@ -1,4 +1,8 @@
-"""Make the bot more responsive to words."""
+"""
+Make the bot more responsive to words.
+
+The command requires to be invoked in groups.
+"""
 
 import datetime
 import random

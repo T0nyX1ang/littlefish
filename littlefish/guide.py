@@ -3,6 +3,7 @@ A simple guide for reference.
 
 A guide, a backup guide, an app package link and a minesweeping guide link
 is included here.
+The command requires to be invoked in groups.
 """
 
 from nonebot import on_command

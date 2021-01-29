@@ -6,6 +6,8 @@ Available extra commands:
 r: allow repetitions
 a: ascending order (prior to d)
 d: descending order
+
+The command requires to be invoked in groups.
 """
 
 from nonebot import on_command

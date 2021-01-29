@@ -4,6 +4,8 @@ Get personal information from the remote server.
 The information includes:
 record of time and bvs in beg, int and exp).
 the number of wins and losses.
+
+The command requires to be invoked in groups.
 """
 
 import time
