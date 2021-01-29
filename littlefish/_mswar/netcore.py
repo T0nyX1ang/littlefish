@@ -11,13 +11,13 @@ import traceback
 import hashlib
 import json
 import httpx
-from .config import Config
+from .config import AccountConfig
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from nonebot.log import logger
 
 global_config = nonebot.get_driver().config
-plugin_config = Config(**global_config.dict())
+plugin_config = AccountConfig(**global_config.dict())
 
 mswar_uid = plugin_config.mswar_uid
 mswar_token = plugin_config.mswar_token

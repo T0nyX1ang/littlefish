@@ -1,6 +1,7 @@
 """
-Configurations for the netcore plugin.
+Configurations for the mswar plugin.
 
+* Account configuration:
 Please write your configurations in the global setting file.
 Available configurations:
 mswar_uid: str = "your uid"
@@ -14,7 +15,7 @@ mswar_decryption_key = "a valid decryption key"
 from pydantic import BaseSettings
 
 
-class Config(BaseSettings):
+class AccountConfig(BaseSettings):
 
     # Configuration goes here.
     mswar_uid: str = ""
@@ -26,3 +27,5 @@ class Config(BaseSettings):
 
     class Config:
         extra = "ignore"
+
+
