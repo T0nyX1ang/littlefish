@@ -28,7 +28,7 @@ def _initialize_history():
     return {level_ref[lv]: 0 for lv in range(min_level, max_level + 1)}
 
 
-def format_level_list(level_list_data):
+def format_level_list(level_list_data: dict):
     """Format the user level info data."""
     data = _initialize_history()
     for val in level_list_data:

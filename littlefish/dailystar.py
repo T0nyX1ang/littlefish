@@ -20,7 +20,7 @@ from littlefish._policy import check, boardcast
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 
 
-def format_daily_star(daily_star_info):
+def format_daily_star(daily_star_info: dict):
     """Format the message of daily star."""
     line = [
         '联萌每日一星:',

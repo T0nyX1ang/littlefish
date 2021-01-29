@@ -18,7 +18,7 @@ from littlefish._mswar.references import sex_ref, level_ref
 from littlefish._db import load, save
 
 
-def format_user_info(user_info):
+def format_user_info(user_info: dict):
     """Format detailed user info."""
     line = [
         '%s (Id: %d) %s' % (
