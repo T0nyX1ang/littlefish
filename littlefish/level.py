@@ -13,8 +13,8 @@ import traceback
 from nonebot import on_command
 from nonebot.log import logger
 from nonebot.adapters.cqhttp import Bot, Event
-from littlefish._netcore import fetch
 from littlefish._policy import check, boardcast
+from littlefish._mswar.api import get_level_list
 from littlefish._mswar.references import level_ref
 from littlefish._db import load, save
 
@@ -28,36 +28,26 @@ def _initialize_history():
     return {level_ref[lv]: 0 for lv in range(min_level, max_level + 1)}
 
 
-async def get_user_level():
-    """Get the level information from the remote server."""
-    user_level_result = await fetch(
-        page='/MineSweepingWar/rank/timing/level/count')
-    data = user_level_result['data']
-
-    # reconstruct the data from list to dict
-    user_level_data = _initialize_history()
-    for val in data:
-        user_level_data[level_ref[val['level']]] = val['count']
-
-    return user_level_data
-
-
-def format_user_level(data):
+def format_level_list(level_list_data):
     """Format the user level info data."""
+    data = _initialize_history()
+    for val in level_list_data:
+        data[level_ref[val['level']]] = val['count']
+
     line = ['等级: 当前 | 合计']
     total, history_total = 0, 0
-    user_level_history = load('0', 'level_history')
-    if not user_level_history:
+    level_list_history = load('0', 'level_history')
+    if not level_list_history:
         # create default value for history
-        user_level_history = _initialize_history()
+        level_list_history = _initialize_history()
 
     for lv in range(max_level, min_level - 1, -1):
         ref = level_ref[lv]  # global reference
         total += data[ref]
-        history_total += user_level_history[ref]
+        history_total += level_list_history[ref]
         line.append('%s: %d(%+d) | %d(%+d)' % (
             ref,
-            data[ref], data[ref] - user_level_history[ref],
+            data[ref], data[ref] - level_list_history[ref],
             total, total - history_total)
         )
     result_message = ''
@@ -69,8 +59,8 @@ def format_user_level(data):
 @level.handle()
 async def level(bot: Bot, event: Event, state: dict):
     """Handle the level command."""
-    user_level_data = await get_user_level()
-    await bot.send(event=event, message=format_user_level(user_level_data))
+    level_list_data = await get_level_list()
+    await bot.send(event=event, message=format_level_list(level_list_data))
 
 
 @scheduler.scheduled_job('cron', day_of_week=0, hour=0, minute=0, second=0,
@@ -78,9 +68,9 @@ async def level(bot: Bot, event: Event, state: dict):
 @boardcast('level')
 async def _(allowed: list):
     """Scheduled level boardcast at 00:00:00(weekly)."""
-    user_level_data = await get_user_level()
-    message = format_user_level(user_level_data)
-    save('0', 'level_history', user_level_data)
+    level_list_data = await get_level_list()
+    message = format_level_list(level_list_data)
+    save('0', 'level_history', level_list_data)
 
     for bot_id, group_id in allowed:
         bot = nonebot.get_bots()[bot_id]

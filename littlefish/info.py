@@ -10,8 +10,8 @@ import time
 from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._exclaim import exclaim_msg
-from littlefish._netcore import fetch
 from littlefish._policy import check
+from littlefish._mswar.api import get_user_info
 from littlefish._mswar.references import sex_ref, level_ref
 from littlefish._db import load, save
 
@@ -47,69 +47,6 @@ def format_user_info(user_info):
     for each_line in line:
         result_message = result_message + each_line + '\n'
     return result_message.strip()
-
-
-async def get_user_career(uid: int):
-    """Get user career information from the remote server."""
-    query = 'uid=%d' % uid
-    result = await fetch(page='/MineSweepingWar/minesweeper/timing/career',
-                         query=query)
-    return result
-
-
-async def get_user_home_info(uid: int):
-    """Get user home information from the remote server."""
-    query = 'targetUid=%d' % uid
-    result = await fetch(page='/MineSweepingWar/user/home', query=query)
-    return result
-
-
-async def get_user_info(uid: int):
-    """
-    Gather user information.
-
-    The information is made up of two parts: home_info and career_info.
-    """
-    user_info = {}
-    user_info['uid'] = uid
-
-    # home info
-    home_info_result = await get_user_home_info(uid)    
-    user_info['saoleiID'] = '暂未关联'
-    if home_info_result['data']['saoleiOauth']:
-        user_info['saoleiID'] = '%s [%s]' % (
-            home_info_result['data']['saoleiOauth']['name'].strip(),
-            home_info_result['data']['saoleiOauth']['openId'].strip(),
-        )
-    user_info['nickname'] = home_info_result['data']['user']['nickName']
-    user_info['sex'] = home_info_result['data']['user']['sex']
-    user_info['level'] = home_info_result['data']['user']['timingLevel']
-    user_info['rank'] = home_info_result['data']['user']['timingRank']
-
-    if user_info['level'] == 0:  # shorten query process if necessary
-        return user_info
-
-    # career info
-    career_result = await get_user_career(uid)
-    
-    for v in ['beg', 'int', 'exp', 'total']:  # fetch rank information
-        user_info[f'record_{v}'] = (
-            career_result['data'][f'{v}TimeRank']['time'] / 1000,
-            career_result['data'][f'{v}TimeRank']['rank'],
-            career_result['data'][f'{v}BvsRank']['bvs'],
-            career_result['data'][f'{v}BvsRank']['rank'],
-        )
-
-    for v in ['beg', 'int', 'exp']:  # fetch statistics information
-        success = career_result['data']['statistics'][f'{v}Sum']
-        fail = career_result['data']['statistics'][f'{v}Fail']
-        total = success + fail + (success == 0)  # make the result divisible
-        user_info[f'stat_{v}'] = (
-            total / 10000,  # set the unit to 10000
-            success / total * 100,
-        )
-
-    return user_info
 
 
 def _validate_id(universal_id: str, uid: str, gap: int):

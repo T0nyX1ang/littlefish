@@ -10,13 +10,11 @@ The command requires to be invoked in groups.
 """
 
 import nonebot
-import math
 import traceback
 from nonebot import on_command
 from nonebot.log import logger
 from nonebot.adapters.cqhttp import Bot, Event
-from littlefish._mswar.analyzer import get_board, get_board_result
-from littlefish._netcore import fetch
+from littlefish._mswar.api import get_daily_map
 from littlefish._policy import check, boardcast
 
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
@@ -36,26 +34,6 @@ def format_daily_map(daily_map: dict) -> str:
     for each_line in line:
         result_message = result_message + each_line + '\n'
     return result_message.strip()
-
-
-async def get_daily_map() -> str:
-    """Get daily map information from the remote server."""
-    daily_map_result = await fetch(
-        page='/MineSweepingWar/minesweeper/daily/map/today')
-    daily_map_board = get_board(
-        daily_map_result['data']['map']['map'].split('-')[0:-1])
-    daily_map = get_board_result(daily_map_board)
-    daily_map['id'] = daily_map_result['data']['mapId']
-
-    query = 'mapId=%d&page=0&count=1' % (daily_map['id'])
-    daily_map_highest_result = await fetch(
-        page='/MineSweepingWar/rank/daily/list', query=query)
-    if daily_map_highest_result['data']:
-        daily_map[
-            'best_time'] = daily_map_highest_result['data'][0]['time'] / 1000
-    else:
-        daily_map['best_time'] = math.inf
-    return daily_map
 
 
 dailymap = on_command(cmd='dailymap', aliases={'每日一图'},
