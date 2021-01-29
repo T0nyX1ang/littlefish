@@ -73,6 +73,21 @@ async def get_daily_map() -> dict:
     return daily_map
 
 
+async def get_daily_star():
+    """Get the daily star information from the remote server."""
+    daily_star_result = await fetch(
+        page='/MineSweepingWar/minesweeper/record/get/star')
+
+    daily_star = {}
+    daily_star['uid'] = daily_star_result['data']['user']['id']
+    daily_star['nickname'] = daily_star_result['data']['user']['nickName']
+    daily_star['sex'] = daily_star_result['data']['user']['sex']
+    daily_star['time'] = daily_star_result['data']['time'] / 1000
+    daily_star['bvs'] = daily_star_result['data']['bvs']
+
+    return daily_star
+
+
 async def get_level_list() -> list:
     """Get the level information from the remote server."""
     user_level_result = await fetch(
