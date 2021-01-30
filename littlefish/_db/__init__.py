@@ -68,7 +68,7 @@ def save(universal_id: str, item_name: str, new_data: json):
 
 @scheduler.scheduled_job('cron', hour='*/2', minute=30, second=0,
                          misfire_grace_time=30)
-def commit():
+async def commit():
     """Commit to the database, saving the file on disk from memory."""
     logger.info('Saving the database to disk ...')
     shutil.copyfile(database_location, database_backup)
@@ -76,6 +76,8 @@ def commit():
     try:
         with open(database_location, 'w') as f:
             f.write(json.dumps(database))
+        return True
     except Exception:
         logger.error('Failed to save the database ...')
         logger.error(traceback.format_exc())
+        return False
