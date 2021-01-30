@@ -1,3 +1,25 @@
+"""
+An analyzer for minesweeping game.
+
+Please note that this module needs to be maintained or
+refactored properly.
+
+The analyzer will analyze available information during a game.
+Available information:
+* mode.
+* time/est.
+* solved_bv/bv/bvs.
+* ce/ces.
+* cl/cls.
+* l/fl/r/d.
+* path.
+* op/is.
+* ioe/iome.
+* qg/rqp.
+* corr/thrp.
+* stnb (in a standard game)
+"""
+
 import math
 
 def adjacent(row, col):
