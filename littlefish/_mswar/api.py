@@ -14,6 +14,7 @@ import nonebot
 import math
 import gzip
 from base64 import b64decode
+from urllib.parse import quote
 from .analyzer import get_action, get_board, get_board_result, get_result
 from .config import PVPConfig
 from .netcore import fetch
@@ -174,3 +175,21 @@ async def get_record(_id: int, use_post_id: bool = True) -> dict:
     result['uid'] = record_file['data']['user']['id']
 
     return result
+
+
+async def get_search_info(nickname: str) -> list:
+    """Get search information from the remote server."""
+    result = await fetch(
+        page='/MineSweepingWar/user/search',
+        query='name=%s&page=0&count=10' % quote(nickname))
+
+    search_result = []
+
+    for r in result['data']:
+        single = {
+            'nickname': r['nickName'],
+            'uid': r['uid'],
+        }
+        search_result.append(single)
+
+    return search_result
