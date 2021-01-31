@@ -6,6 +6,7 @@ get_autopvp_info.
 get_daily_map.
 get_level_list.
 get_user_info(with uid).
+get_record(with record_id or post_id)
 _get_latest_battle_winner.
 """
 
