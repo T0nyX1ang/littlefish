@@ -66,7 +66,7 @@ def _validate_id(universal_id: str, uid: str, gap: int):
         return False
 
 
-id_info = on_command(cmd='id', rule=check('联萌'))
+id_info = on_command(cmd='id', aliases={'联萌'}, rule=check('info'))
 
 
 @id_info.handle()
