@@ -11,9 +11,12 @@ _get_latest_battle_winner.
 
 import nonebot
 import math
-from .analyzer import get_board, get_board_result
+import gzip
+from base64 import b64decode
+from .analyzer import get_action, get_board, get_board_result, get_result
 from .config import PVPConfig
 from .netcore import fetch
+
 
 global_config = nonebot.get_driver().config
 plugin_config = PVPConfig(**global_config.dict())
@@ -146,3 +149,27 @@ async def get_user_info(uid: int) -> dict:
         )
 
     return user_info
+
+
+async def get_record(_id: int, use_post_id: bool = True) -> dict:
+    """Get record using record_id or post_id from the remote server."""
+    if use_post_id:
+        # extract record_id from post_id, this part needs more time.
+        post_result = await fetch(
+            page='/MineSweepingWar/post/get',
+            query='postId=%d' % (_id))
+        if post_result['data']['recordType'] != 0:
+            raise TypeError('Incorrect record type.')
+        _id = post_result['data']['recordId']
+
+    record_file = await fetch(
+        page='/MineSweepingWar/minesweeper/record/get',
+        query='recordId=%d' % (_id))
+
+    board = get_board(record_file['data']['map'].split('-')[0: -1])
+    action = get_action(gzip.decompress(
+        b64decode(record_file['data']['handle'])).decode().split('-'))
+    result = get_result(board, action)
+    result['uid'] = record_file['data']['user']['id']
+
+    return result
