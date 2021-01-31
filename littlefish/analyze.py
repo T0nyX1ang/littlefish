@@ -58,8 +58,8 @@ async def analyze(bot: Bot, event: Event, state: dict):
     try:
         use_post_id = id_type[args[0]]
         _id = int(args[1])
-        message = await get_record(_id, use_post_id)
-        await bot.send(event=event, message=format_record(message))
+        record_info = await get_record(_id, use_post_id)
+        await bot.send(event=event, message=format_record(record_info))
     except TypeError:
         # indicates the message can't be found from the remote server
         await bot.send(event=event, message='无法查询到录像信息')
