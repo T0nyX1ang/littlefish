@@ -5,9 +5,13 @@ Available information:
 * board info, action info.
 """
 
-from nonebot import on_command
+import time
+import traceback
+from nonebot import on_command, on_keyword
 from nonebot.adapters.cqhttp import Bot, Event
+from nonebot.log import logger
 from littlefish._mswar.api import get_record
+from littlefish._mswar.references import level_ref
 from littlefish._policy import check
 from littlefish._exclaim import exclaim_msg
 
@@ -46,6 +50,8 @@ def format_record(record: dict) -> str:
 
 
 analyzer = on_command(cmd='analyze', aliases={'分析'}, rule=check('analyze'))
+record_pusher = on_keyword(keywords={'http://tapsss.com', 'post='},
+                           rule=check('analyze'), priority=10, block=True)
 
 
 @analyzer.handle()
@@ -67,3 +73,26 @@ async def analyze(bot: Bot, event: Event, state: dict):
         await bot.send(event=event, message='无法查询到录像信息')
     except Exception:
         await bot.send(event=event, message=exclaim_msg('', '3', False, 1))
+
+
+@record_pusher.handle()
+async def push_record(bot: Bot, event: Event, state: dict):
+    """Push the record."""
+    msg = str(event.message).strip()
+    current = msg.find('post=') + 5
+    post_id = '0'
+    while current < len(msg) and msg[current].isdecimal():
+        post_id += msg[current]
+        current += 1
+    post_id = int(post_id)   # convert the id to an integer
+
+    remaining_retries = 10
+    while remaining_retries > 0 and post_id > 0:  # ensures query
+        try:
+            record_info = await get_record(post_id)
+            await bot.send(event=event, message=format_record(record_info))
+            return
+        except Exception:
+            logger.error(traceback.format_exc())
+            remaining_retries -= 1
+            time.sleep(1)
