@@ -173,6 +173,8 @@ async def get_record(_id: int, use_post_id: bool = True) -> dict:
         b64decode(record_file['data']['handle'])).decode().split('-'))
     result = get_result(board, action)
     result['uid'] = record_file['data']['user']['id']
+    result['level'] = record_file['data']['user']['timingLevel']
+    result['rank'] = record_file['data']['user']['timingRank']
 
     return result
 
