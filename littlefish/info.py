@@ -67,11 +67,12 @@ def _validate_id(universal_id: str, uid: str, gap: int):
 
 
 id_info = on_command(cmd='id', aliases={'联萌'}, rule=check('info'))
+id_battle = on_command(cmd='battle', aliases={'对战'}, rule=check('info'))
 
 
 @id_info.handle()
 async def id_info(bot: Bot, event: Event, state: dict):
-    """Handle the id command."""
+    """Handle the id_info command."""
     try:
         uid = int(str(event.message).strip())
     except Exception:
@@ -85,3 +86,30 @@ async def id_info(bot: Bot, event: Event, state: dict):
         await bot.send(event=event, message=user_info_message)
     else:
         await bot.send(event=event, message=exclaim_msg('', '12', False, 1))
+
+
+@id_battle.handle()
+async def id_battle(bot: Bot, event: Event, state: dict):
+    """Handle the id_battle command."""
+    try:
+        uids = map(int, str(event.message).split())
+        uid1 = next(uids)
+        uid2 = next(uids)
+    except Exception:
+        await bot.send(event=event, message=exclaim_msg('', '3', False, 1))
+        return
+
+    uid1_info = await get_user_info(uid1, simple=True)
+    uid2_info = await get_user_info(uid2, simple=True)
+
+    large = 10000000000000  # this should be large enough to distinguish
+    uid1_rank = uid1_info['rank'] + large * (uid1_info['rank'] == 0)
+    uid2_rank = uid2_info['rank'] + large * (uid2_info['rank'] == 0)
+    result = '='
+    if uid1_rank < uid2_rank:
+        result = '>'
+    elif uid1_rank > uid2_rank:
+        result = '<'
+
+    message = '对战结果: [%d] %s [%d]' % (uid1, result, uid2)
+    await bot.send(event=event, message=message)
