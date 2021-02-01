@@ -102,11 +102,12 @@ async def get_level_list() -> list:
     return user_level_data
 
 
-async def get_user_info(uid: int) -> dict:
+async def get_user_info(uid: int, simple: bool = False) -> dict:
     """
     Gather user information.
 
     The information is made up of two parts: home_info and career_info.
+    If the variable 'simple' is set to True, only home_info will be fetched.
     """
     user_info = {}
     user_info['uid'] = uid
@@ -125,7 +126,8 @@ async def get_user_info(uid: int) -> dict:
     user_info['level'] = home_info_result['data']['user']['timingLevel']
     user_info['rank'] = home_info_result['data']['user']['timingRank']
 
-    if user_info['level'] == 0:  # shorten query process if necessary
+    # shorten query process if necessary
+    if user_info['level'] == 0 or simple:
         return user_info
 
     # career info
