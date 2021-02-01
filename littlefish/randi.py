@@ -26,7 +26,7 @@ def get_randi(begin: int, end: int, count: int, extras: list):
     count = 1 + (count - 1) * (0 < count <= 10)   # shrink range
 
     if 'r' in extras:  # repetition feature
-        result = [random.sample(number_range, 1) for _ in range(0, count)]
+        result = [random.sample(number_range, 1)[0] for _ in range(0, count)]
     else:
         result = random.sample(number_range, min(count, len(number_range)))
 
@@ -35,8 +35,7 @@ def get_randi(begin: int, end: int, count: int, extras: list):
     elif 'd' in extras:  # descending order
         result.sort(reverse=True)
 
-    return '随机结果: ' + str(result).replace('[', '').replace(
-        ']', '').replace(',', '')
+    return result
 
 
 @randi.handle()
@@ -48,7 +47,8 @@ async def randi(bot: Bot, event: Event, state: dict):
         end = int(args[1])
         count = int(args[2])
         extras = args[3:]
-        message = get_randi(begin, end, count, extras)
+        result = get_randi(begin, end, count, extras)
+        message = '随机结果: %s' % ' '.join(map(str, result))
         await bot.send(event=event, message=message)
     except Exception:
         await bot.send(event=event, message=exclaim_msg('', '3', False, 1))
