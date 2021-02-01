@@ -15,7 +15,9 @@ from littlefish._exclaim import exclaim_msg
 def format_record(record: dict) -> str:
     """Formatter for information."""
     line = [
-        'playerID: %d' % record['uid'],
+        'playerID: %d (%s%d)' % (
+            record['uid'], level_ref[record['level']], record['rank'],
+        ),
         'mode: %s (%s)' % (record['difficulty'], record['fmode']),
         'time/est: %.3f/%.3f' % (record['rtime'], record['est']),
         'bv/bvs: %d/%d, %.3f' % (
