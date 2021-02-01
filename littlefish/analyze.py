@@ -50,7 +50,7 @@ def format_record(record: dict) -> str:
 
 
 analyzer = on_command(cmd='analyze', aliases={'分析'}, rule=check('analyze'))
-record_pusher = on_keyword(keywords={'http://tapsss.com', 'post='},
+record_pusher = on_keyword(keywords={'http://tapsss.com'},
                            rule=check('analyze'), priority=10, block=True)
 
 
@@ -81,7 +81,8 @@ async def push_record(bot: Bot, event: Event, state: dict):
     msg = str(event.message).strip()
     current = msg.find('post=') + 5
     post_id = '0'
-    while current < len(msg) and msg[current].isdecimal():
+    # If it can't find 'post=', current will be 4. Then the loop works fine.
+    while 4 < current < len(msg) and msg[current].isdecimal():
         post_id += msg[current]
         current += 1
     post_id = int(post_id)   # convert the id to an integer
