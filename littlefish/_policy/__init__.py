@@ -73,7 +73,9 @@ except Exception:
     logger.warning('Failed to load policy file, using empty policy file ...')
 
 
-def check(command_name: str, event_type: Event=GroupMessageEvent) -> Rule:
+def check(command_name: str,
+          event_type: Event = GroupMessageEvent,
+          ensure_empty_message: bool = False) -> Rule:
     """Check the policy of each command by name."""
     _name = command_name
 
@@ -83,17 +85,20 @@ def check(command_name: str, event_type: Event=GroupMessageEvent) -> Rule:
         if not isinstance(event, event_type):
             return False
 
+        if ensure_empty_message and str(event.message).split():
+            return False
+
         bid = f'{event.self_id}'
         gid = f'{event.group_id}'
         sid = event.user_id
         try:
             # Check the whitelist policy by name.
-            in_whitelist = ('+' not in policy_config[bid][gid][_name]
-                            or sid in policy_config[bid][gid][_name]['+'])
+            in_whitelist = ('+' not in policy_config[bid][gid][_name] or
+                            sid in policy_config[bid][gid][_name]['+'])
 
             # Check the blacklist policy by name.
-            not_in_blacklist = ('-' not in policy_config[bid][gid][_name]
-                                or sid not in policy_config[bid][gid][_name]['-'])
+            not_in_blacklist = ('-' not in policy_config[bid][gid][_name] or
+                                sid not in policy_config[bid][gid][_name]['-'])
 
             # Combine the whitelist and blacklist together
             return in_whitelist and not_in_blacklist
@@ -106,20 +111,20 @@ def check(command_name: str, event_type: Event=GroupMessageEvent) -> Rule:
 def boardcast(command_name: str) -> bool:
     """Check the policy of each boardcast by name."""
     _name = command_name
-    allowed = [ (bid, gid) for bid in policy_config.keys()
-                for gid in policy_config[bid].keys()
-                if _name in policy_config[bid][gid]
-                and '@' in policy_config[bid][gid][_name]
-                and policy_config[bid][gid][_name]['@'] ]
+    allowed = [
+        (bid, gid) for bid in policy_config.keys()
+        for gid in policy_config[bid].keys()
+        if _name in policy_config[bid][gid] and '@' in policy_config[bid][gid]
+        [_name] and policy_config[bid][gid][_name]['@']
+    ]
 
     def wrapper(func):
         """A wrapper for the checker."""
-
         async def _check() -> None:
             """Check the policy of the boardcast."""
             logger.info('Checking boardcast: [%s].' % _name)
             await func(allowed)
-        
+
         return _check
-    
+
     return wrapper
