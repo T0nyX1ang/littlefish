@@ -41,7 +41,7 @@ Please note that, when a whitelist/blacklist key doesn' exist, the
 checker will assume the whitelist/blacklist doesn't exist and allow
 the command on the whitelist/blacklist level. About the boardcasting
 feature, you need to enable it manually in the configuration, or it
-is disabled in default.
+is disabled by default.
 
 How to use?
 The checker is wrapped as a nonebot.rule.Rule, you can use it in any
