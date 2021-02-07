@@ -13,14 +13,15 @@ import traceback
 from nonebot import on_command
 from nonebot.log import logger
 from nonebot.adapters.cqhttp import Bot, Event
-from littlefish._policy import check, boardcast
+from littlefish._policy import check, boardcast, empty
 from littlefish._mswar.api import get_level_list
 from littlefish._mswar.references import level_ref
 from littlefish._db import load, save
 
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 min_level, max_level = 1, max(level_ref)
-level = on_command(cmd='level', aliases={'用户等级'}, rule=check('level'))
+level = on_command(cmd='level', aliases={'用户等级'},
+                   rule=check('level') & empty())
 
 
 def _initialize_history():

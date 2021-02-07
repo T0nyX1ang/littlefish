@@ -15,7 +15,7 @@ from nonebot import on_command
 from nonebot.log import logger
 from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._mswar.api import get_daily_map
-from littlefish._policy import check, boardcast
+from littlefish._policy import check, boardcast, empty
 
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 
@@ -37,7 +37,7 @@ def format_daily_map(daily_map: dict) -> str:
 
 
 dailymap = on_command(cmd='dailymap', aliases={'每日一图'},
-                      rule=check('dailymap'))
+                      rule=check('dailymap') & empty())
 
 
 @dailymap.handle()

@@ -17,7 +17,7 @@ from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._exclaim import exclaim_msg
 from littlefish._mswar.api import get_daily_star
 from littlefish._mswar.references import sex_ref
-from littlefish._policy import check, boardcast
+from littlefish._policy import check, boardcast, empty
 from littlefish._db import load, save
 
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
@@ -65,7 +65,7 @@ def _save_daily_star(uid: str):
 
 
 dailystar = on_command(cmd='dailystar', aliases={'今日之星', '联萌每日一星'},
-                       rule=check('dailystar'))
+                       rule=check('dailystar') & empty())
 
 dailystar_count = on_command(cmd='dailystarcount', aliases={'联萌每日一星次数'},
                              rule=check('dailystar'))

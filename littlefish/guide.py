@@ -8,17 +8,19 @@ The command requires to be invoked in groups.
 
 from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event
-from littlefish._policy import check
+from littlefish._policy import check, empty
 
-guide = on_command(cmd='guide', aliases={'指南'}, rule=check('guide'))
+guide = on_command(cmd='guide', aliases={'指南'},
+                   rule=check('guide') & empty())
 
 backup_guide = on_command(cmd='backupguide', aliases={'备用指南'},
-                          rule=check('guide'))
+                          rule=check('guide') & empty())
 
 get_package = on_command(cmd='getpackage', aliases={'安装包', '安装链接'},
-                         rule=check('guide'))
+                         rule=check('guide') & empty())
 
-ms_guide = on_command(cmd='msguide', aliases={'扫雷指南'}, rule=check('guide'))
+ms_guide = on_command(cmd='msguide', aliases={'扫雷指南'},
+                      rule=check('guide') & empty())
 
 
 @guide.handle()
