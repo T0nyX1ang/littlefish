@@ -41,7 +41,8 @@ Please note that, when a whitelist/blacklist key doesn' exist, the
 checker will assume the whitelist/blacklist doesn't exist and allow
 the command on the whitelist/blacklist level. About the boardcasting
 feature, you need to enable it manually in the configuration, or it
-is disabled by default.
+is disabled by default. About the empty feature, you can enforce 0
+arguments in a command.
 
 How to use?
 The checker is wrapped as a nonebot.rule.Rule, you can use it in any
@@ -103,14 +104,27 @@ def check(command_name: str, event_type: Event=GroupMessageEvent) -> Rule:
     return Rule(_check)
 
 
+def empty() -> bool:
+    """Ensure the arguments of a command is empty."""
+
+    async def _empty(bot: Bot, event: Event, state: dict) -> bool:
+        """A rule wrapper for each command."""
+        logger.debug('Checking empty arguments ...')
+        try:
+            return str(event.message).strip() == state['_prefix']['raw_command']
+        except Exception:
+            return False
+
+    return Rule(_empty)    
+
 def boardcast(command_name: str) -> bool:
     """Check the policy of each boardcast by name."""
     _name = command_name
-    allowed = [ (bid, gid) for bid in policy_config.keys()
+    allowed = [(bid, gid) for bid in policy_config.keys()
                 for gid in policy_config[bid].keys()
                 if _name in policy_config[bid][gid]
                 and '@' in policy_config[bid][gid][_name]
-                and policy_config[bid][gid][_name]['@'] ]
+                and policy_config[bid][gid][_name]['@']]
 
     def wrapper(func):
         """A wrapper for the checker."""
@@ -119,7 +133,7 @@ def boardcast(command_name: str) -> bool:
             """Check the policy of the boardcast."""
             logger.info('Checking boardcast: [%s].' % _name)
             await func(allowed)
-        
+
         return _check
-    
+
     return wrapper
