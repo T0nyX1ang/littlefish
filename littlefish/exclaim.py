@@ -74,4 +74,5 @@ async def greet(bot: Bot, event: Event, state: dict):
 @poke_greet.handle()
 async def poke_greet(bot: Bot, event: Event, state: dict):
     """Greet the person when the bot is poked."""
-    await greet(bot, event, state)
+    if event.target_id == event.self_id:  # ensure poking target
+        await greet(bot, event, state)
