@@ -24,7 +24,7 @@ logger.add("logs/%s-errors.log" % file_time_tag,
            level="ERROR",
            format=default_format)
 
-nonebot.init()
+nonebot.init(debug=False)
 driver = nonebot.get_driver()
 driver.register_adapter("cqhttp", Bot)
 nonebot.load_plugin('nonebot_plugin_apscheduler')
