@@ -93,6 +93,6 @@ for k, v in config.items():
 with open(os.path.join(os.getcwd(), '.env'), 'w') as f:
     f.write(config_file)
 
-print('You are all set! Run py -3 bot.py / python3 bot.py based on your '
-      'operating system to enjoy littlefish now. You can change your '
-      'configurations in env.dev later. Happy fishing!')
+print('You are all set! Run bot.py based on your to enjoy '
+      'littlefish now. You can change your configurations '
+      'in .env later. Happy fishing!')
