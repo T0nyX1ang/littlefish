@@ -89,8 +89,9 @@ async def dailystar_count(bot: Bot, event: Event, state: dict):
 
     dailystar_count = _load_daily_star(uid)
     if len(dailystar_count) > 0:
-        message = '用户[%s]在联萌的每日一星次数: %d, 最近5次获得时间为: %s' % (
-            uid, len(dailystar_count), ', '.join(dailystar_count[-1: -6: -1])
+        message = '用户[%s]在联萌的每日一星次数: %d, 最近%d次获得时间为: %s' % (
+            uid, len(dailystar_count), min(len(dailystar_count), 5),
+            ', '.join(dailystar_count[-1: -6: -1])
         )
         await bot.send(event=event, message=message)
     else:
