@@ -159,20 +159,19 @@ async def get_record(_id: int, use_post_id: bool = True) -> dict:
     """Get record using record_id or post_id from the remote server."""
     if use_post_id:
         # extract record_id from post_id, this part needs more time.
-        post_result = await fetch(
-            page='/MineSweepingWar/post/get',
-            query='postId=%d' % (_id))
+        post_result = await fetch(page='/MineSweepingWar/post/get',
+                                  query='postId=%d' % (_id))
         if post_result['data']['recordType'] != 0:
             raise TypeError('Incorrect record type.')
         _id = post_result['data']['recordId']
 
-    record_file = await fetch(
-        page='/MineSweepingWar/minesweeper/record/get',
-        query='recordId=%d' % (_id))
+    record_file = await fetch(page='/MineSweepingWar/minesweeper/record/get',
+                              query='recordId=%d' % (_id))
 
-    board = get_board(record_file['data']['map'].split('-')[0: -1])
-    action = get_action(gzip.decompress(
-        b64decode(record_file['data']['handle'])).decode().split('-'))
+    board = get_board(record_file['data']['map'].split('-')[0:-1])
+    action = get_action(
+        gzip.decompress(b64decode(
+            record_file['data']['handle'])).decode().split('-'))
     result = get_result(board, action)
     result['uid'] = record_file['data']['user']['id']
     result['level'] = record_file['data']['user']['timingLevel']
@@ -183,9 +182,8 @@ async def get_record(_id: int, use_post_id: bool = True) -> dict:
 
 async def get_search_info(nickname: str) -> list:
     """Get search information from the remote server."""
-    result = await fetch(
-        page='/MineSweepingWar/user/search',
-        query='name=%s&page=0&count=10' % quote(nickname))
+    result = await fetch(page='/MineSweepingWar/user/search',
+                         query='name=%s&page=0&count=10' % quote(nickname))
 
     search_result = []
 
@@ -195,5 +193,39 @@ async def get_search_info(nickname: str) -> list:
             'uid': r['uid'],
         }
         search_result.append(single)
+
+    return search_result
+
+
+async def get_ranking_info(item: int, page: int, extra: str = '') -> list:
+    """Get ranking information from the remote server."""
+    ranking_ref = [
+        ('timing', 'time'),
+        ('timing', 'bvs'),
+        ('endless', 'stage'),
+        ('nonguessing', 'stage'),
+        ('coin', 'stage'),
+        ('chaos', 'win'),
+        ('timing/advance', 'stage'),
+        ('user/visit', 'score'),
+    ]  # a reference to negotiate with different ranking parameters
+
+    result = await fetch(page='/MineSweepingWar/rank/%s/list' %
+                         ranking_ref[item][0],
+                         query='%s&page=%d&count=10' % (extra, page))
+
+    search_result = []
+
+    total = 1
+    for r in result['data']:
+        single = (
+            page * 10 + total,
+            r['user']['nickName'],
+            r['user']['id'],
+            r[ranking_ref[item][1]] if item != 0 else round(
+                r[ranking_ref[item][1]] / 1000, 3),
+        )
+        search_result.append(single)
+        total += 1
 
     return search_result
