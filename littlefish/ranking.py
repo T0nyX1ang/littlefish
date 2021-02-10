@@ -32,10 +32,12 @@ async def ranking(bot: Bot, event: Event, state: dict):
     try:
         item = type_ref[args[0]]
         page = max(0, int(args[1]) - 1)
-        extra = ''
+        extra = {'type': item, 'mode': -1, 'level': 4}
         if len(args[2:]) >= 2:
-            extra = 'type=%d&mode=%d&level=%d' % (item, style_ref[args[2]],
-                                                  mode_ref[args[3]])
+            extra['mode'] = style_ref[args[2]]
+            extra['level'] = mode_ref[args[3]]
+        if item not in [0, 1]:
+            extra = {}
         result = await get_ranking_info(item, page, extra)
         await bot.send(event=event, message=format_ranking_info(result))
     except Exception:
