@@ -197,9 +197,9 @@ async def get_search_info(nickname: str) -> list:
     return search_result
 
 
-async def get_ranking_info(item: int, page: int, extra: str = '') -> list:
+async def get_ranking_info(item: int, page: int, extra: dict) -> list:
     """Get ranking information from the remote server."""
-    ranking_ref = [
+    _ref = [
         ('timing', 'time'),
         ('timing', 'bvs'),
         ('endless', 'stage'),
@@ -210,20 +210,25 @@ async def get_ranking_info(item: int, page: int, extra: str = '') -> list:
         ('user/visit', 'score'),
     ]  # a reference to negotiate with different ranking parameters
 
-    result = await fetch(page='/MineSweepingWar/rank/%s/list' %
-                         ranking_ref[item][0],
-                         query='%s&page=%d&count=10' % (extra, page))
+    _extra = ''
+    for k, v in extra.items():
+        _extra += '%s=%s&' % (k, v)
+
+    result = await fetch(page='/MineSweepingWar/rank/%s/list' % _ref[item][0],
+                         query='%spage=%d&count=10' % (_extra, page))
 
     search_result = []
 
     total = 1
     for r in result['data']:
+        # Get value of data firstly
+        value = r[_ref[item][1]]
+        if item == 0:
+            value = round(value / 1000, 3)
+        
         single = (
-            page * 10 + total,
-            r['user']['nickName'],
-            r['user']['id'],
-            r[ranking_ref[item][1]] if item != 0 else round(
-                r[ranking_ref[item][1]] / 1000, 3),
+            page * 10 + total, r['user']['nickName'],
+            r['user']['id'], value,
         )
         search_result.append(single)
         total += 1
