@@ -4,6 +4,8 @@ References of data received from minesweeper app.
 Please use it as a dictionary.
 """
 
+from collections import defaultdict
+
 level_ref = {
     -1: '雷帝',
     0: '-',
@@ -36,15 +38,15 @@ type_ref = {
     'visit': 7, '人气': 7, 'v': 7,
 }
 
-style_ref = {
+style_ref = defaultdict(lambda: -1, {
     'all': -1, '全部': -1, 'a': -1,
     'nf': 0, '盲扫': 0, '盲扫': 0,
     'fl': 1, '标旗': 1, 'f': 1,
-}
+})
 
-mode_ref = {
+mode_ref = defaultdict(lambda: 4, {
     'all': 4, '全部': 4, 'a': 4,
     'beg': 1, '初级': 1, 'b': 1,
     'int': 2, '中级': 2, 'i': 2,
     'exp': 3, '高级': 3, 'e': 3,
-}
+})
