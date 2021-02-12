@@ -75,7 +75,7 @@ async def commit():
 
     try:
         with open(database_location, 'w') as f:
-            f.write(json.dumps(database))
+            f.write(json.dumps(database, sort_keys=True))
         return True
     except Exception:
         logger.error('Failed to save the database ...')
