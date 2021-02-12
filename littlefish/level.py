@@ -37,18 +37,19 @@ def format_level_list(level_list_data: dict):
 
     line = ['等级: 当前 | 合计']
     total, history_total = 0, 0
+
     level_list_history = load('0', 'level_history')
-    if not level_list_history:
-        # create default value for history
-        level_list_history = _initialize_history()
+    level_history = _initialize_history()
+    for val in level_list_history:
+        level_history[level_ref[val['level']]] = val['count']
 
     for lv in range(max_level, min_level - 1, -1):
         ref = level_ref[lv]  # global reference
         total += data[ref]
-        history_total += level_list_history[ref]
+        history_total += level_history[ref]
         line.append('%s: %d(%+d) | %d(%+d)' % (
             ref,
-            data[ref], data[ref] - level_list_history[ref],
+            data[ref], data[ref] - level_history[ref],
             total, total - history_total)
         )
     result_message = ''
