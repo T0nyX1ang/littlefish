@@ -21,7 +21,7 @@ from littlefish._db import load, save
 def format_user_info(user_info: dict):
     """Format detailed user info."""
     line = [
-        '%s (Id: %d) %s' % (
+        '%s [%d] %s' % (
             user_info['nickname'],
             user_info['uid'], sex_ref[user_info['sex']]
         )
