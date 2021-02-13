@@ -18,6 +18,9 @@ def format_ranking_info(ranking_info: list) -> str:
     result_message = ''
     for v in ranking_info:
         result_message += '%d: %s[%d] - %s\n' % v
+    if not result_message:
+        # deal with empty query
+        result_message = '未查询到符合条件的排名~'
     return result_message
 
 

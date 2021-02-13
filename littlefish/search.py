@@ -17,6 +17,9 @@ def format_search(search_result: list) -> str:
     for single in search_result:
         line = '%s (Id: %s)' % (single['nickname'], single['uid'])
         result_message = result_message + line + '\n'
+    if not result_message:
+        # deal with empty query
+        result_message = '未查询到符合条件的玩家~'
     return result_message.strip()
 
 searcher = on_command(cmd='search', aliases={'查询昵称'}, rule=check('search'))
