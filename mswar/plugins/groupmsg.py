@@ -91,28 +91,3 @@ async def _ (session: NLPSession):
         CURRENT_GROUP_MESSAGE[group_id] = msg
         CURRENT_COMBO_COUNTER[group_id] = 1
 
-@on_command('enterroom', aliases=('进入小黑屋'), permission=SUPERUSER | GROUP, only_to_me=False)
-async def enterroom(session: CommandSession):
-    if not check_policy(session.event, 'groupmsg'):
-        session.finish('小鱼睡着了zzz~')
-        
-    group_id = session.event['group_id']
-    user_id = session.event['sender']['user_id']
-    duration = session.get('duration')
-    try:     
-        await session.bot.set_group_ban(group_id=group_id, user_id=user_id, duration=duration)
-    except Exception as e:
-        logger.warning('Privilege not enough for banning ...')
-        message = MessageSegment.at(user_id) + MessageSegment.text('权限不足，无法使用小黑屋~')
-        await session.send(message)
-
-@enterroom.args_parser
-async def _(session: CommandSession):
-    stripped_arg = session.current_arg_text.strip()
-    if session.is_first_run:
-        prepare = extract_numbers(stripped_arg)
-        if prepare and 1 <= prepare[0] <= 1440:
-            session.state['duration'] = int(prepare[0]) * 60
-        else:
-            session.state['duration'] = random.randint(1, 120) * 60
-        return
