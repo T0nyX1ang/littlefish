@@ -7,7 +7,6 @@ Available features:
 * say goodbye when a user leaves the group
 * update group members' information (invoked every 4 hours automatically)
 * set block wordlist when repeating
-* repeat words in the group
 """
 
 import nonebot
@@ -189,6 +188,7 @@ async def black_room(bot: Bot, event: Event, state: dict):
         await bot.set_group_ban(group_id=group_id, user_id=user_id, duration=duration)
     except Exception:
         await bot.send(event=event, message='权限不足，无法使用小黑屋~', at_sender=True)
+
 
 @scheduler.scheduled_job('cron', hour='3-23/4', minute=0, second=0,
                          misfire_grace_time=30)
