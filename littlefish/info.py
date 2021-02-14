@@ -69,6 +69,8 @@ def _validate_id(universal_id: str, uid: str, gap: int):
 id_info = on_command(cmd='id', aliases={'联萌'}, rule=check('info'))
 id_battle = on_command(cmd='battle', aliases={'对战'}, rule=check('info'))
 
+id_me = on_command(cmd='me', aliases={'个人信息'}, rule=check('info') & empty())
+
 
 @id_info.handle()
 async def id_info(bot: Bot, event: Event, state: dict):
@@ -80,12 +82,15 @@ async def id_info(bot: Bot, event: Event, state: dict):
         return
 
     universal_id = str(event.self_id) + str(event.group_id)
-    if _validate_id(universal_id, str(uid), gap=3600):
-        user_info = await get_user_info(uid)
-        user_info_message = format_user_info(user_info)
-        await bot.send(event=event, message=user_info_message)
-    else:
-        await bot.send(event=event, message=exclaim_msg('', '12', False, 1))
+    colding_time = _validate_id(universal_id, str(uid), gap=3600)
+    if colding_time > 0:
+        wait_message = '用户[%d]尚在查询冷却期，剩余时间%d秒~' % (uid, colding_time)
+        await bot.send(event=event, message=wait_message)
+        return
+
+    user_info = await get_user_info(uid)
+    user_info_message = format_user_info(user_info)
+    await bot.send(event=event, message=user_info_message)
 
 
 @id_battle.handle()
@@ -113,3 +118,27 @@ async def id_battle(bot: Bot, event: Event, state: dict):
 
     message = '对战结果: [%d] %s [%d]' % (uid1, result, uid2)
     await bot.send(event=event, message=message)
+
+
+@id_me.handle()
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle the id_me command."""
+    universal_id = str(event.self_id) + str(event.group_id)
+    user_id = f'{event.user_id}'
+    try:
+        person = load(universal_id, user_id)
+        uid = int(person['id'])
+        print(uid)
+    except Exception:
+        await bot.send(event=event, message='个人信息获取失败，请检查头衔~')
+        return
+
+    colding_time = _validate_id(universal_id, str(uid), gap=3600)
+    if colding_time > 0:
+        wait_message = '用户ID[%d]尚在查询冷却期，剩余冷却时间%d秒~' % (uid, colding_time)
+        await bot.send(event=event, message=wait_message)
+        return
+
+    user_info = await get_user_info(uid)
+    user_info_message = format_user_info(user_info)
+    await bot.send(event=event, message=user_info_message)
