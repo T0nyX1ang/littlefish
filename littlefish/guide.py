@@ -22,6 +22,9 @@ get_package = on_command(cmd='getpackage', aliases={'安装包', '安装链接'}
 ms_guide = on_command(cmd='msguide', aliases={'扫雷指南'},
                       rule=check('guide') & empty())
 
+push_line = on_command(cmd='pushline', aliases={'推送线'},
+                       rule=check('guide') & empty())
+
 
 @guide.handle()
 async def guide(bot: Bot, event: Event, state: dict):
@@ -48,4 +51,11 @@ async def getpackage(bot: Bot, event: Event, state: dict):
 async def msguide(bot: Bot, event: Event, state: dict):
     """Show minesweeping guide."""
     ms_guide_link = "扫雷指南详见: http://tapsss.com/?post=189646"
+    await bot.send(event=event, message=ms_guide_link, at_sender=True)
+
+
+@push_line.handle()
+async def push_line(bot: Bot, event: Event, state: dict):
+    """Show minesweeping guide."""
+    ms_guide_link = "纪录推送标准: http://tapsss.com/?post=388962"
     await bot.send(event=event, message=ms_guide_link, at_sender=True)
