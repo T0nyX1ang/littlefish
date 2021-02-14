@@ -12,13 +12,13 @@ import time
 from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._exclaim import exclaim_msg
-from littlefish._policy import check
+from littlefish._policy import check, empty
 from littlefish._mswar.api import get_user_info
 from littlefish._mswar.references import sex_ref, level_ref
 from littlefish._db import load, save
 
 
-def format_user_info(user_info: dict):
+def format_user_info(user_info: dict) -> str:
     """Format detailed user info."""
     line = [
         '%s [%d] %s' % (
@@ -51,7 +51,7 @@ def format_user_info(user_info: dict):
     return result_message.strip()
 
 
-def _validate_id(universal_id: str, uid: str, gap: int):
+def _validate_id(universal_id: str, uid: str, gap: int) -> int:
     """Add id into colding list."""
     current = load(universal_id, 'id_colding_list')
     if not current:
@@ -61,12 +61,13 @@ def _validate_id(universal_id: str, uid: str, gap: int):
     if uid not in current or current_time - current[uid] >= gap:
         current[uid] = current_time
         save(universal_id, 'id_colding_list', current)
-        return True
+        return 0
     else:
-        return False
+        return gap - current_time + current[uid]
 
 
 id_info = on_command(cmd='id', aliases={'联萌'}, rule=check('info'))
+
 id_battle = on_command(cmd='battle', aliases={'对战'}, rule=check('info'))
 
 id_me = on_command(cmd='me', aliases={'个人信息'}, rule=check('info') & empty())
