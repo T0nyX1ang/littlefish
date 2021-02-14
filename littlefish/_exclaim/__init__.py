@@ -31,6 +31,10 @@ Warnings:
 Make sure you have at least 1 image if you want to set the parameter
 include_image to True. The message will not be sent if no images are
 found. You can see the logs for more infomation.
+
+About slimming message:
+It will find out all the 'image' tags, and removing all of the 'url' key
+from it to slim the message.
 """
 
 import csv
@@ -101,3 +105,11 @@ def exclaim_msg(person: str, _type: str, include_image: bool,
 
     return Message(person + ' ' * (person[-1].isascii() and 
         msg_body[0].isascii()) + msg_body + msg_ending)
+
+
+def slim_msg(message: str):
+    """Slim a message."""
+    for seg in Message(message):
+        if seg.type == 'image' and 'url' in seg.data:
+            seg.data.pop('url')  # remove the 'url' key
+    return Message(message)
