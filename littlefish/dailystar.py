@@ -23,7 +23,7 @@ from littlefish._db import load, save
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 
 
-def format_daily_star(daily_star_info: dict):
+def format_daily_star(daily_star_info: dict) -> str:
     """Format the message of daily star."""
     line = [
         '联萌每日一星:',
@@ -41,7 +41,7 @@ def format_daily_star(daily_star_info: dict):
     return result_message.strip()
 
 
-def _load_daily_star(uid: str):
+def _load_daily_star(uid: str) -> list:
     """Load the daily star from database."""
     star_db = load('0', 'dailystar')
     try:

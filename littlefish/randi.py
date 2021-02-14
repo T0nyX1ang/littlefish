@@ -19,7 +19,7 @@ import random
 randi = on_command(cmd='randi', aliases={'随机数'}, rule=check('randi'))
 
 
-def get_randi(begin: int, end: int, count: int, extras: list):
+def get_randi(begin: int, end: int, count: int, extras: list) -> list:
     """Get random integers from a fixed range."""
     begin, end = min(begin, end), max(begin, end)  # ensure a valid list
     number_range = range(begin, end + 1)

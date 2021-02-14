@@ -24,12 +24,12 @@ level = on_command(cmd='level', aliases={'用户等级'},
                    rule=check('level') & empty())
 
 
-def _initialize_history():
+def _initialize_history() -> dict:
     """Initialize the user level data."""
     return {level_ref[lv]: 0 for lv in range(min_level, max_level + 1)}
 
 
-def format_level_list(level_list_data: dict):
+def format_level_list(level_list_data: dict) -> str:
     """Format the user level info data."""
     data = _initialize_history()
     for val in level_list_data:
