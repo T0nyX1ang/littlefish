@@ -38,7 +38,7 @@ except Exception:
 
 def _initialize(universal_id: str, item_name: str):
     """Initialize the database."""
-    logger.info(f'Initialize item [{item_name}] from database ...')
+    logger.debug(f'Initialize item [{item_name}] from database ...')
     if universal_id not in database:
         database[universal_id] = {}
 
@@ -48,7 +48,7 @@ def _initialize(universal_id: str, item_name: str):
 
 def load(universal_id: str, item_name: str) -> json:
     """Load database item."""
-    logger.info(f'Loading item [{item_name}] from database ...')
+    logger.debug(f'Loading item [{item_name}] from database ...')
     try:
         return database[universal_id][item_name]
     except Exception:
@@ -58,7 +58,7 @@ def load(universal_id: str, item_name: str) -> json:
 
 def save(universal_id: str, item_name: str, new_data: json):
     """Save database item."""
-    logger.info(f'Saving item [{item_name}] to database ...')
+    logger.debug(f'Saving item [{item_name}] to database ...')
     try:
         database[universal_id][item_name] = new_data
     except Exception:
