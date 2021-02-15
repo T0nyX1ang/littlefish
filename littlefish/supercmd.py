@@ -8,11 +8,13 @@ from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event
 from nonebot.permission import SUPERUSER
 from littlefish._db import commit, load
+from littlefish._policy import check
 
-save = on_command(cmd='save', aliases={'存档'}, permission=SUPERUSER)
+save = on_command(cmd='save', aliases={'存档'}, permission=SUPERUSER,
+                  rule=check('supercmd'))
 
 repeater_status = on_command(cmd='repeaterstatus', aliases={'复读状态'},
-                             permission=SUPERUSER)
+                             permission=SUPERUSER, rule=check('supercmd'))
 
 
 @save.handle()
