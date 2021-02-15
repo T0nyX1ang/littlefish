@@ -80,6 +80,8 @@ block_word = on_command(cmd='blockword', aliases={'复读屏蔽词'},
 black_room = on_command(cmd='blackroom', aliases={'进入小黑屋'},
                         rule=check('group'))
 
+set_repeater_param = on_command(cmd='repeaterparam', aliases={'复读参数'},
+                                rule=check('group'), permission=admin())
 
 @validate_user.handle()
 async def validate_user(bot: Bot, event: Event, state: dict):
@@ -188,6 +190,27 @@ async def black_room(bot: Bot, event: Event, state: dict):
         await bot.set_group_ban(group_id=group_id, user_id=user_id, duration=duration)
     except Exception:
         await bot.send(event=event, message='权限不足，无法使用小黑屋~', at_sender=True)
+
+
+@set_repeater_param.handle()
+async def set_repeater_param(bot: Bot, event: Event, state: dict):
+    """Set the parameters of the repeater."""
+    universal_id = str(event.self_id) + str(event.group_id)
+    try:
+        load(universal_id, 'mutate_probability')
+        load(universal_id, 'cut_in_probability')
+        args = map(int, str(event.message).split())
+        mutate_prob = min(max(next(args), 0), 100)
+        cut_in_prob = min(max(next(args), 0), 100)
+        save(universal_id, 'mutate_probability', mutate_prob)
+        save(universal_id, 'cut_in_probability', cut_in_prob)
+        message = '复读参数设定成功，当前变形概率为%d%%，打断概率为%d%%' % (
+            mutate_prob, cut_in_prob
+        )
+        await bot.send(event=event, message=message)
+    except Exception:
+        await bot.send(event=event, message='复读参数设定失败，请重试')
+
 
 
 @scheduler.scheduled_job('cron', hour='3-23/4', minute=0, second=0,
