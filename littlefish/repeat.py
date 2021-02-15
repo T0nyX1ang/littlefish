@@ -6,9 +6,10 @@ repeated for a certain time. Sometimes the bot will repeat the
 word abnormal for fun.
 """
 
+import random
 from nonebot import on_endswith
-from nonebot.adapters.cqhttp import Bot, Event, Message
-from littlefish._exclaim import slim_msg
+from nonebot.adapters.cqhttp import Bot, Event
+from littlefish._exclaim import exclaim_msg, slim_msg, mutate_msg
 from littlefish._policy import check
 from littlefish._db import load, save
 
@@ -54,13 +55,34 @@ def update_combo(universal_id: str, message: str, combo: int) -> bool:
         return 1
 
 
-def get_repeated_message(universal_id: str, combo: int) -> str:
+def get_repeated_message(universal_id: str) -> str:
     """Get repeated message and add some variations on it."""
     msg_base = load(universal_id, 'current_msg_base')
     left_increment = load(universal_id, 'current_left_increment')
     right_increment = load(universal_id, 'current_right_increment')
+    combo = load(universal_id, 'current_combo')
+
+    mutate_prob = load(universal_id, 'mutate_probability')
+    if not mutate_prob:
+        mutate_prob = 5
+        save(universal_id, 'mutate_probability', mutate_prob)
+
+    cut_in_prob = load(universal_id, 'cut_in_probability')
+    if not cut_in_prob:
+        cut_in_prob = 5
+        save(universal_id, 'cut_in_probability', cut_in_prob)
+
+    if random.randint(1, 100) <= cut_in_prob:
+        # reset the combo counter here
+        save(universal_id, 'current_combo', 0)
+        return exclaim_msg('打断' * ('打断' == msg_base[0: 2]), '4', True, 1)
+
     final = combo * left_increment + msg_base + combo * right_increment
-    return Message(final)
+    can_mutate = random.randint(1, 100) <= mutate_prob
+
+    # add combo for self repetition if the message is not mutated
+    save(universal_id, 'current_combo', (combo + 1) * (not can_mutate))
+    return mutate_msg(final, mutate=can_mutate)
 
 
 repeater = on_endswith(msg='', priority=11, block=True, rule=check('repeat'))
@@ -81,10 +103,8 @@ async def repeat(bot: Bot, event: Event, state: dict):
         return
 
     combo = update_combo(universal_id, message, combo)
+    save(universal_id, 'current_combo', combo)
 
     if combo == 5:
-        repeated_message = get_repeated_message(universal_id, combo)
-        combo += 1  # add combo for self repetition
+        repeated_message = get_repeated_message(universal_id)
         await bot.send(event=event, message=repeated_message)
-
-    save(universal_id, 'current_combo', combo)
