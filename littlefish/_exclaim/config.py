@@ -15,6 +15,7 @@ class Config(BaseSettings):
     # Configuration goes here.
     resource_location: str = "resource.csv"
     resource_separator: str = "|"
+    frequent_face_id: list = [146]
 
     class Config:
         extra = "ignore"
