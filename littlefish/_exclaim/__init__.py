@@ -19,10 +19,13 @@ First, enter the item's name, it can be plain texts, or CQ codes if
 it's not an image, and it must be a relative path to the working dir-
 ectory if it's an image. Then, enter a separator, and enter the type
 of the item, currently it could be 1 (for admiration), 2 (for cheers)
-, 3 (for errors) or 10-19 (for daily routines). Finally, enter a sepa-
-rator and a weight to determine the probability of selection.
-If you think the item is a body, enter a positive integer; if you think
-the item is an ending, enter a negative integer (according to type). 
+, 3 (for errors), 4 (for cut-ins) or 10-19 (for daily routines). 
+
+Then, enter a separator and a weight to determine the probability
+of selection. If you think the item is a body, enter a positive integer;
+if you think the item is an ending, enter a negative integer (according
+to type). 
+
 Last, enter another separator, and enter whether the item is an image,
 enter 0 for no, and 1 for yes. If you handles nicely, the database will
 be working after a reload of this module.
@@ -35,6 +38,12 @@ found. You can see the logs for more infomation.
 About slimming message:
 It will find out all the 'image' tags, and removing all of the 'url' key
 from it to slim the message.
+
+About mutating message:
+It will randomly select a segment of the message, if the tag of the segment
+is 'text', the text part will be randomly reversed; if the tag of the
+segment is 'face', the id part will be randomly replaced; otherwise the
+segment will remain unchanged.
 """
 
 import csv
@@ -48,6 +57,7 @@ from nonebot.adapters.cqhttp import Message
 global_config = nonebot.get_driver().config
 plugin_config = Config(**global_config.dict())
 resource_location = os.path.join(os.getcwd(), plugin_config.resource_location)
+frequent_face_id = list(set(plugin_config.frequent_face_id))
 
 try:
     resource_database = []
@@ -113,3 +123,26 @@ def slim_msg(message: str):
         if seg.type == 'image' and 'url' in seg.data:
             seg.data.pop('url')  # remove the 'url' key
     return Message(message)
+
+
+def mutate_msg(message: str, mutate: bool = False):
+    """Mutate a message."""
+    msg = Message(message)
+    if not mutate:
+        return msg  # just wrap the message
+
+    place = random.choice(range(0, len(msg)))
+    seg = msg[place]
+    if seg.type == 'text':
+        # reverse the text
+        plain = seg.data['text']
+        start, stop = sorted(random.sample(range(0, len(plain)), 2))
+        target = plain[start: stop]
+        result = plain[:start] + target[::-1] + plain[stop:]
+        seg.data['text'] = result
+    elif seg.type == 'face':
+        # select a different face
+        seg.data['id'] = random.choice(frequent_face_id)
+    msg[place] = seg
+
+    return Message(msg)
