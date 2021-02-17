@@ -41,24 +41,26 @@ async def update_group_members(bot: Bot, group_id: int):
     logger.info('Updating group members ...')
     universal_id = str(bot.self_id) + str(group_id)
     group_members_list = await bot.get_group_member_list(group_id=group_id)
-    for member in group_members_list:
+    for m in group_members_list:
         group_member_info = await bot.get_group_member_info(
-            group_id=group_id, user_id=member['user_id'])
+            group_id=group_id, user_id=m['user_id'])
 
-        print(group_member_info)
         user_id = str(group_member_info['user_id'])
 
         # load the original information from the database
-        person = load(universal_id, user_id)
-        if not person:
-            person = {}
-        person['id'] = group_member_info['title']
-        person['nickname'] = group_member_info['nickname']
-        person['card'] = group_member_info['card']
-        person.setdefault('42score', 0)
+        members = load(universal_id, 'members')
+        if not members:
+            members = {}
+
+        if user_id not in members:
+            members[user_id] = {}
+        members[user_id]['id'] = group_member_info['title']
+        members[user_id]['nickname'] = group_member_info['nickname']
+        members[user_id]['card'] = group_member_info['card']
+        members[user_id].setdefault('42score', 0)
 
         # save the updated information to the database
-        save(universal_id, user_id, person)
+        save(universal_id, 'members', members)
 
 
 validate_user = on_request(priority=10, block=True,

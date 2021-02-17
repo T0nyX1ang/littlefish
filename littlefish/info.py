@@ -127,9 +127,8 @@ async def _(bot: Bot, event: Event, state: dict):
     universal_id = str(event.self_id) + str(event.group_id)
     user_id = f'{event.user_id}'
     try:
-        person = load(universal_id, user_id)
-        uid = int(person['id'])
-        print(uid)
+        members = load(universal_id, 'members')
+        uid = int(members[user_id]['id'])
     except Exception:
         await bot.send(event=event, message='个人信息获取失败，请检查头衔~')
         return
