@@ -324,7 +324,7 @@ async def get_rank(bot: Bot, event: Event, state: dict):
     ]
 
     for i in range(0, len(ranking)):
-        if i < 10:
+        if i < 10 and members[ranking[i]]['42score'] > 0:
             line.append('[%d] %.1f - %s' %
                         (i + 1, members[ranking[i]]['42score'] /
                          members[ranking[0]]['42score'] * 100,
