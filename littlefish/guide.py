@@ -25,6 +25,9 @@ ms_guide = on_command(cmd='msguide', aliases={'扫雷指南'},
 push_line = on_command(cmd='pushline', aliases={'推送线'},
                        rule=check('guide') & empty())
 
+guide_42 = on_command(cmd='guide42', aliases={'42点说明'},
+                      rule=check('guide') & check('calc42') & empty())
+
 
 @guide.handle()
 async def guide(bot: Bot, event: Event, state: dict):
@@ -57,5 +60,13 @@ async def msguide(bot: Bot, event: Event, state: dict):
 @push_line.handle()
 async def push_line(bot: Bot, event: Event, state: dict):
     """Show minesweeping guide."""
-    ms_guide_link = "纪录推送标准: http://tapsss.com/?post=388962"
-    await bot.send(event=event, message=ms_guide_link, at_sender=True)
+    push_link = "纪录推送标准: http://tapsss.com/?post=388962"
+    await bot.send(event=event, message=push_link, at_sender=True)
+
+
+@guide_42.handle()
+async def guide_42(bot: Bot, event: Event, state: dict):
+    """Show minesweeping guide."""
+    guide42_link = "42点说明：https://github.com/T0nyX1ang/littlefish\
+/blob/master/docs/usage.md#42%E7%82%B9"
+    await bot.send(event=event, message=guide42_link, at_sender=True)
