@@ -157,8 +157,7 @@ def get_results(universal_id: str) -> str:
 
     frequency = load(universal_id, 'calc42_frequency')
 
-    line = []
-    line.append('--- 本题统计 ---')
+    line = ['本局42点游戏结束~']
     line.append('求解完成度: %d/%d' %
                 (current_solution_number, total_solution_number))
     if current_solution_number < total_solution_number:
@@ -209,7 +208,6 @@ async def finish_game(bot: Bot, universal_id: str, group_id: int):
         game_results = get_results(universal_id)
         app_pool[universal_id].stop()
         try:
-            await bot.send_group_msg(group_id=group_id, message='本局42点游戏结束~')
             await bot.send_group_msg(group_id=group_id, message=game_results)
         except Exception as e:
             logger.error(traceback.format_exc())
@@ -321,7 +319,8 @@ async def get_rank(bot: Bot, event: Event, state: dict):
 
     line = [
         '42点积分排行榜:',
-        '最高得分: %d' % (members[ranking[0]]['42score']), '-- 归一化得分 --'
+        '最高得分: %d' % (members[ranking[0]]['42score']),
+        '-- 归一化得分 --'
     ]
 
     for i in range(0, len(ranking)):
