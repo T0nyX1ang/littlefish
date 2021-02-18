@@ -40,6 +40,9 @@ def format_level_list(level_list_data: dict) -> str:
 
     level_list_history = load('0', 'level_history')
     level_history = _initialize_history()
+    if not level_history:
+        level_list_history = []
+
     for val in level_list_history:
         level_history[level_ref[val['level']]] = val['count']
 
