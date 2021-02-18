@@ -28,8 +28,12 @@ problem_database = list(
     itertools.combinations_with_replacement(range(0, max_number + 1), 5))
 
 
-def get_member_name(members: dict, user_id: str) -> str:
+def get_member_name(universal_id: str, user_id: str) -> str:
     """Get member name."""
+    members = load(universal_id, 'members')
+    if not members:
+        return '匿名大佬'
+
     return members[user_id]['card'] if members[user_id]['card'] else members[
         user_id]['nickname']
 
@@ -168,7 +172,7 @@ def get_results(universal_id: str) -> str:
 
     for player in ordered_players:
         members = load(universal_id, 'members')
-        name = get_member_name(members, player)
+        name = get_member_name(universal_id, player)
         line.append('%s: %d解/+%d %s' %
                     (name, player_solutions[player], player_scores[player],
                      player_achievements[player]))
@@ -247,8 +251,9 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
         elapsed = app_pool[universal_id].solve(expr, user_id)
         finish_time = elapsed.seconds + elapsed.microseconds / 1000000
 
-        message = '[CQ:at,qq=%s] 恭喜完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒，' % (
-            user_id, app_pool[universal_id].get_current_solution_number(),
+        message = '恭喜%s完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒，' % (
+            get_member_name(universal_id, user_id), 
+            app_pool[universal_id].get_current_solution_number(),
             app_pool[universal_id].get_total_solution_number(), finish_time, left
         ) + exclaim_msg('大佬', '1', False)
     except OverflowError:
@@ -327,7 +332,7 @@ async def get_rank(bot: Bot, event: Event, state: dict):
             line.append('[%d] %.1f - %s' %
                         (i + 1, members[ranking[i]]['42score'] /
                          members[ranking[0]]['42score'] * 100,
-                         get_member_name(members, ranking[i])))
+                         get_member_name(universal_id, ranking[i])))
 
     result_message = ''
     for each_line in line:
