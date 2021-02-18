@@ -300,8 +300,9 @@ async def get_score(bot: Bot, event: Event, state: dict):
     else:
         upper_score = members[ranking[result - 1]]['42score']
         distance = upper_score - score
-        await bot.send('当前积分: %d，排名: %d，距上一名%d分，' %
-                       (score, result + 1, distance) +
+        await bot.send(event=event,
+                       message='当前积分: %d，排名: %d，距上一名%d分，' %
+                       (score, result + 1, distance) + 
                        exclaim_msg('大佬', '2', False))
 
 
