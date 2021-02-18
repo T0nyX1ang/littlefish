@@ -15,7 +15,7 @@ def format_search(search_result: list) -> str:
     """Formatter for information."""
     result_message = ''
     for single in search_result:
-        line = '%s (Id: %s)' % (single['nickname'], single['uid'])
+        line = '%s [%s]' % (single['nickname'], single['uid'])
         result_message = result_message + line + '\n'
     if not result_message:
         # deal with empty query
