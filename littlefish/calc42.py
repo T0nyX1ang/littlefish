@@ -247,11 +247,10 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
         elapsed = app_pool[universal_id].solve(expr, user_id)
         finish_time = elapsed.seconds + elapsed.microseconds / 1000000
 
-        message = '恭喜%s完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒，' % (
-            get_member_name(universal_id, user_id),
-            app_pool[universal_id].get_current_solution_number(),
-            app_pool[universal_id].get_total_solution_number(), finish_time,
-            left) + exclaim_msg('大佬', '1', False)
+        message = '[CQ:at,qq=%s] 恭喜完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒，' % (
+            user_id, app_pool[universal_id].get_current_solution_number(),
+            app_pool[universal_id].get_total_solution_number(), finish_time, left
+        ) + exclaim_msg('大佬', '1', False)
     except OverflowError:
         message = '公式过长'
     except SyntaxError:
