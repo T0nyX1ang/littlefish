@@ -235,8 +235,8 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
     if not app_pool[universal_id].is_playing():
         return
 
+    user_id = f'{event.user_id}'
     expr = str(event.message).strip()
-    at_sender = False
     message = ''
 
     try:
@@ -244,14 +244,14 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
         total_elapsed = app_pool[universal_id].get_elapsed_time()
         left = current_deadline - total_elapsed.seconds
 
-        elapsed = app_pool[universal_id].solve(expr, str(event.user_id))
+        elapsed = app_pool[universal_id].solve(expr, user_id)
         finish_time = elapsed.seconds + elapsed.microseconds / 1000000
 
-        message = '恭喜完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒，' % (
+        message = '恭喜%s完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒，' % (
+            get_member_name(universal_id, user_id),
             app_pool[universal_id].get_current_solution_number(),
             app_pool[universal_id].get_total_solution_number(), finish_time,
             left) + exclaim_msg('大佬', '1', False)
-        at_sender = True
     except OverflowError:
         message = '公式过长'
     except SyntaxError:
@@ -267,7 +267,7 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
         message = '未知错误'
         logger.error(traceback.format_exc())
 
-    await bot.send(event=event, message=message, at_sender=at_sender)
+    await bot.send(event=event, message=message)
 
     if app_pool[universal_id].get_current_solution_number(
     ) == app_pool[universal_id].get_total_solution_number():
