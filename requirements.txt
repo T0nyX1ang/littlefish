@@ -1,6 +1,5 @@
 nonebot2==2.0.0a9.post1
 nonebot-plugin-apscheduler==0.1.0
-42Points=1.2.0
-matplotlib==3.0.3
+nonebot-plugin-test==0.2.0
+42Points==1.2.1.1
 pycryptodome==3.9.6
-
