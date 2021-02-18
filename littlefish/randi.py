@@ -16,7 +16,7 @@ from littlefish._policy import check
 from littlefish._exclaim import exclaim_msg
 import random
 
-randi = on_command(cmd='randi', aliases={'随机数'}, rule=check('randi'))
+randi = on_command(cmd='randi ', aliases={'随机数 '}, rule=check('randi'))
 
 
 def get_randi(begin: int, end: int, count: int, extras: list) -> list:

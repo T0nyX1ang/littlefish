@@ -66,9 +66,9 @@ def _validate_id(universal_id: str, uid: str, gap: int) -> int:
         return gap - current_time + current[uid]
 
 
-id_info = on_command(cmd='id', aliases={'联萌'}, rule=check('info'))
+id_info = on_command(cmd='id ', aliases={'联萌 '}, rule=check('info'))
 
-id_battle = on_command(cmd='battle', aliases={'对战'}, rule=check('info'))
+id_battle = on_command(cmd='battle ', aliases={'对战 '}, rule=check('info'))
 
 id_me = on_command(cmd='me', aliases={'个人信息'}, rule=check('info') & empty())
 

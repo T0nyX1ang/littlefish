@@ -49,7 +49,7 @@ def format_record(record: dict) -> str:
     return result_message.strip()
 
 
-analyzer = on_command(cmd='analyze', aliases={'分析'}, rule=check('analyze'))
+analyzer = on_command(cmd='analyze ', aliases={'分析 '}, rule=check('analyze'))
 record_pusher = on_keyword(keywords={'http://tapsss.com'},
                            rule=check('analyze'), priority=10, block=True)
 

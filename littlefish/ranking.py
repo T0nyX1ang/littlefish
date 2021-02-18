@@ -24,7 +24,7 @@ def format_ranking_info(ranking_info: list) -> str:
     return result_message
 
 
-ranking = on_command(cmd='rank', aliases={'排名'}, rule=check('ranking'))
+ranking = on_command(cmd='rank ', aliases={'排名 '}, rule=check('ranking'))
 
 
 @ranking.handle()

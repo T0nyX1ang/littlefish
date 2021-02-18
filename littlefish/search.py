@@ -22,7 +22,7 @@ def format_search(search_result: list) -> str:
         result_message = '未查询到符合条件的玩家~'
     return result_message.strip()
 
-searcher = on_command(cmd='search', aliases={'查询昵称'}, rule=check('search'))
+searcher = on_command(cmd='search ', aliases={'查询昵称 '}, rule=check('search'))
 
 
 @searcher.handle()

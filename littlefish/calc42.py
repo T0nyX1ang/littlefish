@@ -217,7 +217,7 @@ async def finish_game(bot: Bot, universal_id: str, group_id: int):
             logger.error(traceback.format_exc())
 
 
-solve_problem = on_command(cmd='calc42', aliases={'42点'}, rule=check('calc42'))
+solve_problem = on_command(cmd='calc42 ', aliases={'42点 '}, rule=check('calc42'))
 
 get_score = on_command(cmd='score42', aliases={'42点得分', '42点积分'},
                        rule=check('calc42') & empty())
