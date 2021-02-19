@@ -19,3 +19,4 @@ mswar-bot(小鱼)是一个基于NoneBot的异步IO机器人，用于扫雷联萌
 + FDex2：用于安卓应用的脱壳的Xposed插件。
 + jadx：用于dex形式文件的反编译软件。
 + Genymotion (with adb)：运行安卓应用的虚拟机软件。
++ [bilibili_api](https://github.com/Passkou/bilibili_api)：用于B站直播推送。
