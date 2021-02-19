@@ -217,7 +217,8 @@ async def finish_game(bot: Bot, universal_id: str, group_id: int):
             logger.error(traceback.format_exc())
 
 
-solve_problem = on_command(cmd='calc42 ', aliases={'42点 '}, rule=check('calc42'))
+solve_problem = on_command(cmd='calc42 ', aliases={'42点 '},
+                           rule=check('calc42'))
 
 get_score = on_command(cmd='score42', aliases={'42点得分', '42点积分'},
                        rule=check('calc42') & empty())
@@ -251,19 +252,14 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
         elapsed = app_pool[universal_id].solve(expr, user_id)
         finish_time = elapsed.seconds + elapsed.microseconds / 1000000
 
-        message = '恭喜%s完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒~' % (
+        message = '恭喜[%s]完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒~' % (
             get_member_name(universal_id, user_id), 
             app_pool[universal_id].get_current_solution_number(),
             app_pool[universal_id].get_total_solution_number(),
             finish_time, left
         )
-    except OverflowError:
-        message = '公式过长'
-    except SyntaxError:
-        message = '公式错误'
-    except ValueError:
-        message = '数字错误[%d %d %d %d %d]' % (
-            app_pool[universal_id].get_current_problem())
+    except (OverflowError, SyntaxError, ValueError):
+        message = '输入错误'
     except ArithmeticError as ae:
         message = '答案错误[%s]' % (str(ae))
     except LookupError as le:
@@ -272,10 +268,13 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
         message = '未知错误'
         logger.error(traceback.format_exc())
 
-    await bot.send(event=event, message=message)
+    is_finished = app_pool[universal_id].get_current_solution_number(
+    ) == app_pool[universal_id].get_total_solution_number()
 
-    if app_pool[universal_id].get_current_solution_number(
-    ) == app_pool[universal_id].get_total_solution_number():
+    await bot.send(event=event, message=message + (not is_finished
+        ) * ('\n%s' % print_current_problem(universal_id)))
+
+    if is_finished:
         await finish_game(bot, universal_id, event.group_id)
 
 
