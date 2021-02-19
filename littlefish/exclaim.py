@@ -53,8 +53,10 @@ async def cheer(bot: Bot, event: Event, state: dict):
 @cheer_ending.handle()
 async def cheer_ending(bot: Bot, event: Event, state: dict):
     """Cheer the person with the ending."""
+    if str(event.message).strip()[-2:] != '加油':
+        return  # recheck the message
     person = str(event.message).strip()[:-2]
-    await bot.send(event=event, message=exclaim_msg(person, '2', False))
+    await bot.send(event=event, message=exclaim_msg(person, '2', True))
 
 
 @greet.handle()
