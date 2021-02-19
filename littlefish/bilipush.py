@@ -42,7 +42,8 @@ async def push_live_message(bot: Bot, universal_id: str, group_id: int):
     """Push the live message."""
     subscribed_list = load(universal_id, 'subscribed_list')
     if not subscribed_list:
-        save(universal_id, 'subscribed_list', {})
+        subscribed_list = {}
+        save(universal_id, 'subscribed_list', subscribed_list)
 
     for uid in subscribed_list.keys():
         status = await get_user_info(uid)
