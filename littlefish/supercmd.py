@@ -37,8 +37,16 @@ async def repeater_status(bot: Bot, event: Event, state: dict):
     combo = load(universal_id, 'current_combo')
     mutate_prob = load(universal_id, 'mutate_probability')
     cut_in_prob = load(universal_id, 'cut_in_probability')
+    if not combo:
+        combo = 0
 
-    message = '复读状态: [%s]-[%s|%s|%s]-[%d%%|%d%%]' % (
+    if not mutate_prob:
+        mutate_prob = 5
+
+    if not cut_in_prob:
+        cut_in_prob = 5
+
+    message = '复读状态: [%d]-[%s|%s|%s]-[%d%%|%d%%]' % (
         combo, left_increment, msg_base, right_increment,
         mutate_prob, cut_in_prob
     )
