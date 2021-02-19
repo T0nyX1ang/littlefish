@@ -37,6 +37,7 @@ async def repeater_status(bot: Bot, event: Event, state: dict):
     combo = load(universal_id, 'current_combo')
     mutate_prob = load(universal_id, 'mutate_probability')
     cut_in_prob = load(universal_id, 'cut_in_probability')
+    block_wordlist = load(universal_id, 'block_wordlist')
     if not combo:
         combo = 0
 
@@ -46,9 +47,10 @@ async def repeater_status(bot: Bot, event: Event, state: dict):
     if not cut_in_prob:
         cut_in_prob = 5
 
-    message = '复读状态: [%d]-[%s|%s|%s]-[%d%%|%d%%]' % (
+    block_message = '空' if not block_wordlist else ', '.join(block_wordlist)
+    message = '复读状态: [%d]-[%s|%s|%s]-[%d%%|%d%%]\n当前屏蔽词: %s' % (
         combo, left_increment, msg_base, right_increment,
-        mutate_prob, cut_in_prob
+        mutate_prob, cut_in_prob, block_message
     )
 
     await bot.send(event=event, message=message)
