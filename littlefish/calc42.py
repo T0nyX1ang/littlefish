@@ -10,7 +10,6 @@ import nonebot
 import random
 import datetime
 import traceback
-from apscheduler.triggers.date import DateTrigger
 from ftptsgame import FTPtsGame
 from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event
@@ -194,12 +193,11 @@ async def start_game(bot: Bot, universal_id: str):
     app_pool[universal_id].start()
     message = print_current_problem(universal_id)
     deadline = get_deadline(universal_id)
-    delta = datetime.timedelta(seconds=deadline)
-    trigger = DateTrigger(run_date=datetime.datetime.now() + delta)
     scheduler.add_job(
         func=finish_game,
-        trigger=trigger,
-        args=(bot, universal_id, group_id),
+        trigger='interval',
+        seconds=deadline,
+        args=(bot, universal_id),
         misfire_grace_time=30,
         id='calc42_process',
         replace_existing=True,
