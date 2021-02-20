@@ -202,11 +202,37 @@ async def start_game(bot: Bot, universal_id: str):
         id='calc42_process',
         replace_existing=True,
     )
-    await bot.send_group_msg(group_id=group_id, message=message)
+    scheduler.add_job(
+        func=timeout_reminder,
+        trigger='interval',
+        seconds=deadline - 60,
+        args=(bot, universal_id),
+        misfire_grace_time=30,
+        id='calc42_timeout_reminder',
+        replace_existing=True,
+    )
+    try:
+        await bot.send_group_msg(group_id=group_id, message=message)
+    except Exception:
+        logger.error(traceback.format_exc())
+        app_pool[universal_id].stop()  # stop the app instantly
+
+
+async def timeout_reminder(bot: Bot, universal_id: str):
+    """Reminder of the calc42 game."""
+    group_id = int(universal_id[len(str(bot.self_id)):])
+    if app_pool[universal_id].is_playing():
+        try:
+            message = '距离本局游戏结束还有60秒，冲鸭~'
+            await bot.send_group_msg(group_id=group_id, message=message)
+        except Exception:
+            logger.error(traceback.format_exc())
 
 
 async def finish_game(bot: Bot, universal_id: str):
     """Finish the calc42 game."""
+    scheduler.remove_job('calc42_timeout_reminder')
+    scheduler.remove_job('calc42_process')
     group_id = int(universal_id[len(str(bot.self_id)):])
     if app_pool[universal_id].is_playing():
         game_results = get_results(universal_id)
