@@ -186,8 +186,9 @@ def get_results(universal_id: str) -> str:
     return result_message.strip()
 
 
-async def start_game(bot: Bot, universal_id: str, group_id: int):
+async def start_game(bot: Bot, universal_id: str):
     """Start the calc42 game."""
+    group_id = int(universal_id[len(str(bot.self_id)):])
     _initialize_app(universal_id)
     get_problem(universal_id)
     app_pool[universal_id].start()
@@ -206,8 +207,9 @@ async def start_game(bot: Bot, universal_id: str, group_id: int):
     await bot.send_group_msg(group_id=group_id, message=message)
 
 
-async def finish_game(bot: Bot, universal_id: str, group_id: int):
+async def finish_game(bot: Bot, universal_id: str):
     """Finish the calc42 game."""
+    group_id = int(universal_id[len(str(bot.self_id)):])
     if app_pool[universal_id].is_playing():
         game_results = get_results(universal_id)
         app_pool[universal_id].stop()
@@ -275,7 +277,7 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
         ) * ('\n%s' % print_current_problem(universal_id)))
 
     if is_finished:
-        await finish_game(bot, universal_id, event.group_id)
+        await finish_game(bot, universal_id)
 
 
 @get_score.handle()
@@ -346,12 +348,12 @@ async def start_calc42(bot: Bot, event: Event, state: dict):
     """Start the calc42 game manually."""
     universal_id = str(event.self_id) + str(event.group_id)
     group_id = event.group_id
-    await start_game(bot, universal_id, group_id)
+    await start_game(bot, universal_id)
 
 
 @setfreq_calc42.handle()
 async def setfreq_calc42(bot: Bot, event: Event, state: dict):
-    """Print the status of the repeater."""
+    """Set the frequency of calc42."""
     universal_id = str(event.self_id) + str(event.group_id)
     try:
         load(universal_id, 'calc42_frequency')
@@ -372,6 +374,6 @@ async def _(allowed: list):
         bot = nonebot.get_bots()[bot_id]
         universal_id = str(bot_id) + str(group_id)
         try:
-            await start_game(bot, universal_id, group_id)
+            await start_game(bot, universal_id)
         except Exception:
             logger.error(traceback.format_exc())

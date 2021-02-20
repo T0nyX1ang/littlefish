@@ -38,8 +38,9 @@ async def get_user_info(uid: str) -> dict:
         return {'name': '', 'live_room_url': {}, 'live_status': False}
 
 
-async def push_live_message(bot: Bot, universal_id: str, group_id: int):
+async def push_live_message(bot: Bot, universal_id: str):
     """Push the live message."""
+    group_id = int(universal_id[len(str(bot.self_id)):])
     subscribed_list = load(universal_id, 'subscribed_list')
     if not subscribed_list:
         subscribed_list = {}
@@ -94,6 +95,6 @@ async def _(allowed: list):
         bot = nonebot.get_bots()[bot_id]
         universal_id = str(bot_id) + str(group_id)
         try:
-            await push_live_message(bot, universal_id, group_id)
+            await push_live_message(bot, universal_id)
         except Exception:
             logger.error(traceback.format_exc())
