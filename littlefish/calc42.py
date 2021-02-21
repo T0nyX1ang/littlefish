@@ -215,6 +215,8 @@ async def start_game(bot: Bot, universal_id: str):
         await bot.send_group_msg(group_id=group_id, message=message)
     except Exception:
         logger.error(traceback.format_exc())
+        scheduler.remove_job('calc42_timeout_reminder')
+        scheduler.remove_job('calc42_process')
         app_pool[universal_id].stop()  # stop the app instantly
 
 
