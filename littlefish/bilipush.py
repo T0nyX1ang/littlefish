@@ -31,11 +31,18 @@ async def get_user_info(uid: str) -> dict:
             result['name'] = data['name']
             result['live_room_url'] = data['live_room']['url']
             result['live_status'] = bool(data['live_room']['liveStatus'])
+            result['live_title'] = data['live_room']['title']
             return result
     except Exception:
         logger.error(traceback.format_exc())
         # return a default message if the bot fails to fetch the information
-        return {'name': '', 'live_room_url': {}, 'live_status': False}
+        default = {
+            'name': '',
+            'live_room_url': '',
+            'live_status': False,
+            'live_title': '',
+        }
+        return default
 
 
 async def push_live_message(bot: Bot, universal_id: str):
@@ -48,10 +55,13 @@ async def push_live_message(bot: Bot, universal_id: str):
 
     for uid in subscribed_list.keys():
         status = await get_user_info(uid)
+        status['live_status'] = True
         if status['live_status'] and not subscribed_list[uid]:
-            message = '订阅用户[%s]开播了，直播间地址: %s' % (
-                status['name'], status['live_room_url']
+            url_msg = '订阅用户%s开播了~\n' % status['name']
+            share_msg = '[CQ:share,url=%s,title=订阅用户%s开播了~,content=%s]' % (
+                status['live_room_url'], status['name'], status['live_title']
             )
+            message = url_msg + share_msg
             # post the subscribe message
             await bot.send_group_msg(group_id=group_id, message=message)
         subscribed_list[uid] = status['live_status']  # update the live status
