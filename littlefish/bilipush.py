@@ -55,7 +55,6 @@ async def push_live_message(bot: Bot, universal_id: str):
 
     for uid in subscribed_list.keys():
         status = await get_user_info(uid)
-        status['live_status'] = True
         if status['live_status'] and not subscribed_list[uid]:
             url_msg = '订阅用户%s开播了~\n' % status['name']
             share_msg = '[CQ:share,url=%s,title=订阅用户%s开播了~,content=%s]' % (
