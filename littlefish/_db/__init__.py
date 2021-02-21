@@ -14,6 +14,7 @@ commit: save the database on disk. This module is invoked every two hours.
 """
 
 import os
+import gzip
 import shutil
 import json
 import nonebot
@@ -25,13 +26,15 @@ scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 global_config = nonebot.get_driver().config
 plugin_config = Config(**global_config.dict())
 database_location = os.path.join(os.getcwd(), plugin_config.database_location)
+database_compress_level = plugin_config.database_compress_level
 database_backup = f'{database_location}.bak'
 database = {}
 
 logger.info('Loading the database from disk ...')
 try:
-    with open(database_location, 'r') as f:
-        database = json.loads(f.read())
+    with gzip.open(database_location, 'rb',
+                   compresslevel=database_compress_level) as f:
+        database = json.loads(f.read().decode())
 except Exception:
     logger.warning('Failed to load the database, feature limited.')
 
@@ -60,8 +63,9 @@ async def commit():
     shutil.copyfile(database_location, database_backup)
 
     try:
-        with open(database_location, 'w') as f:
-            f.write(json.dumps(database, sort_keys=True))
+        with gzip.open(database_location, 'wb',
+                       compresslevel=database_compress_level) as f:
+            f.write(json.dumps(database, sort_keys=True).encode())
         return True
     except Exception:
         logger.error('Failed to save the database ...')

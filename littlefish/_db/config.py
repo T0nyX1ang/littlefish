@@ -12,7 +12,8 @@ from pydantic import BaseSettings
 class Config(BaseSettings):
 
     # Configuration goes here.
-    database_location: str = "database.json"
+    database_location: str = "database.json.gz"
+    database_compress_level: int = 9
 
     class Config:
         extra = "ignore"
