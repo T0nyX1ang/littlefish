@@ -36,34 +36,20 @@ except Exception:
     logger.warning('Failed to load the database, feature limited.')
 
 
-def _initialize(universal_id: str, item_name: str):
-    """Initialize the database."""
-    logger.debug(f'Initialize item [{item_name}] from database ...')
-    if universal_id not in database:
-        database[universal_id] = {}
-
-    if item_name not in database[universal_id]:
-        database[universal_id][item_name] = None
-
-
 def load(universal_id: str, item_name: str) -> json:
     """Load database item."""
     logger.debug(f'Loading item [{item_name}] from database ...')
-    try:
-        return database[universal_id][item_name]
-    except Exception:
-        _initialize(universal_id, item_name)
-        return None
+    database.setdefault(universal_id, {})
+    database[universal_id].setdefault(item_name, None)
+    return database[universal_id][item_name]
 
 
 def save(universal_id: str, item_name: str, new_data: json):
     """Save database item."""
     logger.debug(f'Saving item [{item_name}] to database ...')
-    try:
-        database[universal_id][item_name] = new_data
-    except Exception:
-        _initialize(universal_id, item_name)
-        logger.error(traceback.format_exc())
+    database.setdefault(universal_id, {})
+    database[universal_id].setdefault(item_name, None)
+    database[universal_id][item_name] = new_data
 
 
 @scheduler.scheduled_job('cron', hour='*/2', minute=30, second=0,
