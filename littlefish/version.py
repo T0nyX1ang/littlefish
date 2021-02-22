@@ -9,7 +9,7 @@ import httpx
 import nonebot
 import traceback
 from nonebot import on_metaevent
-from nonebot.adapters.cqhttp import Bot, Event
+from nonebot.adapters.cqhttp import Bot, Event, LifecycleMetaEvent
 from nonebot.log import logger
 from littlefish._policy import boardcast
 
@@ -41,12 +41,15 @@ async def get_server_version():
         logger.warning('Version check failed, please check your network.')
 
 
-version_checker = on_metaevent(priority=10, temp=True, block=True)
+version_checker = on_metaevent(priority=1, block=True)
 
 
 @version_checker.handle()
 async def version_checker(bot: Bot, event: Event, state: dict):
     """Handle the version checker metaevent."""
+    if not isinstance(event, LifecycleMetaEvent):
+        return
+
     @boardcast('version')
     async def get_allowed(allowed: list):
         await get_server_version()
