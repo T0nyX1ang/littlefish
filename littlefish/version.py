@@ -41,7 +41,7 @@ async def get_server_version():
         logger.warning('Version check failed, please check your network.')
 
 
-version_checker = on_metaevent(priority=10, temp=True, block=False)
+version_checker = on_metaevent(priority=10, temp=True, block=True)
 
 
 @version_checker.handle()
