@@ -5,5 +5,3 @@
 A bot for minesweeper war. See `\docs` folder for more details.
 
 Happy fishing ^\_^
-
-**Important Notices: littlefish is being refactored, some of the codes may change very fast. Please wait for the next alpha version 1.0.0 to come up. ^_^**

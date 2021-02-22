@@ -104,6 +104,9 @@ tql|1|0|2
 resource/exclaim/1.gif|1|1|1
 ```
 
+## 测试
++ 本项目提供了用于测试的`dev.py`文件，仅建议在开发环境中使用，它内置了`nonebot-plugin-test`插件，无需框架就可以测试大部分指令。
+
 ## 协议
 + 本项目基于`AGPL 3.0`开源, 详细的协议见[这里](http://www.gnu.org/licenses/agpl-3.0.html)。
 
