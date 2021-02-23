@@ -13,16 +13,16 @@ from littlefish._policy import check
 
 save_to_disk = on_command(cmd='save', aliases={'存档'}, rule=check('supercmd'))
 
-repeater_status = on_command(cmd='repeaterstatus', aliases={'复读状态'},
+repeater_status = on_command(cmd='repeaterstatus ', aliases={'复读状态 '},
                              rule=check('supercmd') & check('group'))
 
-block_word = on_command(cmd='blockword', aliases={'复读屏蔽词'},
+block_word = on_command(cmd='blockword ', aliases={'复读屏蔽词 '},
                         rule=check('supercmd') & check('group'))
 
-set_repeater_param = on_command(cmd='repeaterparam', aliases={'复读参数'},
+set_repeater_param = on_command(cmd='repeaterparam ', aliases={'复读参数 '},
                                 rule=check('supercmd') & check('group'))
 
-setfreq_calc42 = on_command(cmd='setfreq42', aliases={'设定42点频率'},
+setfreq_calc42 = on_command(cmd='setfreq42 ', aliases={'设定42点频率 '},
                             rule=check('supercmd') & check('calc42'))
 
 
