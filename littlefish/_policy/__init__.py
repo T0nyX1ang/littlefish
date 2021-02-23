@@ -131,7 +131,7 @@ def boardcast(command_name: str) -> bool:
 
         async def _check() -> None:
             """Check the policy of the boardcast."""
-            logger.info('Checking boardcast: [%s].' % _name)
+            logger.debug('Checking boardcast: [%s].' % _name)
             await func(allowed)
 
         return _check
