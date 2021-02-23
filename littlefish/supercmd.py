@@ -4,21 +4,30 @@ Commands for superuser only.
 Please handle these commands with great care.
 """
 
+import traceback
 from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event
-from nonebot.permission import SUPERUSER
-from littlefish._db import commit, load
+from nonebot.log import logger
+from littlefish._db import commit, load, save
 from littlefish._policy import check
 
-save = on_command(cmd='save', aliases={'存档'}, permission=SUPERUSER,
-                  rule=check('supercmd'))
+save_to_disk = on_command(cmd='save', aliases={'存档'}, rule=check('supercmd'))
 
 repeater_status = on_command(cmd='repeaterstatus', aliases={'复读状态'},
-                             permission=SUPERUSER, rule=check('supercmd'))
+                             rule=check('supercmd') & check('group'))
+
+block_word = on_command(cmd='blockword', aliases={'复读屏蔽词'},
+                        rule=check('supercmd') & check('group'))
+
+set_repeater_param = on_command(cmd='repeaterparam', aliases={'复读参数'},
+                                rule=check('supercmd') & check('group'))
+
+setfreq_calc42 = on_command(cmd='setfreq42', aliases={'设定42点频率'},
+                            rule=check('supercmd') & check('calc42'))
 
 
-@save.handle()
-async def save(bot: Bot, event: Event, state: dict):
+@save_to_disk.handle()
+async def save_to_disk(bot: Bot, event: Event, state: dict):
     """Save the database on disk manually."""
     result = await commit()
     if result:
@@ -54,3 +63,59 @@ async def repeater_status(bot: Bot, event: Event, state: dict):
     )
 
     await bot.send(event=event, message=message)
+
+
+@block_word.handle()
+async def block_word(bot: Bot, event: Event, state: dict):
+    """Handle the blockword command."""
+    universal_id = str(event.self_id) + str(event.group_id)
+    wordlist = load(universal_id, 'block_wordlist')
+    wordlist = set(wordlist) if wordlist else set()
+    operation = {
+        '+': lambda x: wordlist.add(x),
+        '-': lambda x: wordlist.remove(x),
+    }
+
+    arg = str(event.message).strip()
+    operator = arg[0]
+    operand = arg[1:].strip()
+    try:
+        operation[operator](operand)  # add or remove the word
+        save(universal_id, 'block_wordlist', list(wordlist))
+        await bot.send(event=event, message='复读屏蔽词更新成功~')
+    except Exception:
+        logger.error(traceback.format_exc())
+        await bot.send(event=event, message='复读屏蔽词更新失败，请检查日志文件~')
+
+
+@set_repeater_param.handle()
+async def set_repeater_param(bot: Bot, event: Event, state: dict):
+    """Set the parameters of the repeater."""
+    universal_id = str(event.self_id) + str(event.group_id)
+    try:
+        args = map(int, str(event.message).split())
+        mutate_prob = min(max(next(args), 0), 100)
+        cut_in_prob = min(max(next(args), 0), 100)
+        save(universal_id, 'mutate_probability', mutate_prob)
+        save(universal_id, 'cut_in_probability', cut_in_prob)
+        message = '复读参数设定成功，当前变形概率为%d%%，打断概率为%d%%' % (
+            mutate_prob, cut_in_prob
+        )
+        await bot.send(event=event, message=message)
+    except Exception:
+        await bot.send(event=event, message='复读参数设定失败，请重试')
+
+
+@setfreq_calc42.handle()
+async def setfreq_calc42(bot: Bot, event: Event, state: dict):
+    """Set the frequency of calc42."""
+    universal_id = str(event.self_id) + str(event.group_id)
+    try:
+        load(universal_id, 'calc42_frequency')
+        freq = int(str(event.message).strip())
+        freq = min(15, max(1, freq))
+        save(universal_id, 'calc42_frequency', freq)
+        message = '42点频率设定成功，当前频率为%d小时/题' % freq
+        await bot.send(event=event, message=message)
+    except Exception:
+        await bot.send(event=event, message='42点频率设定失败，请重试')

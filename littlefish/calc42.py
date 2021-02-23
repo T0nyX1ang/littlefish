@@ -255,10 +255,7 @@ get_rank = on_command(cmd='rank42', aliases={'42点排名', '42点排行'},
                       rule=check('calc42') & empty())
 
 start_calc42 = on_command(cmd='manual42', aliases={'手动42点'},
-                          rule=check('calc42.admin') & empty())
-
-setfreq_calc42 = on_command(cmd='setfreq42', aliases={'设定42点频率'},
-                            rule=check('calc42.admin'))
+                          rule=check('calc42') & check('supercmd') & empty())
 
 
 @solve_problem.handle()
@@ -376,20 +373,6 @@ async def start_calc42(bot: Bot, event: Event, state: dict):
     group_id = event.group_id
     await start_game(bot, universal_id)
 
-
-@setfreq_calc42.handle()
-async def setfreq_calc42(bot: Bot, event: Event, state: dict):
-    """Set the frequency of calc42."""
-    universal_id = str(event.self_id) + str(event.group_id)
-    try:
-        load(universal_id, 'calc42_frequency')
-        freq = int(str(event.message).strip())
-        freq = min(15, max(1, freq))
-        save(universal_id, 'calc42_frequency', freq)
-        message = '42点频率设定成功，当前频率为%d小时/题' % freq
-        await bot.send(event=event, message=message)
-    except Exception:
-        await bot.send(event=event, message='42点频率设定失败，请重试')
 
 
 @scheduler.scheduled_job('cron', hour='8-23', minute=42, second=42,
