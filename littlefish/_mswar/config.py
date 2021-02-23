@@ -10,6 +10,11 @@ mswar_host: str = "a valid address:port"
 mswar_version: int = 0
 mswar_encryption_key = "a valid encryption key"
 mswar_decryption_key = "a valid decryption key"
+
+* PVP configuration:
+Please write your configurations in the global setting file.
+Available configurations:
+autopvp_uid: str = "the uid of autopvp"
 """
 
 from pydantic import BaseSettings
