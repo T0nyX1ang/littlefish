@@ -22,9 +22,6 @@ block_word = on_command(cmd='blockword ', aliases={'复读屏蔽词 '},
 set_repeater_param = on_command(cmd='repeaterparam ', aliases={'复读参数 '},
                                 rule=check('supercmd') & check('group'))
 
-setfreq_calc42 = on_command(cmd='setfreq42 ', aliases={'设定42点频率 '},
-                            rule=check('supercmd') & check('calc42'))
-
 
 @save_to_disk.handle()
 async def save_to_disk(bot: Bot, event: Event, state: dict):
@@ -104,18 +101,3 @@ async def set_repeater_param(bot: Bot, event: Event, state: dict):
         await bot.send(event=event, message=message)
     except Exception:
         await bot.send(event=event, message='复读参数设定失败，请重试')
-
-
-@setfreq_calc42.handle()
-async def setfreq_calc42(bot: Bot, event: Event, state: dict):
-    """Set the frequency of calc42."""
-    universal_id = str(event.self_id) + str(event.group_id)
-    try:
-        load(universal_id, 'calc42_frequency')
-        freq = int(str(event.message).strip())
-        freq = min(15, max(1, freq))
-        save(universal_id, 'calc42_frequency', freq)
-        message = '42点频率设定成功，当前频率为%d小时/题' % freq
-        await bot.send(event=event, message=message)
-    except Exception:
-        await bot.send(event=event, message='42点频率设定失败，请重试')
