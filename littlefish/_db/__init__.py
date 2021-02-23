@@ -37,6 +37,10 @@ try:
         database = json.loads(f.read().decode())
 except Exception:
     logger.warning('Failed to load the database, feature limited.')
+    logger.info('Creating a empty database on disk ...')
+    with gzip.open(database_location, 'wb',
+                   compresslevel=database_compress_level) as f:
+        f.write(json.dumps(database).encode())
 
 
 def load(universal_id: str, item_name: str) -> json:
