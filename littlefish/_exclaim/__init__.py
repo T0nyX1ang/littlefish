@@ -3,7 +3,7 @@ A exclaim module which handles the words to express in several situations.
 
 The module will load the exclaim resource location by the location.
 About the resource file:
-The resource file should be in CSV format, and contains at least three 
+The resource file should be in CSV format, and contains at least three
 columns (separated by '|'), which indicates the item's name, type and
 whether it is an image file. An example is as follows:
 
@@ -19,12 +19,12 @@ First, enter the item's name, it can be plain texts, or CQ codes if
 it's not an image, and it must be a relative path to the working dir-
 ectory if it's an image. Then, enter a separator, and enter the type
 of the item, currently it could be 1 (for admiration), 2 (for cheers)
-, 3 (for errors), 4 (for cut-ins) or 10-19 (for daily routines). 
+, 3 (for errors), 4 (for cut-ins) or 10-19 (for daily routines).
 
 Then, enter a separator and a weight to determine the probability
 of selection. If you think the item is a body, enter a positive integer;
 if you think the item is an ending, enter a negative integer (according
-to type). 
+to type).
 
 Last, enter another separator, and enter whether the item is an image,
 enter 0 for no, and 1 for yes. If you handles nicely, the database will
@@ -91,7 +91,7 @@ def exclaim_msg(person: str, _type: str, include_image: bool,
                 max_repeat: int = 3):
     """
     Get exclaiming message from the database.
-    
+
     This should be the only function being called when this package
     is imported. The message will be made up of 3 parts: person,
     body and ending (with a maximum repetition). If the include_image
@@ -113,7 +113,7 @@ def exclaim_msg(person: str, _type: str, include_image: bool,
     if not person:
         return Message(msg_body + msg_ending)
 
-    return Message(person + ' ' * (person[-1].isascii() and 
+    return Message(person + ' ' * (person[-1].isascii() and
         msg_body[0].isascii()) + msg_body + msg_ending)
 
 

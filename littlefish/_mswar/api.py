@@ -225,7 +225,7 @@ async def get_ranking_info(item: int, page: int, extra: dict) -> list:
         value = r[_ref[item][1]]
         if item == 0:
             value = round(value / 1000, 3)
-        
+
         single = (
             page * 10 + total, r['user']['nickName'],
             r['user']['id'], value,

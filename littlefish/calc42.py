@@ -194,7 +194,7 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
             get_member_name(universal_id, user_id),
             result['current'], result['total'], result['interval'], left
         )
-    
+
     is_finished = (result['current'] == result['total'])
     message += (not is_finished) * ('\n%s' % print_current_problem(result))
 
@@ -230,7 +230,7 @@ async def get_score(bot: Bot, event: Event, state: dict):
         distance = upper_score - score
         await bot.send(event=event,
                        message='当前积分: %d，排名: %d，距上一名%d分，' %
-                       (score, result + 1, distance) + 
+                       (score, result + 1, distance) +
                        exclaim_msg('大佬', '2', False))
 
 

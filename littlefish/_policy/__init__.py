@@ -115,7 +115,7 @@ def empty() -> bool:
         except Exception:
             return False
 
-    return Rule(_empty)    
+    return Rule(_empty)
 
 def boardcast(command_name: str) -> bool:
     """Check the policy of each boardcast by name."""

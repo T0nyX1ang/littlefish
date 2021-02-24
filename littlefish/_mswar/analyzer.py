@@ -81,7 +81,7 @@ def get_openings(board, marker):
                     cur_num, cur_row, cur_col = stack.pop()
                     marker[cur_row][cur_col] = True
                     # open again if find an opening
-                    if cur_num == '0': 
+                    if cur_num == '0':
                         for each_coord in adjacent(cur_row, cur_col):
                             ready_row, ready_col = each_coord
                             if 0 <= ready_row < rows and 0 <= ready_col < cols and not marker[ready_row][ready_col]:
@@ -111,7 +111,7 @@ def get_islands(board, marker):
                 while len(stack) > 0:
                     cur_row, cur_col = stack.pop()
                     marker[cur_row][cur_col] = True
-                    # search again if find an adjacent isolated bv 
+                    # search again if find an adjacent isolated bv
                     for each_coord in adjacent(cur_row, cur_col):
                         ready_row, ready_col = each_coord
                         if 0 <= ready_row < rows and 0 <= ready_col < cols and not marker[ready_row][ready_col]:
@@ -194,9 +194,9 @@ def get_effective_operations(board, action):
 
             if cur_num == '9':
                 current_status[cur_row][cur_col] = -2
-            
+
             # open again if find an opening
-            if cur_num == '0': 
+            if cur_num == '0':
                 for each_coord in adjacent(cur_row, cur_col):
                     ready_row, ready_col = each_coord
                     if 0 <= ready_row < rows and 0 <= ready_col < cols and not current_status[ready_row][ready_col] and board[ready_row][ready_col] != '9':
@@ -213,7 +213,7 @@ def get_effective_operations(board, action):
                 effective += 1
                 current_status[row][col] = 1
                 deal_with_op(row, col)
-            
+
         elif act_no == 1:
             # deal with flagging and unflagging
             effective += 1
@@ -265,11 +265,11 @@ def get_board_result(board):
     result['op'] = get_openings(board, marker)
     result['bv'] = result['op'] + get_isolated_bv(board, marker)
     result['is'] = get_islands(board, marker)
-    return result    
+    return result
 
 def get_result(board, action):
     result = get_board_result(board)
-    
+
     result['rtime'] = get_rtime(action)
     result['path'] = get_path(action)
 
@@ -287,7 +287,7 @@ def get_result(board, action):
     result['corr'] = (result['ce'] - result['wasted_flagging'] - (result['solved_bv'] != result['bv'])) / result['cl']
     result['thrp'] = result['solved_bv'] / result['ce']
     result['ioe'] = result['solved_bv'] / result['cl']
-    result['iome'] = result['solved_bv'] / result['path'] if result['solved_bv'] else 0.0 # if path is 0, solved_bv must be 0 
+    result['iome'] = result['solved_bv'] / result['path'] if result['solved_bv'] else 0.0 # if path is 0, solved_bv must be 0
 
     mode_ref = {'beg': 1, 'int': 2, 'exp-v': 3, 'exp-h': 3}
     if result['difficulty'] in mode_ref:
