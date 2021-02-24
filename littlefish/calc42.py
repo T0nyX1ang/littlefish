@@ -188,12 +188,11 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
     if result['hint']:
         message = result['hint']
     else:
-        elapsed = result['elapsed']
-        left = get_deadline(result['total']) - elapsed.seconds
-        finish_time = elapsed.seconds + elapsed.microseconds / 1000000
+        elapsed = int(result['elapsed'])
+        left = get_deadline(result['total']) - elapsed
         message = '恭喜[%s]完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒~' % (
             get_member_name(universal_id, user_id),
-            result['current'], result['total'], finish_time, left
+            result['current'], result['total'], result['interval'], left
         )
     
     is_finished = (result['current'] == result['total'])

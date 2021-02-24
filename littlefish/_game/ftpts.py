@@ -46,12 +46,14 @@ def init(universal_id: str):
 
 def _info(universal_id: str) -> dict:
     """Get the problem's information. Protected method."""
+    elapsed = app_pool[universal_id].get_elapsed_time()
+    elapsed_time = elapsed.seconds + elapsed.microseconds / 1000000
     info = {
         'problem': app_pool[universal_id].get_current_problem(),
         'target': target,
         'total': app_pool[universal_id].get_total_solution_number(),
         'current': app_pool[universal_id].get_current_solution_number(),
-        'elapsed': app_pool[universal_id].get_elapsed_time(),
+        'elapsed': elapsed_time,
     }
     return info
 
@@ -82,8 +84,10 @@ def stop(universal_id: str) -> dict:
 def solve(universal_id: str, expr: str, player_id: str) -> dict:
     """Put forward a solution during the game."""
     hint = ''
+    solution_time = 0
     try:
-        app_pool[universal_id].solve(expr, player_id)
+        elapsed = app_pool[universal_id].solve(expr, player_id)
+        solution_time = elapsed.seconds + elapsed.microseconds / 1000000
     except (OverflowError, SyntaxError, ValueError):
         hint = '输入错误'
     except ArithmeticError as ae:
@@ -96,6 +100,7 @@ def solve(universal_id: str, expr: str, player_id: str) -> dict:
 
     info = _info(universal_id)
     info['hint'] = hint
+    info['interval'] = solution_time
     return info
 
 
