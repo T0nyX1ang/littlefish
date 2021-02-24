@@ -8,7 +8,7 @@
     pip/pip3 install -r requirements.txt
 ```
 + 根据Nonebot中的说明修改CQHttp与NoneBot间的相关配置
-+ 运行配置程序
++ 运行环境变量配置程序
 ```
 	py -3/python3 wizard.py 
 ```
@@ -16,6 +16,38 @@
 ```
     py -3/python3 bot.py
 ```
+
+## 环境变量的进一步配置
++ 所有环境变量均写入`.env`文件，通过`wizard.py`可以对以下环境变量进行配置:
+```
+    host # 监听IP
+    port # 监听端口
+    debug # 调试模式
+    superusers # 超级用户
+    command_start # 命令识别前缀
+    mswar_uid # 联萌关联账号
+    autopvp_uid # 联萌autopvp账号
+    mswar_token # 联萌关联账号登录token
+    mswar_host # 联萌服务器地址与端口
+    mswar_version # 联萌版本
+    mswar_encryption_key # 联萌加密密钥
+    mswar_decryption_key # 联萌解密密钥
+    database_location # 本地数据库地址(建议以.gz结尾)
+    policy_config_location # 本地配置文件地址(建议以.json结尾)
+    resource_location # 本地资源索引文件地址(建议以.csv结尾)
+```
+
+除此以外，如果希望丰富机器人的功能，还可以对其它环境变量进行手动配置:
+```
+	access_token # API上报密钥
+	frequent_face_id # 常用QQ表情ID(用于变形复读时表情替换)
+	database_compress_level # 数据库压缩程度(0-9, 默认为9)
+	ftpts_allowed_hours # 允许42点游戏的小时
+	ftpts_max_number # 42点最大数字
+	ftpts_target # 42点目标数字
+```
+
+> 请务必注意，环境变量中的数据**相当敏感**，**一定不要泄露给他人**！
 
 ## 数据库相关
 + 数据库采用`JSON`格式，将所有数据存放在一起。索引使用`universal_id`，当数据为共用的全局数据时，`universal_id = 0`，当数据为群组相关的局部数据时，`universal_id = 机器人QQ号拼接群号`。
@@ -82,6 +114,8 @@
 ```
 
 > 上述例子表明，机器人在`a0`群中，只响应用户`1`触发的`b`命令(准确是函数中包含的所有命令)，与用户`2`触发的`c`命令，只不响应用户`1`触发的`d`命令，同时响应**所有**用户触发的`e`命令，且如果`b, c, d, e`三个命令中含有定时命令，均不会被触发，其余命令没有限制，机器人在`a1`群中，响应用户的所有命令，机器人在其余加入的群中，响应用户的所有命令。
+
+> 请务必注意，权限配置文件中的数据**相当敏感**，**一定不要泄露给他人**！
 
 ## 资源文件
 + 资源文件由`csv`格式构成索引。每个资源由`资源内容`，`资源分类`，`资源是否为图片` 和 `加载权重`四个部分构成。示例资源文件如下：
