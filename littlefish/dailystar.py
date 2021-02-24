@@ -67,7 +67,7 @@ def _save_daily_star(uid: str):
 dailystar = on_command(cmd='dailystar', aliases={'今日之星', '联萌每日一星'},
                        rule=check('dailystar') & empty())
 
-dailystar_count = on_command(cmd='dailystarcount', aliases={'联萌每日一星次数'},
+dailystar_count = on_command(cmd='dailystarcount ', aliases={'联萌每日一星次数 '},
                              rule=check('dailystar'))
 
 
