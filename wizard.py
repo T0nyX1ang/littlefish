@@ -63,7 +63,7 @@ config = {
     'mswar_version': '',
     'mswar_encryption_key': '',
     'mswar_decryption_key': '',
-    'database_location': 'database.json',
+    'database_location': 'database.json.gz',
     'policy_config_location': 'policy.json',
     'resource_location': 'resource.csv',
 }
