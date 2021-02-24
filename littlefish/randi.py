@@ -23,7 +23,7 @@ def get_randi(begin: int, end: int, count: int, extras: list) -> list:
     """Get random integers from a fixed range."""
     begin, end = min(begin, end), max(begin, end)  # ensure a valid list
     number_range = range(begin, end + 1)
-    count = 1 + (count - 1) * (0 < count <= 10)   # shrink range
+    count = 1 + (count - 1) * (0 < count <= 10)  # shrink range
 
     if 'r' in extras:  # repetition feature
         result = [random.sample(number_range, 1)[0] for _ in range(0, count)]

@@ -19,7 +19,6 @@ from .analyzer import get_action, get_board, get_board_result, get_result
 from .config import PVPConfig
 from .netcore import fetch
 
-
 global_config = nonebot.get_driver().config
 plugin_config = PVPConfig(**global_config.dict())
 autopvp_uid = plugin_config.autopvp_uid
@@ -227,8 +226,10 @@ async def get_ranking_info(item: int, page: int, extra: dict) -> list:
             value = round(value / 1000, 3)
 
         single = (
-            page * 10 + total, r['user']['nickName'],
-            r['user']['id'], value,
+            page * 10 + total,
+            r['user']['nickName'],
+            r['user']['id'],
+            value,
         )
         search_result.append(single)
         total += 1

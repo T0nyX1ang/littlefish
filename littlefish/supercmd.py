@@ -13,13 +13,16 @@ from littlefish._policy import check
 
 save_to_disk = on_command(cmd='save', aliases={'存档'}, rule=check('supercmd'))
 
-repeater_status = on_command(cmd='repeaterstatus ', aliases={'复读状态 '},
+repeater_status = on_command(cmd='repeaterstatus ',
+                             aliases={'复读状态 '},
                              rule=check('supercmd') & check('group'))
 
-block_word = on_command(cmd='blockword ', aliases={'复读屏蔽词 '},
+block_word = on_command(cmd='blockword ',
+                        aliases={'复读屏蔽词 '},
                         rule=check('supercmd') & check('group'))
 
-set_repeater_param = on_command(cmd='repeaterparam ', aliases={'复读参数 '},
+set_repeater_param = on_command(cmd='repeaterparam ',
+                                aliases={'复读参数 '},
                                 rule=check('supercmd') & check('group'))
 
 
@@ -55,9 +58,8 @@ async def repeater_status(bot: Bot, event: Event, state: dict):
 
     block_message = '空' if not block_wordlist else ', '.join(block_wordlist)
     message = '复读状态: [%d]-[%s|%s|%s]-[%d%%|%d%%]\n当前屏蔽词: %s' % (
-        combo, left_increment, msg_base, right_increment,
-        mutate_prob, cut_in_prob, block_message
-    )
+        combo, left_increment, msg_base, right_increment, mutate_prob,
+        cut_in_prob, block_message)
 
     await bot.send(event=event, message=message)
 
@@ -95,9 +97,7 @@ async def set_repeater_param(bot: Bot, event: Event, state: dict):
         cut_in_prob = min(max(next(args), 0), 100)
         save(universal_id, 'mutate_probability', mutate_prob)
         save(universal_id, 'cut_in_probability', cut_in_prob)
-        message = '复读参数设定成功，当前变形概率为%d%%，打断概率为%d%%' % (
-            mutate_prob, cut_in_prob
-        )
+        message = '复读参数设定成功，当前变形概率为%d%%，打断概率为%d%%' % (mutate_prob, cut_in_prob)
         await bot.send(event=event, message=message)
     except Exception:
         await bot.send(event=event, message='复读参数设定失败，请重试')

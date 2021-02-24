@@ -32,13 +32,15 @@ database = {}
 
 logger.info('Loading the database from disk ...')
 try:
-    with gzip.open(database_location, 'rb',
+    with gzip.open(database_location,
+                   'rb',
                    compresslevel=database_compress_level) as f:
         database = json.loads(f.read().decode())
 except Exception:
     logger.warning('Failed to load the database, feature limited.')
     logger.info('Creating a empty database on disk ...')
-    with gzip.open(database_location, 'wb',
+    with gzip.open(database_location,
+                   'wb',
                    compresslevel=database_compress_level) as f:
         f.write(json.dumps(database).encode())
 
@@ -59,7 +61,10 @@ def save(universal_id: str, item_name: str, new_data: json):
     database[universal_id][item_name] = new_data
 
 
-@scheduler.scheduled_job('cron', hour='*/2', minute=30, second=0,
+@scheduler.scheduled_job('cron',
+                         hour='*/2',
+                         minute=30,
+                         second=0,
                          misfire_grace_time=30)
 async def commit():
     """Commit to the database, saving the file on disk from memory."""
@@ -67,7 +72,8 @@ async def commit():
     shutil.copyfile(database_location, database_backup)
 
     try:
-        with gzip.open(database_location, 'wb',
+        with gzip.open(database_location,
+                       'wb',
                        compresslevel=database_compress_level) as f:
             f.write(json.dumps(database, sort_keys=True).encode())
         return True

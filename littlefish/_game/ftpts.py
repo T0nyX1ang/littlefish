@@ -19,7 +19,6 @@ from .config import FTPtsConfig
 from ftptsgame import FTPtsGame
 from nonebot.log import logger
 
-
 global_config = nonebot.get_driver().config
 plugin_config = FTPtsConfig(**global_config.dict())
 max_number = plugin_config.ftpts_max_number

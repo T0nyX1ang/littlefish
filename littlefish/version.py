@@ -13,16 +13,15 @@ from nonebot.adapters.cqhttp import Bot, Event, LifecycleMetaEvent
 from nonebot.log import logger
 from littlefish._policy import boardcast
 
-version_directory = os.path.join(
-    os.path.join(os.getcwd(), 'docs'), 'changelog.md'
-)
+version_directory = os.path.join(os.path.join(os.getcwd(), 'docs'),
+                                 'changelog.md')
 
 with open(version_directory, 'r', encoding='utf-8') as f:
     changelog = f.read()
 
 start = changelog.find('##') + 2
 stop = changelog.find('\n', start)
-version = 'v' + changelog[start: stop].strip()
+version = 'v' + changelog[start:stop].strip()
 
 
 async def get_server_version():

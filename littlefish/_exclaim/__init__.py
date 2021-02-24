@@ -75,19 +75,23 @@ except Exception:
 
 def _get_body(_type: str, _image: str):
     """A database filter to generate required message body."""
-    body_all = [[row[0]] * int(row[3]) for row in resource_database
+    body_all = [[row[0]] * int(row[3])
+                for row in resource_database
                 if _type == row[1] and _image == row[2]]
     return random.choice(sum(body_all, [])) if body_all else '太强了'
 
 
 def _get_ending(_type: str):
     """A database filter to generate required message ending."""
-    ending_all = [[row[0]] * int(row[3]) for row in resource_database
+    ending_all = [[row[0]] * int(row[3])
+                  for row in resource_database
                   if row[1] == f'-{_type}']
     return random.choice(sum(ending_all, [])) if ending_all else '！'
 
 
-def exclaim_msg(person: str, _type: str, include_image: bool,
+def exclaim_msg(person: str,
+                _type: str,
+                include_image: bool,
                 max_repeat: int = 3):
     """
     Get exclaiming message from the database.
@@ -113,8 +117,9 @@ def exclaim_msg(person: str, _type: str, include_image: bool,
     if not person:
         return Message(msg_body + msg_ending)
 
-    return Message(person + ' ' * (person[-1].isascii() and
-        msg_body[0].isascii()) + msg_body + msg_ending)
+    return Message(person + ' ' *
+                   (person[-1].isascii() and msg_body[0].isascii()) +
+                   msg_body + msg_ending)
 
 
 def slim_msg(message: str):
@@ -137,7 +142,7 @@ def mutate_msg(message: str, mutate: bool = False):
         # reverse the text
         plain = seg.data['text']
         start, stop = sorted(random.sample(range(0, len(plain)), 2))
-        target = plain[start: stop]
+        target = plain[start:stop]
         result = plain[:start] + target[::-1] + plain[stop:]
         seg.data['text'] = result
     elif seg.type == 'face':

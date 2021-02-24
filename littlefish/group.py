@@ -56,20 +56,25 @@ async def update_group_members(bot: Bot, group_id: int):
         save(universal_id, 'members', members)
 
 
-validate_user = on_request(priority=10, block=True,
-                           rule=check('group', GroupRequestEvent)
-                           & check('info', GroupRequestEvent))
+validate_user = on_request(priority=10,
+                           block=True,
+                           rule=check('group', GroupRequestEvent) &
+                           check('info', GroupRequestEvent))
 
-say_hello = on_notice(priority=10, block=True,
+say_hello = on_notice(priority=10,
+                      block=True,
                       rule=check('group', GroupIncreaseNoticeEvent))
 
-say_goodbye = on_notice(priority=10, block=True,
+say_goodbye = on_notice(priority=10,
+                        block=True,
                         rule=check('group', GroupDecreaseNoticeEvent))
 
-black_room = on_command(cmd='blackroom', aliases={'进入小黑屋'},
+black_room = on_command(cmd='blackroom',
+                        aliases={'进入小黑屋'},
                         rule=check('group'))
 
-update_user = on_command(cmd='updateuser', aliases={'更新群成员'},
+update_user = on_command(cmd='updateuser',
+                         aliases={'更新群成员'},
                          rule=check('group') & check('supercmd'))
 
 
@@ -94,8 +99,10 @@ async def validate_user(bot: Bot, event: Event, state: dict):
         await bot.send(event=event, message=message)
     except Exception:
         reason = '该联萌ID不符合要求，请检查输入~'
-        await bot.set_group_add_request(flag=event.flag, sub_type='add',
-                                        approve=False, reason=reason)
+        await bot.set_group_add_request(flag=event.flag,
+                                        sub_type='add',
+                                        approve=False,
+                                        reason=reason)
 
 
 @say_hello.handle()
@@ -144,7 +151,9 @@ async def black_room(bot: Bot, event: Event, state: dict):
     # convert the duration in seconds
     duration = duration * 60 if 1 <= duration <= 43200 else 600
     try:
-        await bot.set_group_ban(group_id=group_id, user_id=user_id, duration=duration)
+        await bot.set_group_ban(group_id=group_id,
+                                user_id=user_id,
+                                duration=duration)
     except Exception:
         await bot.send(event=event, message='权限不足，无法使用小黑屋~', at_sender=True)
 
@@ -159,7 +168,10 @@ async def update_user(bot: Bot, event: Event, state: dict):
         await bot.send(event=event, message='群成员信息更新失败，请检查日志文件~')
 
 
-@scheduler.scheduled_job('cron', hour='3-23/4', minute=0, second=0,
+@scheduler.scheduled_job('cron',
+                         hour='3-23/4',
+                         minute=0,
+                         second=0,
                          misfire_grace_time=30)
 @boardcast('group')
 async def _(allowed: list):

@@ -58,8 +58,7 @@ async def push_live_message(bot: Bot, universal_id: str):
         if status['live_status'] and not subscribed_list[uid]:
             url_msg = '订阅用户%s开播了~\n' % status['name']
             share_msg = '[CQ:share,url=%s,title=订阅用户%s开播了~,content=%s]' % (
-                status['live_room_url'], status['name'], status['live_title']
-            )
+                status['live_room_url'], status['name'], status['live_title'])
             message = url_msg + share_msg
             # post the subscribe message
             await bot.send_group_msg(group_id=group_id, message=message)
@@ -67,7 +66,8 @@ async def push_live_message(bot: Bot, universal_id: str):
         save(universal_id, 'subscribed_list', subscribed_list)
 
 
-subscriber = on_command(cmd='subscribe ', aliases={'订阅用户 '},
+subscriber = on_command(cmd='subscribe ',
+                        aliases={'订阅用户 '},
                         rule=check('bilipush'))
 
 

@@ -39,7 +39,8 @@ def format_pvp_info(autopvp_info: dict) -> str:
     return result_message.strip()
 
 
-autopvp = on_command(cmd='autopvp', aliases={'对战机器人'},
+autopvp = on_command(cmd='autopvp',
+                     aliases={'对战机器人'},
                      rule=check('autopvp') & empty())
 
 
@@ -54,7 +55,10 @@ async def autopvp(bot: Bot, event: Event, state: dict):
                            autopvp_result['latest_battle_winner'], '1', False))
 
 
-@scheduler.scheduled_job('cron', hour=0, minute=0, second=0,
+@scheduler.scheduled_job('cron',
+                         hour=0,
+                         minute=0,
+                         second=0,
                          misfire_grace_time=30)
 @boardcast('autopvp')
 async def _(allowed: list):

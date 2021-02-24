@@ -20,7 +20,8 @@ from littlefish._db import load, save
 
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 min_level, max_level = 1, max(level_ref)
-level = on_command(cmd='level', aliases={'用户等级'},
+level = on_command(cmd='level',
+                   aliases={'用户等级'},
                    rule=check('level') & empty())
 
 
@@ -50,11 +51,9 @@ def format_level_list(level_list_data: dict) -> str:
         ref = level_ref[lv]  # global reference
         total += data[ref]
         history_total += level_history[ref]
-        line.append('%s: %d(%+d) | %d(%+d)' % (
-            ref,
-            data[ref], data[ref] - level_history[ref],
-            total, total - history_total)
-        )
+        line.append('%s: %d(%+d) | %d(%+d)' %
+                    (ref, data[ref], data[ref] - level_history[ref], total,
+                     total - history_total))
     result_message = ''
     for each_line in line:
         result_message = result_message + each_line + '\n'
@@ -68,7 +67,11 @@ async def level(bot: Bot, event: Event, state: dict):
     await bot.send(event=event, message=format_level_list(level_list_data))
 
 
-@scheduler.scheduled_job('cron', day_of_week=0, hour=0, minute=0, second=0,
+@scheduler.scheduled_job('cron',
+                         day_of_week=0,
+                         hour=0,
+                         minute=0,
+                         second=0,
                          misfire_grace_time=30)
 @boardcast('level')
 async def _(allowed: list):

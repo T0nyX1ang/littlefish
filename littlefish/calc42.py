@@ -74,7 +74,7 @@ def get_results(universal_id, result: dict) -> str:
         solution_ratio = (i + 1) / result['total']
 
         t_score = 5 - int(5 * time_ratio)
-        n_score = int(10 * (solution_ratio ** (2 - time_ratio)))
+        n_score = int(10 * (solution_ratio**(2 - time_ratio)))
         f_bonus = 5 * (i == 0)
         v_bonus = int(n_score * victory_coeff * (result['current'] == i + 1))
         scores[player_id] += (t_score + n_score + f_bonus + v_bonus)
@@ -92,16 +92,14 @@ def get_results(universal_id, result: dict) -> str:
 
     result_message = '本局42点游戏结束~\n'
     result_message += '求解完成度: %d/%d\n' % (result['current'], result['total'])
-    result_message += (
-        '剩余解法: %s\n' % ', '.join(result['remaining']
-    ) * (result['current'] < result['total']))
+    result_message += ('剩余解法: %s\n' % ', '.join(result['remaining']) *
+                       (result['current'] < result['total']))
 
     for player in ordered:
         members = load(universal_id, 'members')
         name = get_member_name(universal_id, player)
         result_message += '%s: %d解/+%d %s\n' % (
-            name, solutions[player], scores[player], achievements[player]
-        )
+            name, solutions[player], scores[player], achievements[player])
         members[player]['42score'] += scores[player]
         save(universal_id, 'members', members)
 
@@ -116,14 +114,20 @@ async def start_game(bot: Bot, universal_id: str):
     message = print_current_problem(result)
     deadline = get_deadline(result['total'])
     scheduler.add_job(
-        func=finish_game, trigger='interval', seconds=deadline,
-        args=(bot, universal_id), misfire_grace_time=30,
+        func=finish_game,
+        trigger='interval',
+        seconds=deadline,
+        args=(bot, universal_id),
+        misfire_grace_time=30,
         id='calc42_process_%s' % universal_id,
         replace_existing=True,
     )
     scheduler.add_job(
-        func=timeout_reminder, trigger='interval', seconds=deadline - 60,
-        args=(bot, universal_id), misfire_grace_time=30,
+        func=timeout_reminder,
+        trigger='interval',
+        seconds=deadline - 60,
+        args=(bot, universal_id),
+        misfire_grace_time=30,
         id='calc42_timeout_reminder_%s' % universal_id,
         replace_existing=True,
     )
@@ -160,16 +164,20 @@ async def finish_game(bot: Bot, universal_id: str):
             logger.error(traceback.format_exc())
 
 
-solve_problem = on_command(cmd='calc42 ', aliases={'42点 '},
+solve_problem = on_command(cmd='calc42 ',
+                           aliases={'42点 '},
                            rule=check('calc42'))
 
-get_score = on_command(cmd='score42', aliases={'42点得分', '42点积分'},
+get_score = on_command(cmd='score42',
+                       aliases={'42点得分', '42点积分'},
                        rule=check('calc42') & empty())
 
-get_rank = on_command(cmd='rank42', aliases={'42点排名', '42点排行'},
+get_rank = on_command(cmd='rank42',
+                      aliases={'42点排名', '42点排行'},
                       rule=check('calc42') & empty())
 
-start_calc42 = on_command(cmd='manual42', aliases={'手动42点'},
+start_calc42 = on_command(cmd='manual42',
+                          aliases={'手动42点'},
                           rule=check('calc42') & check('supercmd') & empty())
 
 
@@ -191,9 +199,8 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
         elapsed = int(result['elapsed'])
         left = get_deadline(result['total']) - elapsed
         message = '恭喜[%s]完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒~' % (
-            get_member_name(universal_id, user_id),
-            result['current'], result['total'], result['interval'], left
-        )
+            get_member_name(universal_id, user_id), result['current'],
+            result['total'], result['interval'], left)
 
     is_finished = (result['current'] == result['total'])
     message += (not is_finished) * ('\n%s' % print_current_problem(result))
@@ -253,10 +260,9 @@ async def get_rank(bot: Bot, event: Event, state: dict):
     for i in range(0, len(ranking)):
         if i < 10 and members[ranking[i]]['42score'] > 0:
             rank_message = '[%d] %.1f - %s\n' % (
-                i + 1, members[ranking[i]]['42score'] / members[
-                    ranking[0]]['42score'] * 100,
-                get_member_name(universal_id, ranking[i])
-            )
+                i + 1, members[ranking[i]]['42score'] /
+                members[ranking[0]]['42score'] * 100,
+                get_member_name(universal_id, ranking[i]))
 
     await bot.send(event=event, message=rank_message.strip())
 

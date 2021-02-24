@@ -10,22 +10,26 @@ from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._policy import check, empty
 
-guide = on_command(cmd='guide', aliases={'指南'},
-                   rule=check('guide') & empty())
+guide = on_command(cmd='guide', aliases={'指南'}, rule=check('guide') & empty())
 
-backup_guide = on_command(cmd='backupguide', aliases={'备用指南'},
+backup_guide = on_command(cmd='backupguide',
+                          aliases={'备用指南'},
                           rule=check('guide') & empty())
 
-get_package = on_command(cmd='getpackage', aliases={'安装包', '安装链接'},
+get_package = on_command(cmd='getpackage',
+                         aliases={'安装包', '安装链接'},
                          rule=check('guide') & empty())
 
-ms_guide = on_command(cmd='msguide', aliases={'扫雷指南'},
+ms_guide = on_command(cmd='msguide',
+                      aliases={'扫雷指南'},
                       rule=check('guide') & empty())
 
-push_line = on_command(cmd='pushline', aliases={'推送线'},
+push_line = on_command(cmd='pushline',
+                       aliases={'推送线'},
                        rule=check('guide') & empty())
 
-guide_42 = on_command(cmd='guide42', aliases={'42点说明'},
+guide_42 = on_command(cmd='guide42',
+                      aliases={'42点说明'},
                       rule=check('guide') & check('calc42') & empty())
 
 
@@ -69,4 +73,5 @@ async def guide_42(bot: Bot, event: Event, state: dict):
     """Show minesweeping guide."""
     guide42_link = "42点说明：https://github.com/T0nyX1ang/littlefish\
 /blob/master/docs/usage.md#42%E7%82%B9"
+
     await bot.send(event=event, message=guide42_link)

@@ -62,7 +62,7 @@ def _generate_headers(validate_hash: str):
     return headers
 
 
-async def fetch(page: str='', query: str=''):
+async def fetch(page: str = '', query: str = ''):
     """
     General module for fetching data from remote server.
 

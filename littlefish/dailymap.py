@@ -36,7 +36,8 @@ def format_daily_map(daily_map: dict) -> str:
     return result_message.strip()
 
 
-dailymap = on_command(cmd='dailymap', aliases={'每日一图'},
+dailymap = on_command(cmd='dailymap',
+                      aliases={'每日一图'},
                       rule=check('dailymap') & empty())
 
 
@@ -47,7 +48,10 @@ async def dailymap(bot: Bot, event: Event, state: dict):
     await bot.send(event=event, message=format_daily_map(daily_map_info))
 
 
-@scheduler.scheduled_job('cron', hour=0, minute=3, second=0,
+@scheduler.scheduled_job('cron',
+                         hour=0,
+                         minute=3,
+                         second=0,
                          misfire_grace_time=30)
 @boardcast('dailymap')
 async def _(allowed: list):
@@ -57,7 +61,6 @@ async def _(allowed: list):
     for bot_id, group_id in allowed:
         try:
             bot = nonebot.get_bots()[bot_id]
-            await bot.send_group_msg(group_id=int(group_id),
-                                     message=message)
+            await bot.send_group_msg(group_id=int(group_id), message=message)
         except Exception:
             logger.error(traceback.format_exc())

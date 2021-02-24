@@ -75,7 +75,7 @@ def get_repeated_message(universal_id: str) -> str:
     if random.randint(1, 100) <= cut_in_prob:
         # reset the combo counter here
         save(universal_id, 'current_combo', 0)
-        return exclaim_msg('打断' * ('打断' == msg_base[0: 2]), '4', True, 1)
+        return exclaim_msg('打断' * ('打断' == msg_base[0:2]), '4', True, 1)
 
     final = combo * left_increment + msg_base + combo * right_increment
     can_mutate = random.randint(1, 100) <= mutate_prob
