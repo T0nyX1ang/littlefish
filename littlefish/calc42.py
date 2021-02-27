@@ -259,7 +259,7 @@ async def get_rank(bot: Bot, event: Event, state: dict):
 
     for i in range(0, len(ranking)):
         if i < 10 and members[ranking[i]]['42score'] > 0:
-            rank_message = '[%d] %.1f - %s\n' % (
+            rank_message += '[%d] %.1f - %s\n' % (
                 i + 1, members[ranking[i]]['42score'] /
                 members[ranking[0]]['42score'] * 100,
                 get_member_name(universal_id, ranking[i]))
