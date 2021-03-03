@@ -9,21 +9,24 @@ from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event
 from nonebot.log import logger
 from littlefish._db import commit, load, save
-from littlefish._policy import check
+from littlefish._policy import check, empty
 
-save_to_disk = on_command(cmd='save', aliases={'存档'}, rule=check('supercmd'))
+save_to_disk = on_command(cmd='save',
+                          aliases={'存档'},
+                          rule=check('supercmd') & empty())
 
-repeater_status = on_command(cmd='repeaterstatus ',
-                             aliases={'复读状态 '},
-                             rule=check('supercmd') & check('group'))
+repeater_status = on_command(cmd='repeaterstatus',
+                             aliases={'复读状态'},
+                             rule=check('supercmd') & check('repeat') &
+                             empty())
 
 block_word = on_command(cmd='blockword ',
                         aliases={'复读屏蔽词 '},
-                        rule=check('supercmd') & check('group'))
+                        rule=check('supercmd') & check('repeat'))
 
 set_repeater_param = on_command(cmd='repeaterparam ',
                                 aliases={'复读参数 '},
-                                rule=check('supercmd') & check('group'))
+                                rule=check('supercmd') & check('repeat'))
 
 
 @save_to_disk.handle()
