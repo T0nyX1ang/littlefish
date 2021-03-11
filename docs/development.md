@@ -1,13 +1,13 @@
 # 开发指南
 
 ## 安装机器人
-+ 安装支持`Onebot`标准的机器人框架，建议使用`go-cqhttp`
++ 安装`go-cqhttp`
 + 安装`Python 3.7+`
 + 安装依赖项
 ```
     pip/pip3 install -r requirements.txt
 ```
-+ 根据Nonebot中的说明修改CQHttp与NoneBot间的相关配置
++ 根据[go-cqhttp](https://docs.go-cqhttp.org/)和[nonebot2](https://v2.nonebot.dev/)文档修改相关配置
 + 运行环境变量配置程序
 ```
 	py -3/python3 wizard.py 
