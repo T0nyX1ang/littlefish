@@ -137,7 +137,7 @@ async def start_game(bot: Bot, universal_id: str):
         logger.error(traceback.format_exc())
         scheduler.remove_job('calc42_timeout_reminder_%s' % universal_id)
         scheduler.remove_job('calc42_process_%s' % universal_id)
-        app_pool[universal_id].stop()  # stop the app instantly
+        stop()  # stop the app instantly
 
 
 async def timeout_reminder(bot: Bot, universal_id: str):
