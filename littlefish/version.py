@@ -8,6 +8,7 @@ import os
 import httpx
 import nonebot
 import traceback
+import semver
 from nonebot import on_metaevent
 from nonebot.adapters.cqhttp import Bot, Event, LifecycleMetaEvent
 from nonebot.log import logger
@@ -21,7 +22,7 @@ with open(version_directory, 'r', encoding='utf-8') as f:
 
 start = changelog.find('##') + 2
 stop = changelog.find('\n', start)
-version = 'v' + changelog[start:stop].strip()
+version = changelog[start:stop].strip()
 
 
 async def get_server_version():
@@ -31,8 +32,8 @@ async def get_server_version():
         async with httpx.AsyncClient() as client:
             r = await client.get(url=url)
             data = r.json()[0]  # get the latest version
-            server_version = data['tag_name']
-            if server_version > version:
+            server_version = data['tag_name'][1:]
+            if semver.compare(version, server_version) < 0:
                 logger.warning('New version [%s] available.' % server_version)
                 return
             logger.info('Version check completed, littlefish is up to date.')
@@ -52,7 +53,7 @@ async def version_checker(bot: Bot, event: Event, state: dict):
     @boardcast('version')
     async def get_allowed(allowed: list):
         await get_server_version()
-        version_message = '小鱼已启动，内核版本%s~' % version
+        version_message = '小鱼已启动，内核版本v%s~' % version
         for bot_id, group_id in allowed:
             bot = nonebot.get_bots()[bot_id]
             try:
