@@ -1,5 +1,6 @@
-nonebot2==2.0.0a9.post1
+nonebot2==2.0.0a10
 nonebot-plugin-apscheduler==0.1.0
 nonebot-plugin-test==0.2.0
 42Points==1.2.4
 pycryptodome==3.9.6
+semver==2.13.0
