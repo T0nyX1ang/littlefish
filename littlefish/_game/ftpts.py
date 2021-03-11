@@ -28,6 +28,7 @@ problem_database = list(
     itertools.combinations_with_replacement(range(0, max_number + 1), 5))
 
 app_pool = {}
+solve_id_pool = {}
 
 
 def init(universal_id: str):
@@ -68,6 +69,7 @@ def start(universal_id: str) -> dict:
         except Exception:
             found = False
     app_pool[universal_id].start()
+    solve_id_pool[universal_id] = []
     return _info(universal_id)
 
 
@@ -76,16 +78,19 @@ def stop(universal_id: str) -> dict:
     info = _info(universal_id)
     info['stats'] = app_pool[universal_id].get_current_player_statistics()
     info['remaining'] = app_pool[universal_id].get_remaining_solutions()
+    info['solve_id'] = solve_id_pool[universal_id]
+    solve_id_pool[universal_id] = []
     app_pool[universal_id].stop()
     return info
 
 
-def solve(universal_id: str, expr: str, player_id: str) -> dict:
+def solve(universal_id: str, expr: str, player_id: str, _id: int) -> dict:
     """Put forward a solution during the game."""
     hint = ''
     solution_time = 0
     try:
         elapsed = app_pool[universal_id].solve(expr, player_id)
+        solve_id_pool[universal_id].append(_id)  # add solve id into the pool
         solution_time = elapsed.seconds + elapsed.microseconds / 1000000
     except (OverflowError, SyntaxError, ValueError):
         hint = '输入错误'

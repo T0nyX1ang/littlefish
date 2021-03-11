@@ -1,7 +1,7 @@
 """
 A game to calculate 42 with 5 numbers between 0 and 13.
 
-The command is invoked every 1 hour (can be changed) automatically.
+The command is invoked every 1 hour (within gaming hours) automatically.
 The command requires to be invoked in groups.
 """
 
@@ -12,7 +12,7 @@ import datetime
 import traceback
 from ftptsgame import FTPtsGame
 from nonebot import on_command
-from nonebot.adapters.cqhttp import Bot, Event
+from nonebot.adapters.cqhttp import Bot, Event, Message
 from nonebot.log import logger
 from littlefish._exclaim import exclaim_msg
 from littlefish._policy import check, boardcast, empty
@@ -92,8 +92,6 @@ def get_results(universal_id, result: dict) -> str:
 
     result_message = '本局42点游戏结束~\n'
     result_message += '求解完成度: %d/%d\n' % (result['current'], result['total'])
-    result_message += ('剩余解法: %s\n' % ', '.join(result['remaining']) *
-                       (result['current'] < result['total']))
 
     for player in ordered:
         members = load(universal_id, 'members')
@@ -157,11 +155,32 @@ async def finish_game(bot: Bot, universal_id: str):
     scheduler.remove_job('calc42_process_%s' % universal_id)
     group_id = int(universal_id[len(str(bot.self_id)):])
     if status(universal_id):
-        game_results = get_results(universal_id, stop(universal_id))
+        result = stop(universal_id)
+        game_results = get_results(universal_id, result)
         try:
             await bot.send_group_msg(group_id=group_id, message=game_results)
+            await show_solutions(bot, universal_id, result)
         except Exception as e:
             logger.error(traceback.format_exc())
+
+
+async def show_solutions(bot: Bot, universal_id: str, result: dict):
+    """Generate a message node from all solutions."""
+    group_id = int(universal_id[len(str(bot.self_id)):])
+    message = []
+    for message_id in result['solve_id']:
+        message.append({'type': 'node', 'data': {'id': message_id}})
+
+    for remaining in result['remaining']:
+        message.append({'type': 'node', 'data': {
+            'name': '小鱼',
+            'uin': bot.self_id,
+            'content': remaining,
+        }})
+
+    if message:
+        await bot.send_group_forward_msg(group_id=group_id,
+                                         messages=Message(message))
 
 
 solve_problem = on_command(cmd='calc42 ',
@@ -192,7 +211,7 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
     expr = str(event.message).strip()
     message = ''
 
-    result = solve(universal_id, expr, user_id)
+    result = solve(universal_id, expr, user_id, event.message_id)
     if result['hint']:
         message = result['hint']
     else:
