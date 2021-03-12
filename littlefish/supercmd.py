@@ -28,6 +28,8 @@ set_repeater_param = on_command(cmd='repeaterparam ',
                                 aliases={'复读参数 '},
                                 rule=check('supercmd') & check('repeat'))
 
+change_calc42_score = on_command(cmd='changescore42 ', aliases={'改变42点得分 '}, rule=check('supercmd') & check('calc42'))
+
 
 @save_to_disk.handle()
 async def save_to_disk(bot: Bot, event: Event, state: dict):
@@ -104,3 +106,21 @@ async def set_repeater_param(bot: Bot, event: Event, state: dict):
         await bot.send(event=event, message=message)
     except Exception:
         await bot.send(event=event, message='复读参数设定失败，请重试')
+
+
+@change_calc42_score.handle()
+async def change_calc42_score(bot: Bot, event: Event, state: dict):
+    """Change the calc42 game's score of a person manually."""
+    universal_id = str(event.self_id) + str(event.group_id)
+    args = str(event.message).split()
+    members = load(universal_id, 'members')
+    multiplier = {'+': 1, '-': -1}
+    try:
+        user_id = str(int(args[0]))
+        score = int(args[2])
+        original = members[user_id]['42score']
+        members[user_id]['42score'] = max(0, original + score * multiplier[args[1]])
+        message = '42点得分修改成功(%d -> %d)' % (original, members[user_id]['42score'])
+        await bot.send(event=event, message=message)
+    except Exception as e:
+        await bot.send(event=event, message='42点得分修改失败，请重试')
