@@ -27,8 +27,9 @@ allowed_hours = plugin_config.ftpts_allowed_hours
 problem_database = list(
     itertools.combinations_with_replacement(range(0, max_number + 1), 5))
 
-app_pool = {}
-solve_id_pool = {}
+app_pool = {}  # a pool for all ftpts apps
+solve_id_pool = {}  # a pool for all solution message id references
+addscore_pool = {}  # a pool for all addscore parameters
 
 
 def init(universal_id: str):
@@ -58,7 +59,7 @@ def _info(universal_id: str) -> dict:
     return info
 
 
-def start(universal_id: str) -> dict:
+def start(universal_id: str, addscore: bool = True) -> dict:
     """Start the game."""
     found = False
     while not found:
@@ -70,6 +71,7 @@ def start(universal_id: str) -> dict:
             found = False
     app_pool[universal_id].start()
     solve_id_pool[universal_id] = []
+    addscore_pool[universal_id] = addscore
     return _info(universal_id)
 
 
@@ -79,6 +81,7 @@ def stop(universal_id: str) -> dict:
     info['stats'] = app_pool[universal_id].get_current_player_statistics()
     info['remaining'] = app_pool[universal_id].get_remaining_solutions()
     info['solve_id'] = solve_id_pool[universal_id]
+    info['addscore'] = addscore_pool[universal_id]
     solve_id_pool[universal_id] = []
     app_pool[universal_id].stop()
     return info
