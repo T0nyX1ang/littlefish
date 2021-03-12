@@ -91,8 +91,7 @@ def get_openings(board, marker):
                     if cur_num == '0':
                         for each_coord in adjacent(cur_row, cur_col):
                             ready_row, ready_col = each_coord
-                            if 0 <= ready_row < rows and 0 <= ready_col < cols and not marker[
-                                    ready_row][ready_col]:
+                            if 0 <= ready_row < rows and 0 <= ready_col < cols and not marker[ready_row][ready_col]:
                                 ready_num = board[ready_row][ready_col]
                                 stack.append((ready_num, ready_row, ready_col))
                                 marker[ready_row][ready_col] = True
@@ -124,8 +123,7 @@ def get_islands(board, marker):
                     # search again if find an adjacent isolated bv
                     for each_coord in adjacent(cur_row, cur_col):
                         ready_row, ready_col = each_coord
-                        if 0 <= ready_row < rows and 0 <= ready_col < cols and not marker[
-                                ready_row][ready_col]:
+                        if 0 <= ready_row < rows and 0 <= ready_col < cols and not marker[ready_row][ready_col]:
                             stack.append((ready_row, ready_col))
                             marker[ready_row][ready_col] = True
     return islands
@@ -135,11 +133,7 @@ def get_action(action_detail):
     split_action = []
     for each_action in action_detail:
         operation, row, column, current_time = each_action.split(':')
-        split_action.append(
-            [int(operation),
-             int(row),
-             int(column),
-             int(current_time)])
+        split_action.append([int(operation), int(row), int(column), int(current_time)])
 
     current, threshold = 0, 3
     while current < len(split_action):
@@ -151,27 +145,18 @@ def get_action(action_detail):
             # find out the assurance final key
             if release < len(split_action):
                 final = release + 1
-                while final < len(split_action) and (
-                        split_action[final][3] - split_action[release][3] <=
-                        threshold) and (split_action[final][0] != 1 or
-                                        split_action[final][1] != tag_row or
-                                        split_action[final][2] != tag_col):
+                while final < len(split_action) and (split_action[final][3] - split_action[release][3] <= threshold) and (
+                        split_action[final][0] != 1 or split_action[final][1] != tag_row or split_action[final][2] != tag_col):
                     final += 1
-                if final < len(split_action) and (
-                        split_action[final][3] - split_action[release][3] <=
-                        threshold):
+                if final < len(split_action) and (split_action[final][3] - split_action[release][3] <= threshold):
                     split_action[final][0] = 4
                 else:
                     final = release - 1
-                    while final >= 0 and (
-                            split_action[release][3] - split_action[final][3]
-                            <= threshold) and (
-                                split_action[final][0] != 1 or
-                                split_action[final][1] != tag_row or
-                                split_action[final][2] != tag_col):
+                    while final >= 0 and (split_action[release][3] - split_action[final][3] <=
+                                          threshold) and (split_action[final][0] != 1 or split_action[final][1] != tag_row or
+                                                          split_action[final][2] != tag_col):
                         final -= 1
-                    if final >= 0 and (split_action[release][3] -
-                                       split_action[final][3] <= threshold):
+                    if final >= 0 and (split_action[release][3] - split_action[final][3] <= threshold):
                         split_action[final][0] = 4
         current += 1
     return split_action
@@ -186,8 +171,7 @@ def get_path(action):
     current, last = 0, 0
     while current < len(action):
         if action[current][0] in [0, 1, 4]:
-            path += math.sqrt((action[current][1] - action[last][1])**2 +
-                              (action[current][2] - action[last][2])**2)
+            path += math.sqrt((action[current][1] - action[last][1])**2 + (action[current][2] - action[last][2])**2)
             last = current
         current += 1
     return path
@@ -209,13 +193,8 @@ def get_clicks(action):
 def get_effective_operations(board, action):
     rows = get_row(board)
     cols = get_column(board)
-    current_status = [[0
-                       for col in range(0, get_column(board))]
-                      for row in range(0, get_row(board))]
-    effective, flags, unflags, misflags, misunflags, solved = 0, 0, 0, 0, 0, {
-        'op': 0,
-        'bv': 0
-    }
+    current_status = [[0 for col in range(0, get_column(board))] for row in range(0, get_row(board))]
+    effective, flags, unflags, misflags, misunflags, solved = 0, 0, 0, 0, 0, {'op': 0, 'bv': 0}
 
     def deal_with_op(row, col):
         number = board[row][col]
@@ -241,9 +220,8 @@ def get_effective_operations(board, action):
             if cur_num == '0':
                 for each_coord in adjacent(cur_row, cur_col):
                     ready_row, ready_col = each_coord
-                    if 0 <= ready_row < rows and 0 <= ready_col < cols and not current_status[
-                            ready_row][ready_col] and board[ready_row][
-                                ready_col] != '9':
+                    if 0 <= ready_row < rows and 0 <= ready_col < cols and not current_status[ready_row][
+                            ready_col] and board[ready_row][ready_col] != '9':
                         ready_num = board[ready_row][ready_col]
                         stack.append((ready_num, ready_row, ready_col))
                         current_status[ready_row][ready_col] = 1
@@ -279,31 +257,23 @@ def get_effective_operations(board, action):
             adjacent_mines, adjacent_unopen = 0, 0
             for each_coord in adjacent(row, col):
                 ready_row, ready_col = each_coord
-                if 0 <= ready_row < rows and 0 <= ready_col < cols and current_status[
-                        ready_row][ready_col] == -1:
+                if 0 <= ready_row < rows and 0 <= ready_col < cols and current_status[ready_row][ready_col] == -1:
                     adjacent_mines += 1
-                elif 0 <= ready_row < rows and 0 <= ready_col < cols and current_status[
-                        ready_row][ready_col] == 0:
+                elif 0 <= ready_row < rows and 0 <= ready_col < cols and current_status[ready_row][ready_col] == 0:
                     adjacent_unopen += 1
 
-            if adjacent_mines == int(
-                    board[row]
-                [col]) and adjacent_mines > 0 and adjacent_unopen:
+            if adjacent_mines == int(board[row][col]) and adjacent_mines > 0 and adjacent_unopen:
                 effective += 1
                 for each_coord in adjacent(row, col):
                     ready_row, ready_col = each_coord
                     if 0 <= ready_row < rows and 0 <= ready_col < cols:
-                        if not current_status[ready_row][ready_col] and board[
-                                ready_row][ready_col] != '9':
+                        if not current_status[ready_row][ready_col] and board[ready_row][ready_col] != '9':
                             current_status[ready_row][ready_col] = 1
                             deal_with_op(ready_row, ready_col)
-                        elif current_status[ready_row][
-                                ready_col] == -1 and board[ready_row][
-                                    ready_col] != '9':
+                        elif current_status[ready_row][ready_col] == -1 and board[ready_row][ready_col] != '9':
                             current_status[ready_row][ready_col] = -3
 
-    return effective, flags, unflags + misflags + misunflags, solved[
-        'op'], solved['bv'], current_status
+    return effective, flags, unflags + misflags + misunflags, solved['op'], solved['bv'], current_status
 
 
 def get_board_result(board):
@@ -312,12 +282,9 @@ def get_board_result(board):
     result['row'] = get_row(board)
     result['column'] = get_column(board)
 
-    marker = [[False
-               for col in range(0, get_column(board))]
-              for row in range(0, get_row(board))]
+    marker = [[False for col in range(0, get_column(board))] for row in range(0, get_row(board))]
     result['mines'] = get_mines(board, marker)
-    result['difficulty'] = get_difficulty(result['row'], result['column'],
-                                          result['mines'])
+    result['difficulty'] = get_difficulty(result['row'], result['column'], result['mines'])
     result['op'] = get_openings(board, marker)
     result['bv'] = result['op'] + get_isolated_bv(board, marker)
     result['is'] = get_islands(board, marker)
@@ -332,32 +299,25 @@ def get_result(board, action):
 
     result['left'], result['right'], result['double'] = get_clicks(action)
     result['cl'] = result['left'] + result['right'] + result['double']
-    result['ce'], result['flags'], result['wasted_flagging'], result[
-        'solved_op'], result['solved_bv'], result[
-            'current_status'] = get_effective_operations(board, action)
+    result['ce'], result['flags'], result['wasted_flagging'], result['solved_op'], result['solved_bv'], result[
+        'current_status'] = get_effective_operations(board, action)
 
     result['fmode'] = 'FL' if result['right'] > 0 else 'NF'
     result['bvs'] = result['solved_bv'] / result['rtime']
-    result['est'] = result['rtime'] / result['solved_bv'] * result[
-        'bv'] if result['solved_bv'] else math.inf
-    result['rqp'] = (result['rtime'] +
-                     1) / result['bvs'] if result['solved_bv'] else math.inf
-    result['qg'] = result['rtime']**1.7 / result['solved_bv'] if result[
-        'solved_bv'] else math.inf
+    result['est'] = result['rtime'] / result['solved_bv'] * result['bv'] if result['solved_bv'] else math.inf
+    result['rqp'] = (result['rtime'] + 1) / result['bvs'] if result['solved_bv'] else math.inf
+    result['qg'] = result['rtime']**1.7 / result['solved_bv'] if result['solved_bv'] else math.inf
     result['cls'] = result['cl'] / result['rtime']
     result['ces'] = result['ce'] / result['rtime']
-    result['corr'] = (result['ce'] - result['wasted_flagging'] -
-                      (result['solved_bv'] != result['bv'])) / result['cl']
+    result['corr'] = (result['ce'] - result['wasted_flagging'] - (result['solved_bv'] != result['bv'])) / result['cl']
     result['thrp'] = result['solved_bv'] / result['ce']
     result['ioe'] = result['solved_bv'] / result['cl']
-    result['iome'] = result['solved_bv'] / result['path'] if result[
-        'solved_bv'] else 0.0  # if path is 0, solved_bv must be 0
+    result['iome'] = result['solved_bv'] / result['path'] if result['solved_bv'] else 0.0  # if path is 0, solved_bv must be 0
 
     mode_ref = {'beg': 1, 'int': 2, 'exp-v': 3, 'exp-h': 3}
     if result['difficulty'] in mode_ref:
         mode = mode_ref[result['difficulty']]
         result['stnb'] = (87.420 * (mode**2) - 155.829 * mode + 115.708) / (
-            result['qg'] * math.sqrt(result['solved_bv'] / result['bv'])
-        ) if result['solved_bv'] else 0.0
+            result['qg'] * math.sqrt(result['solved_bv'] / result['bv'])) if result['solved_bv'] else 0.0
 
     return result

@@ -27,14 +27,11 @@ autopvp_uid = plugin_config.autopvp_uid
 async def _get_latest_battle_winner() -> str:
     """Get latest battle winner of autopvp."""
     battle_query = "uid=%s&page=0&count=1" % autopvp_uid
-    autopvp_last_battle = await fetch(
-        page='/MineSweepingWar/game/pvp/list/record', query=battle_query)
+    autopvp_last_battle = await fetch(page='/MineSweepingWar/game/pvp/list/record', query=battle_query)
     battle_id = autopvp_last_battle['data'][0]['record']['id']
 
     battle_detail_query = 'id=%d' % (battle_id)
-    latest_battle_detail = await fetch(
-        page='/MineSweepingWar/game/pvp/record/detail',
-        query=battle_detail_query)
+    latest_battle_detail = await fetch(page='/MineSweepingWar/game/pvp/record/detail', query=battle_detail_query)
     winner = latest_battle_detail['data']['records'][0]['user']['nickName']
     return winner
 
@@ -42,8 +39,7 @@ async def _get_latest_battle_winner() -> str:
 async def get_autopvp_info() -> dict:
     """Get full information of autopvp bot."""
     query = "uid=%s" % autopvp_uid
-    autopvp_result = await fetch(page='/MineSweepingWar/game/pvp/career',
-                                 query=query)
+    autopvp_result = await fetch(page='/MineSweepingWar/game/pvp/career', query=query)
 
     autopvp_info = {}
     autopvp_info['win'] = autopvp_result['data']['minesweeperWin']
@@ -59,19 +55,15 @@ async def get_autopvp_info() -> dict:
 
 async def get_daily_map() -> dict:
     """Get daily map information from the remote server."""
-    daily_map_result = await fetch(
-        page='/MineSweepingWar/minesweeper/daily/map/today')
-    daily_map_board = get_board(
-        daily_map_result['data']['map']['map'].split('-')[0:-1])
+    daily_map_result = await fetch(page='/MineSweepingWar/minesweeper/daily/map/today')
+    daily_map_board = get_board(daily_map_result['data']['map']['map'].split('-')[0:-1])
     daily_map = get_board_result(daily_map_board)
     daily_map['id'] = daily_map_result['data']['mapId']
 
     query = 'mapId=%d&page=0&count=1' % (daily_map['id'])
-    daily_map_highest_result = await fetch(
-        page='/MineSweepingWar/rank/daily/list', query=query)
+    daily_map_highest_result = await fetch(page='/MineSweepingWar/rank/daily/list', query=query)
     if daily_map_highest_result['data']:
-        daily_map[
-            'best_time'] = daily_map_highest_result['data'][0]['time'] / 1000
+        daily_map['best_time'] = daily_map_highest_result['data'][0]['time'] / 1000
     else:
         daily_map['best_time'] = math.inf
     return daily_map
@@ -79,8 +71,7 @@ async def get_daily_map() -> dict:
 
 async def get_daily_star():
     """Get the daily star information from the remote server."""
-    daily_star_result = await fetch(
-        page='/MineSweepingWar/minesweeper/record/get/star')
+    daily_star_result = await fetch(page='/MineSweepingWar/minesweeper/record/get/star')
 
     daily_star = {}
     daily_star['uid'] = daily_star_result['data']['user']['id']
@@ -94,8 +85,7 @@ async def get_daily_star():
 
 async def get_level_list() -> list:
     """Get the level information from the remote server."""
-    user_level_result = await fetch(
-        page='/MineSweepingWar/rank/timing/level/count')
+    user_level_result = await fetch(page='/MineSweepingWar/rank/timing/level/count')
     user_level_data = user_level_result['data']
 
     return user_level_data
@@ -112,8 +102,7 @@ async def get_user_info(uid: int, simple: bool = False) -> dict:
     user_info['uid'] = uid
 
     # home info
-    home_info_result = await fetch(page='/MineSweepingWar/user/home',
-                                   query='targetUid=%s' % uid)
+    home_info_result = await fetch(page='/MineSweepingWar/user/home', query='targetUid=%s' % uid)
     user_info['saoleiID'] = '暂未关联'
     if home_info_result['data']['saoleiOauth']:
         user_info['saoleiID'] = '%s [%s]' % (
@@ -130,9 +119,7 @@ async def get_user_info(uid: int, simple: bool = False) -> dict:
         return user_info
 
     # career info
-    career_result = await fetch(
-        page='/MineSweepingWar/minesweeper/timing/career',
-        query='uid=%s' % uid)
+    career_result = await fetch(page='/MineSweepingWar/minesweeper/timing/career', query='uid=%s' % uid)
 
     for v in ['beg', 'int', 'exp', 'total']:  # fetch rank information
         user_info[f'record_{v}'] = (
@@ -158,19 +145,15 @@ async def get_record(_id: int, use_post_id: bool = True) -> dict:
     """Get record using record_id or post_id from the remote server."""
     if use_post_id:
         # extract record_id from post_id, this part needs more time.
-        post_result = await fetch(page='/MineSweepingWar/post/get',
-                                  query='postId=%d' % (_id))
+        post_result = await fetch(page='/MineSweepingWar/post/get', query='postId=%d' % (_id))
         if post_result['data']['recordType'] != 0:
             raise TypeError('Incorrect record type.')
         _id = post_result['data']['recordId']
 
-    record_file = await fetch(page='/MineSweepingWar/minesweeper/record/get',
-                              query='recordId=%d' % (_id))
+    record_file = await fetch(page='/MineSweepingWar/minesweeper/record/get', query='recordId=%d' % (_id))
 
     board = get_board(record_file['data']['map'].split('-')[0:-1])
-    action = get_action(
-        gzip.decompress(b64decode(
-            record_file['data']['handle'])).decode().split('-'))
+    action = get_action(gzip.decompress(b64decode(record_file['data']['handle'])).decode().split('-'))
     result = get_result(board, action)
     result['uid'] = record_file['data']['user']['id']
     result['level'] = record_file['data']['user']['timingLevel']
@@ -181,8 +164,7 @@ async def get_record(_id: int, use_post_id: bool = True) -> dict:
 
 async def get_search_info(nickname: str) -> list:
     """Get search information from the remote server."""
-    result = await fetch(page='/MineSweepingWar/user/search',
-                         query='name=%s&page=0&count=10' % quote(nickname))
+    result = await fetch(page='/MineSweepingWar/user/search', query='name=%s&page=0&count=10' % quote(nickname))
 
     search_result = []
 
@@ -213,8 +195,7 @@ async def get_ranking_info(item: int, page: int, extra: dict) -> list:
     for k, v in extra.items():
         _extra += '%s=%s&' % (k, v)
 
-    result = await fetch(page='/MineSweepingWar/rank/%s/list' % _ref[item][0],
-                         query='%spage=%d&count=10' % (_extra, page))
+    result = await fetch(page='/MineSweepingWar/rank/%s/list' % _ref[item][0], query='%spage=%d&count=10' % (_extra, page))
 
     search_result = []
 

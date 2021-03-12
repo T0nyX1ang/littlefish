@@ -61,8 +61,7 @@ from .config import Config
 
 global_config = nonebot.get_driver().config
 plugin_config = Config(**global_config.dict())
-policy_config_location = os.path.join(os.getcwd(),
-                                      plugin_config.policy_config_location)
+policy_config_location = os.path.join(os.getcwd(), plugin_config.policy_config_location)
 
 try:
     with open(policy_config_location, 'r', encoding='utf-8') as f:
@@ -89,12 +88,10 @@ def check(command_name: str, event_type: Event = GroupMessageEvent) -> Rule:
         sid = event.user_id
         try:
             # Check the whitelist policy by name.
-            in_whitelist = ('+' not in policy_config[bid][gid][_name] or
-                            sid in policy_config[bid][gid][_name]['+'])
+            in_whitelist = ('+' not in policy_config[bid][gid][_name] or sid in policy_config[bid][gid][_name]['+'])
 
             # Check the blacklist policy by name.
-            not_in_blacklist = ('-' not in policy_config[bid][gid][_name] or
-                                sid not in policy_config[bid][gid][_name]['-'])
+            not_in_blacklist = ('-' not in policy_config[bid][gid][_name] or sid not in policy_config[bid][gid][_name]['-'])
 
             # Combine the whitelist and blacklist together
             return in_whitelist and not_in_blacklist
@@ -111,8 +108,7 @@ def empty() -> bool:
         """A rule wrapper for each command."""
         logger.debug('Checking empty arguments ...')
         try:
-            return str(
-                event.message).strip() == state['_prefix']['raw_command']
+            return str(event.message).strip() == state['_prefix']['raw_command']
         except Exception:
             return False
 
@@ -126,8 +122,7 @@ def boardcast(command_name: str) -> bool:
         (bid, gid)
         for bid in policy_config.keys()
         for gid in policy_config[bid].keys()
-        if _name in policy_config[bid][gid] and '@' in policy_config[bid][gid]
-        [_name] and policy_config[bid][gid][_name]['@']
+        if _name in policy_config[bid][gid] and '@' in policy_config[bid][gid][_name] and policy_config[bid][gid][_name]['@']
     ]
 
     def wrapper(func):

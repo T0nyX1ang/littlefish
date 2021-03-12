@@ -27,11 +27,8 @@ def format_daily_star(daily_star_info: dict) -> str:
     """Format the message of daily star."""
     line = [
         '联萌每日一星:',
-        '%s (Id: %d) %s' %
-        (daily_star_info['nickname'], daily_star_info['uid'],
-         sex_ref[daily_star_info['sex']]),
-        '局面信息: %.3fs / %.3f' %
-        (daily_star_info['time'], daily_star_info['bvs']),
+        '%s (Id: %d) %s' % (daily_star_info['nickname'], daily_star_info['uid'], sex_ref[daily_star_info['sex']]),
+        '局面信息: %.3fs / %.3f' % (daily_star_info['time'], daily_star_info['bvs']),
     ]
     result_message = ''
     for each_line in line:
@@ -62,13 +59,9 @@ def _save_daily_star(uid: str):
     save('0', 'dailystar', star_db)
 
 
-dailystar = on_command(cmd='dailystar',
-                       aliases={'今日之星', '联萌每日一星'},
-                       rule=check('dailystar') & empty())
+dailystar = on_command(cmd='dailystar', aliases={'今日之星', '联萌每日一星'}, rule=check('dailystar') & empty())
 
-dailystar_count = on_command(cmd='dailystarcount ',
-                             aliases={'联萌每日一星次数 '},
-                             rule=check('dailystar'))
+dailystar_count = on_command(cmd='dailystarcount ', aliases={'联萌每日一星次数 '}, rule=check('dailystar'))
 
 
 @dailystar.handle()
@@ -89,19 +82,14 @@ async def dailystar_count(bot: Bot, event: Event, state: dict):
 
     dailystar_count = _load_daily_star(uid)
     if len(dailystar_count) > 0:
-        message = '用户[%s]在联萌的每日一星次数: %d, 最近%d次获得时间为: %s' % (
-            uid, len(dailystar_count), min(len(dailystar_count), 5), ', '.join(
-                dailystar_count[-1:-6:-1]))
+        message = '用户[%s]在联萌的每日一星次数: %d, 最近%d次获得时间为: %s' % (uid, len(dailystar_count), min(len(dailystar_count), 5), ', '.join(
+            dailystar_count[-1:-6:-1]))
         await bot.send(event=event, message=message)
     else:
         await bot.send(event=event, message='该用户尚未获得每日一星, 请继续努力~')
 
 
-@scheduler.scheduled_job('cron',
-                         hour=0,
-                         minute=1,
-                         second=15,
-                         misfire_grace_time=30)
+@scheduler.scheduled_job('cron', hour=0, minute=1, second=15, misfire_grace_time=30)
 @boardcast('dailystar')
 async def _(allowed: list):
     """Scheduled dailystar boardcast at 00:03:00."""

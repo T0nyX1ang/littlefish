@@ -20,10 +20,7 @@ from littlefish._db import load, save
 
 def format_user_info(user_info: dict) -> str:
     """Format detailed user info."""
-    line = [
-        '%s [%d] %s' %
-        (user_info['nickname'], user_info['uid'], sex_ref[user_info['sex']])
-    ]
+    line = ['%s [%d] %s' % (user_info['nickname'], user_info['uid'], sex_ref[user_info['sex']])]
 
     if user_info['level'] != 0:
         line += [
@@ -34,8 +31,7 @@ def format_user_info(user_info: dict) -> str:
             '高级: %.3f(%s) | %.3f(%s)' % user_info['record_exp'],
             '局数: %.1fw (%.1f%%)' % user_info['stat_exp'],
             '总计: %.3f(%s) | %.3f(%s)' % user_info['record_total'],
-            '评价: %s 级, 排位第 %d 名' %
-            (level_ref[user_info['level']], user_info['rank'])
+            '评价: %s 级, 排位第 %d 名' % (level_ref[user_info['level']], user_info['rank'])
         ]
     else:
         line.append('未加入排名, 无评价')

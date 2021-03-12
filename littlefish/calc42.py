@@ -28,8 +28,7 @@ def get_member_name(universal_id: str, user_id: str) -> str:
     if not members:
         return '匿名大佬'
 
-    return members[user_id]['card'] if members[user_id]['card'] else members[
-        user_id]['nickname']
+    return members[user_id]['card'] if members[user_id]['card'] else members[user_id]['nickname']
 
 
 def print_current_problem(info: dict) -> str:
@@ -97,8 +96,7 @@ def get_results(universal_id, result: dict) -> str:
     for player in ordered:
         members = load(universal_id, 'members')
         name = get_member_name(universal_id, player)
-        result_message += '%s: %d解/+%d %s\n' % (
-            name, solutions[player], scores[player], achievements[player])
+        result_message += '%s: %d解/+%d %s\n' % (name, solutions[player], scores[player], achievements[player])
         members[player]['42score'] += (scores[player] * result['addscore'])
         save(universal_id, 'members', members)
 
@@ -173,32 +171,26 @@ async def show_solutions(bot: Bot, universal_id: str, result: dict):
         message.append({'type': 'node', 'data': {'id': message_id}})
 
     for remaining in result['remaining']:
-        message.append({'type': 'node', 'data': {
-            'name': '小鱼',
-            'uin': bot.self_id,
-            'content': remaining,
-        }})
+        message.append({
+            'type': 'node',
+            'data': {
+                'name': '小鱼',
+                'uin': bot.self_id,
+                'content': remaining,
+            }
+        })
 
     if message:
-        await bot.send_group_forward_msg(group_id=group_id,
-                                         messages=Message(message))
+        await bot.send_group_forward_msg(group_id=group_id, messages=Message(message))
 
 
-solve_problem = on_command(cmd='calc42 ',
-                           aliases={'42点 '},
-                           rule=check('calc42'))
+solve_problem = on_command(cmd='calc42 ', aliases={'42点 '}, rule=check('calc42'))
 
-get_score = on_command(cmd='score42',
-                       aliases={'42点得分', '42点积分'},
-                       rule=check('calc42') & empty())
+get_score = on_command(cmd='score42', aliases={'42点得分', '42点积分'}, rule=check('calc42') & empty())
 
-get_rank = on_command(cmd='rank42',
-                      aliases={'42点排名', '42点排行'},
-                      rule=check('calc42') & empty())
+get_rank = on_command(cmd='rank42', aliases={'42点排名', '42点排行'}, rule=check('calc42') & empty())
 
-manual_calc42 = on_command(cmd='manual42 ',
-                           aliases={'手动42点 '},
-                           rule=check('calc42') & check('supercmd'))
+manual_calc42 = on_command(cmd='manual42 ', aliases={'手动42点 '}, rule=check('calc42') & check('supercmd'))
 
 
 @solve_problem.handle()
@@ -218,9 +210,8 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
     else:
         elapsed = int(result['elapsed'])
         left = get_deadline(result['total']) - elapsed
-        message = '恭喜[%s]完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒~' % (
-            get_member_name(universal_id, user_id), result['current'],
-            result['total'], result['interval'], left)
+        message = '恭喜[%s]完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒~' % (get_member_name(
+            universal_id, user_id), result['current'], result['total'], result['interval'], left)
 
     is_finished = (result['current'] == result['total'])
     message += (not is_finished) * ('\n%s' % print_current_problem(result))
@@ -237,9 +228,7 @@ async def get_score(bot: Bot, event: Event, state: dict):
     universal_id = str(event.self_id) + str(event.group_id)
     user_id = f'{event.user_id}'
     members = load(universal_id, 'members')
-    ranking = sorted(members,
-                     key=lambda x: (members[x]['42score'], x),
-                     reverse=True)
+    ranking = sorted(members, key=lambda x: (members[x]['42score'], x), reverse=True)
 
     result = 0
     for i in range(0, len(ranking)):
@@ -249,16 +238,12 @@ async def get_score(bot: Bot, event: Event, state: dict):
 
     score = members[user_id]['42score']
     if result == 0:
-        await bot.send(event=event,
-                       message='当前积分: %d，排名: %d，' % (score, result + 1) +
-                       exclaim_msg('大佬', '1', False))
+        await bot.send(event=event, message='当前积分: %d，排名: %d，' % (score, result + 1) + exclaim_msg('大佬', '1', False))
     else:
         upper_score = members[ranking[result - 1]]['42score']
         distance = upper_score - score
         await bot.send(event=event,
-                       message='当前积分: %d，排名: %d，距上一名%d分，' %
-                       (score, result + 1, distance) +
-                       exclaim_msg('大佬', '2', False))
+                       message='当前积分: %d，排名: %d，距上一名%d分，' % (score, result + 1, distance) + exclaim_msg('大佬', '2', False))
 
 
 @get_rank.handle()
@@ -266,23 +251,18 @@ async def get_rank(bot: Bot, event: Event, state: dict):
     """Handle the rank42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
     members = load(universal_id, 'members')
-    ranking = sorted(members,
-                     key=lambda x: (members[x]['42score'], x),
-                     reverse=True)
+    ranking = sorted(members, key=lambda x: (members[x]['42score'], x), reverse=True)
 
     if not ranking:
         await bot.send(event=event, message='当前暂无排名~')
         return
 
-    rank_message = '42点积分排行榜:\n最高得分: %d\n-- 归一化得分 --\n' % (
-        members[ranking[0]]['42score'])
+    rank_message = '42点积分排行榜:\n最高得分: %d\n-- 归一化得分 --\n' % (members[ranking[0]]['42score'])
 
     for i in range(0, len(ranking)):
         if i < 10 and members[ranking[i]]['42score'] > 0:
-            rank_message += '[%d] %.1f - %s\n' % (
-                i + 1, members[ranking[i]]['42score'] /
-                members[ranking[0]]['42score'] * 100,
-                get_member_name(universal_id, ranking[i]))
+            rank_message += '[%d] %.1f - %s\n' % (i + 1, members[ranking[i]]['42score'] / members[ranking[0]]['42score'] * 100,
+                                                  get_member_name(universal_id, ranking[i]))
 
     await bot.send(event=event, message=rank_message.strip())
 

@@ -11,22 +11,13 @@ from nonebot.log import logger
 from littlefish._db import commit, load, save
 from littlefish._policy import check, empty
 
-save_to_disk = on_command(cmd='save',
-                          aliases={'存档'},
-                          rule=check('supercmd') & empty())
+save_to_disk = on_command(cmd='save', aliases={'存档'}, rule=check('supercmd') & empty())
 
-repeater_status = on_command(cmd='repeaterstatus',
-                             aliases={'复读状态'},
-                             rule=check('supercmd') & check('repeat') &
-                             empty())
+repeater_status = on_command(cmd='repeaterstatus', aliases={'复读状态'}, rule=check('supercmd') & check('repeat') & empty())
 
-block_word = on_command(cmd='blockword ',
-                        aliases={'复读屏蔽词 '},
-                        rule=check('supercmd') & check('repeat'))
+block_word = on_command(cmd='blockword ', aliases={'复读屏蔽词 '}, rule=check('supercmd') & check('repeat'))
 
-set_repeater_param = on_command(cmd='repeaterparam ',
-                                aliases={'复读参数 '},
-                                rule=check('supercmd') & check('repeat'))
+set_repeater_param = on_command(cmd='repeaterparam ', aliases={'复读参数 '}, rule=check('supercmd') & check('repeat'))
 
 change_calc42_score = on_command(cmd='changescore42 ', aliases={'改变42点得分 '}, rule=check('supercmd') & check('calc42'))
 
@@ -62,9 +53,8 @@ async def repeater_status(bot: Bot, event: Event, state: dict):
         cut_in_prob = 5
 
     block_message = '空' if not block_wordlist else ', '.join(block_wordlist)
-    message = '复读状态: [%d]-[%s|%s|%s]-[%d%%|%d%%]\n当前屏蔽词: %s' % (
-        combo, left_increment, msg_base, right_increment, mutate_prob,
-        cut_in_prob, block_message)
+    message = '复读状态: [%d]-[%s|%s|%s]-[%d%%|%d%%]\n当前屏蔽词: %s' % (combo, left_increment, msg_base, right_increment, mutate_prob,
+                                                                cut_in_prob, block_message)
 
     await bot.send(event=event, message=message)
 
@@ -122,5 +112,5 @@ async def change_calc42_score(bot: Bot, event: Event, state: dict):
         members[user_id]['42score'] = max(0, original + score * multiplier[args[1]])
         message = '42点得分修改成功(%d -> %d)' % (original, members[user_id]['42score'])
         await bot.send(event=event, message=message)
-    except Exception as e:
+    except Exception:
         await bot.send(event=event, message='42点得分修改失败，请重试')

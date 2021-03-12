@@ -65,8 +65,7 @@ try:
     with open(resource_location, 'r', encoding='utf-8') as f:
         csv_reader = csv.reader(f, delimiter=plugin_config.resource_separator)
         for line in csv_reader:
-            logger.debug('Loading resource: %s, TYPE=%s, IMG=%s, WEIGHT=%s' %
-                         tuple(line))
+            logger.debug('Loading resource: %s, TYPE=%s, IMG=%s, WEIGHT=%s' % tuple(line))
             resource_database.append(line)
 except Exception:
     resource_database = []
@@ -75,24 +74,17 @@ except Exception:
 
 def _get_body(_type: str, _image: str):
     """A database filter to generate required message body."""
-    body_all = [[row[0]] * int(row[3])
-                for row in resource_database
-                if _type == row[1] and _image == row[2]]
+    body_all = [[row[0]] * int(row[3]) for row in resource_database if _type == row[1] and _image == row[2]]
     return random.choice(sum(body_all, [])) if body_all else '太强了'
 
 
 def _get_ending(_type: str):
     """A database filter to generate required message ending."""
-    ending_all = [[row[0]] * int(row[3])
-                  for row in resource_database
-                  if row[1] == f'-{_type}']
+    ending_all = [[row[0]] * int(row[3]) for row in resource_database if row[1] == f'-{_type}']
     return random.choice(sum(ending_all, [])) if ending_all else '！'
 
 
-def exclaim_msg(person: str,
-                _type: str,
-                include_image: bool,
-                max_repeat: int = 3):
+def exclaim_msg(person: str, _type: str, include_image: bool, max_repeat: int = 3):
     """
     Get exclaiming message from the database.
 
@@ -117,9 +109,7 @@ def exclaim_msg(person: str,
     if not person:
         return Message(msg_body + msg_ending)
 
-    return Message(person + ' ' *
-                   (person[-1].isascii() and msg_body[0].isascii()) +
-                   msg_body + msg_ending)
+    return Message(person + ' ' * (person[-1].isascii() and msg_body[0].isascii()) + msg_body + msg_ending)
 
 
 def slim_msg(message: str):

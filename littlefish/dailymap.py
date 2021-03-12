@@ -24,10 +24,8 @@ def format_daily_map(daily_map: dict) -> str:
     """Formatter for information."""
     line = [
         '每日一图:',
-        '%d 行, %d 列, %d 雷' %
-        (daily_map['row'], daily_map['column'], daily_map['mines']),
-        '%d bv, %d op, %d is' %
-        (daily_map['bv'], daily_map['op'], daily_map['is']),
+        '%d 行, %d 列, %d 雷' % (daily_map['row'], daily_map['column'], daily_map['mines']),
+        '%d bv, %d op, %d is' % (daily_map['bv'], daily_map['op'], daily_map['is']),
         '最佳时间: %.3f' % (daily_map['best_time']), '大佬们冲鸭!'
     ]
     result_message = ''
@@ -36,9 +34,7 @@ def format_daily_map(daily_map: dict) -> str:
     return result_message.strip()
 
 
-dailymap = on_command(cmd='dailymap',
-                      aliases={'每日一图'},
-                      rule=check('dailymap') & empty())
+dailymap = on_command(cmd='dailymap', aliases={'每日一图'}, rule=check('dailymap') & empty())
 
 
 @dailymap.handle()
@@ -48,11 +44,7 @@ async def dailymap(bot: Bot, event: Event, state: dict):
     await bot.send(event=event, message=format_daily_map(daily_map_info))
 
 
-@scheduler.scheduled_job('cron',
-                         hour=0,
-                         minute=3,
-                         second=0,
-                         misfire_grace_time=30)
+@scheduler.scheduled_job('cron', hour=0, minute=3, second=0, misfire_grace_time=30)
 @boardcast('dailymap')
 async def _(allowed: list):
     """Scheduled dailymap boardcast at 00:03:00."""

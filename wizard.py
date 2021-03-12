@@ -74,16 +74,13 @@ config['superusers'] = '[%s]' % question_prompt('superusers', '')
 
 print('Setting up network ...')
 for item in [
-        'host', 'port', 'mswar_uid', 'autopvp_uid', 'mswar_token',
-        'mswar_host', 'mswar_version', 'mswar_encryption_key',
+        'host', 'port', 'mswar_uid', 'autopvp_uid', 'mswar_token', 'mswar_host', 'mswar_version', 'mswar_encryption_key',
         'mswar_decryption_key'
 ]:
     config[item] = question_prompt(item, config[item])
 
 print('Setting up database ...')
-for item in [
-        'database_location', 'policy_config_location', 'resource_location'
-]:
+for item in ['database_location', 'policy_config_location', 'resource_location']:
     config[item] = prompt_when_file_exist(question_prompt(item, config[item]))
 
 config_file = ''

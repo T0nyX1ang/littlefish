@@ -26,12 +26,10 @@ def format_record(record: dict) -> str:
         ),
         'mode: %s (%s)' % (record['difficulty'], record['fmode']),
         'time/est: %.3f/%.3f' % (record['rtime'], record['est']),
-        'bv/bvs: %d/%d, %.3f' %
-        (record['solved_bv'], record['bv'], record['bvs']),
+        'bv/bvs: %d/%d, %.3f' % (record['solved_bv'], record['bv'], record['bvs']),
         'ce/ces: %d, %.3f' % (record['ce'], record['ces']),
         'cl/cls: %d, %.3f' % (record['cl'], record['cls']),
-        'l/fl/r/d: %d, %d, %d, %d' %
-        (record['left'], record['flags'], record['right'], record['double']),
+        'l/fl/r/d: %d, %d, %d, %d' % (record['left'], record['flags'], record['right'], record['double']),
         'op/is: %d/%d, %d' % (record['solved_op'], record['op'], record['is']),
         'path: %.3f' % (record['path']),
         'ioe/iome: %.3f, %.3f' % (record['ioe'], record['iome']),
@@ -48,24 +46,14 @@ def format_record(record: dict) -> str:
 
 
 analyzer = on_command(cmd='analyze ', aliases={'分析 '}, rule=check('analyze'))
-record_pusher = on_keyword(keywords={'http://tapsss.com'},
-                           rule=check('analyze'),
-                           priority=10,
-                           block=True)
+record_pusher = on_keyword(keywords={'http://tapsss.com'}, rule=check('analyze'), priority=10, block=True)
 
 
 @analyzer.handle()
 async def analyze(bot: Bot, event: Event, state: dict):
     """Analyze the result."""
     args = str(event.message).split()
-    id_type = {
-        'record': False,
-        'r': False,
-        '录像': False,
-        'post': True,
-        'p': True,
-        '帖子': True
-    }
+    id_type = {'record': False, 'r': False, '录像': False, 'post': True, 'p': True, '帖子': True}
 
     try:
         use_post_id = id_type[args[0]]

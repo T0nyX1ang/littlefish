@@ -14,8 +14,7 @@ from nonebot.adapters.cqhttp import Bot, Event, LifecycleMetaEvent
 from nonebot.log import logger
 from littlefish._policy import boardcast
 
-version_directory = os.path.join(os.path.join(os.getcwd(), 'docs'),
-                                 'changelog.md')
+version_directory = os.path.join(os.path.join(os.getcwd(), 'docs'), 'changelog.md')
 
 with open(version_directory, 'r', encoding='utf-8') as f:
     changelog = f.read()
@@ -57,8 +56,7 @@ async def version_checker(bot: Bot, event: Event, state: dict):
         for bot_id, group_id in allowed:
             bot = nonebot.get_bots()[bot_id]
             try:
-                await bot.send_group_msg(group_id=int(group_id),
-                                         message=version_message)
+                await bot.send_group_msg(group_id=int(group_id), message=version_message)
             except Exception:
                 logger.error(traceback.format_exc())
 

@@ -24,8 +24,7 @@ plugin_config = FTPtsConfig(**global_config.dict())
 max_number = plugin_config.ftpts_max_number
 target = plugin_config.ftpts_target
 allowed_hours = plugin_config.ftpts_allowed_hours
-problem_database = list(
-    itertools.combinations_with_replacement(range(0, max_number + 1), 5))
+problem_database = list(itertools.combinations_with_replacement(range(0, max_number + 1), 5))
 
 app_pool = {}  # a pool for all ftpts apps
 solve_id_pool = {}  # a pool for all solution message id references

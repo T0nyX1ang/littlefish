@@ -1,4 +1,4 @@
 [style]
 based_on_style = google
 arithmetic_precedence_indication = False
-column_limit = 79
+column_limit = 127
