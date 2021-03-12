@@ -92,23 +92,24 @@ def get_results(universal_id, result: dict) -> str:
 
     result_message = '本局42点游戏结束~\n'
     result_message += '求解完成度: %d/%d\n' % (result['current'], result['total'])
+    result_message += '积分倍率: %d\n' % result['addscore']
 
     for player in ordered:
         members = load(universal_id, 'members')
         name = get_member_name(universal_id, player)
         result_message += '%s: %d解/+%d %s\n' % (
             name, solutions[player], scores[player], achievements[player])
-        members[player]['42score'] += scores[player]
+        members[player]['42score'] += (scores[player] * result['addscore'])
         save(universal_id, 'members', members)
 
     return result_message.strip()
 
 
-async def start_game(bot: Bot, universal_id: str):
+async def start_game(bot: Bot, universal_id: str, addscore: bool = True):
     """Start the calc42 game."""
     group_id = int(universal_id[len(str(bot.self_id)):])
     init(universal_id)
-    result = start(universal_id)
+    result = start(universal_id, addscore)
     message = print_current_problem(result)
     deadline = get_deadline(result['total'])
     scheduler.add_job(
@@ -195,9 +196,9 @@ get_rank = on_command(cmd='rank42',
                       aliases={'42点排名', '42点排行'},
                       rule=check('calc42') & empty())
 
-start_calc42 = on_command(cmd='manual42',
-                          aliases={'手动42点'},
-                          rule=check('calc42') & check('supercmd') & empty())
+manual_calc42 = on_command(cmd='manual42 ',
+                           aliases={'手动42点 '},
+                           rule=check('calc42') & check('supercmd'))
 
 
 @solve_problem.handle()
@@ -286,12 +287,17 @@ async def get_rank(bot: Bot, event: Event, state: dict):
     await bot.send(event=event, message=rank_message.strip())
 
 
-@start_calc42.handle()
-async def start_calc42(bot: Bot, event: Event, state: dict):
-    """Start the calc42 game manually."""
+@manual_calc42.handle()
+async def manual_calc42(bot: Bot, event: Event, state: dict):
+    """Control the calc42 game manually."""
     universal_id = str(event.self_id) + str(event.group_id)
-    group_id = event.group_id
-    await start_game(bot, universal_id)
+    option = str(event.message).strip()
+
+    if option == '+':
+        # no argument will be regarded as "start" command
+        await start_game(bot, universal_id, False)
+    elif option == '-':
+        await finish_game(bot, universal_id)
 
 
 @scheduler.scheduled_job('cron', minute=42, second=42, misfire_grace_time=30)
