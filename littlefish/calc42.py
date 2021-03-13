@@ -89,7 +89,7 @@ def get_results(universal_id, result: dict) -> str:
         scores[ordered[0]] += solutions[ordered[0]]
         achievements[ordered[0]] += 'H'
 
-    result_message = '本局42点游戏结束~\n'
+    result_message = '本局%s点游戏结束~\n' % result['target']
     result_message += '求解完成度: %d/%d\n' % (result['current'], result['total'])
     result_message += '积分倍率: %d\n' % result['addscore']
 

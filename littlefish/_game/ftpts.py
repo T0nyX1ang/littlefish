@@ -23,6 +23,7 @@ global_config = nonebot.get_driver().config
 plugin_config = FTPtsConfig(**global_config.dict())
 max_number = plugin_config.ftpts_max_number
 target = plugin_config.ftpts_target
+random_threshold = plugin_config.ftpts_random_threshold
 allowed_hours = plugin_config.ftpts_allowed_hours
 problem_database = list(itertools.combinations_with_replacement(range(0, max_number + 1), 5))
 
@@ -34,7 +35,7 @@ addscore_pool = {}  # a pool for all addscore parameters
 def init(universal_id: str):
     """Initialize the ftpts app."""
     if universal_id not in app_pool:
-        app_pool[universal_id] = FTPtsGame(target)
+        app_pool[universal_id] = FTPtsGame()
 
     if app_pool[universal_id].is_playing():
         raise PermissionError('Game has started.')
@@ -50,7 +51,7 @@ def _info(universal_id: str) -> dict:
     elapsed_time = elapsed.seconds + elapsed.microseconds / 1000000
     info = {
         'problem': app_pool[universal_id].get_current_problem(),
-        'target': target,
+        'target': app_pool[universal_id].get_current_target(),
         'total': app_pool[universal_id].get_total_solution_number(),
         'current': app_pool[universal_id].get_current_solution_number(),
         'elapsed': elapsed_time,
@@ -61,10 +62,11 @@ def _info(universal_id: str) -> dict:
 def start(universal_id: str, addscore: bool = True) -> dict:
     """Start the game."""
     found = False
+    real = target + random.randint(-18, 18) * (random.random() < random_threshold)
     while not found:
         problem = random.choice(problem_database)
         try:
-            app_pool[universal_id].generate_problem(problem)
+            app_pool[universal_id].generate_problem(problem, real)
             found = True
         except Exception:
             found = False
