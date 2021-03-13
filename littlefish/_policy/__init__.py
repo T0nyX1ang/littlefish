@@ -49,6 +49,10 @@ The checker is wrapped as a nonebot.rule.Rule, you can use it in any
 commands containing the keyword argument 'rule'. The policy config will
 be reloaded on every startup of the bot itself. The boardcast is wrapped
 as a normal decorator, you need to decorate the function only.
+
+Additional features:
+* Create/Revoke a temporary policy: this will create/revoke a temporary
+policy into the memory, but not saved into the policy file on disk.
 """
 
 import nonebot
@@ -136,3 +140,21 @@ def boardcast(command_name: str) -> bool:
         return _check
 
     return wrapper
+
+
+def create(command_name: str, bot_id: str, group_id: str, policy_content: dict):
+    """Create a temporary policy into the memory."""
+    policy_config.setdefault(bot_id, {})
+    policy_config[bot_id].setdefault(group_id, {})
+    policy_config[bot_id][group_id].setdefault(command_name, {})
+    policy_config[bot_id][group_id][command_name] = policy_content
+    logger.debug('A temporary policy [%s] was added to the policy control' % command_name)
+
+
+def revoke(command_name: str, bot_id: str, group_id: str):
+    """Revoke a temporary policy from the memory."""
+    try:
+        policy_config[bot_id][group_id].pop(command_name)
+        logger.debug('A temporary policy [%s] was revoked from the policy control' % command_name)
+    except Exception:
+        logger.debug('Failed to revoke the temporary policy, the policy may be revoked already.')
