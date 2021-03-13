@@ -43,8 +43,9 @@
 	frequent_face_id # 常用QQ表情ID(用于变形复读时表情替换)
 	database_compress_level # 数据库压缩程度(0-9, 默认为9)
 	ftpts_allowed_hours # 允许42点游戏的小时
-	ftpts_max_number # 42点最大数字
+	ftpts_max_number # 42点最大可选择数字
 	ftpts_target # 42点目标数字
+    ftpts_random_threshold # 42点目标阈值(该值越高, 目标不为42点可能性越大)
 ```
 
 > 请务必注意，环境变量中的数据**相当敏感**，**一定不要泄露给他人**！
