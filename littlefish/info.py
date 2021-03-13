@@ -81,7 +81,12 @@ async def id_info(bot: Bot, event: Event, state: dict):
         await bot.send(event=event, message=wait_message)
         return
 
-    user_info = await get_user_info(uid)
+    try:
+        user_info = await get_user_info(uid)
+    except Exception:
+        await bot.send(event=event, message='用户信息获取失败~')
+        return
+
     user_info_message = format_user_info(user_info)
     await bot.send(event=event, message=user_info_message)
 
@@ -97,8 +102,12 @@ async def id_battle(bot: Bot, event: Event, state: dict):
         await bot.send(event=event, message=exclaim_msg('', '3', False, 1))
         return
 
-    uid1_info = await get_user_info(uid1, simple=True)
-    uid2_info = await get_user_info(uid2, simple=True)
+    try:
+        uid1_info = await get_user_info(uid1, simple=True)
+        uid2_info = await get_user_info(uid2, simple=True)
+    except Exception:
+        await bot.send(event=event, message='用户信息获取失败~')
+        return
 
     large = 10000000000000  # this should be large enough to distinguish
     uid1_rank = uid1_info['rank'] + large * (uid1_info['rank'] == 0)
@@ -131,6 +140,11 @@ async def _(bot: Bot, event: Event, state: dict):
         await bot.send(event=event, message=wait_message)
         return
 
-    user_info = await get_user_info(uid)
+    try:
+        user_info = await get_user_info(uid)
+    except Exception:
+        await bot.send(event=event, message='用户信息获取失败~')
+        return
+
     user_info_message = format_user_info(user_info)
     await bot.send(event=event, message=user_info_message)
