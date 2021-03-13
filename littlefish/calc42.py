@@ -15,7 +15,7 @@ from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event, Message
 from nonebot.log import logger
 from littlefish._exclaim import exclaim_msg
-from littlefish._policy import check, boardcast, empty
+from littlefish._policy import check, boardcast, empty, create, revoke
 from littlefish._db import load, save
 from littlefish._game.ftpts import init, start, solve, stop, status
 
@@ -128,12 +128,14 @@ async def start_game(bot: Bot, universal_id: str, addscore: bool = True):
         id='calc42_timeout_reminder_%s' % universal_id,
         replace_existing=True,
     )
+
     try:
         await bot.send_group_msg(group_id=group_id, message=message)
     except Exception:
         logger.error(traceback.format_exc())
         scheduler.remove_job('calc42_timeout_reminder_%s' % universal_id)
         scheduler.remove_job('calc42_process_%s' % universal_id)
+        revoke('calc42_temp', str(bot.self_id), str(group_id))
         stop()  # stop the app instantly
 
 
@@ -153,6 +155,7 @@ async def finish_game(bot: Bot, universal_id: str):
     scheduler.remove_job('calc42_timeout_reminder_%s' % universal_id)
     scheduler.remove_job('calc42_process_%s' % universal_id)
     group_id = int(universal_id[len(str(bot.self_id)):])
+    revoke('calc42_temp', str(bot.self_id), str(group_id))
     if status(universal_id):
         result = stop(universal_id)
         game_results = get_results(universal_id, result)
@@ -190,7 +193,7 @@ get_score = on_command(cmd='score42', aliases={'42点得分', '42点积分'}, ru
 
 get_rank = on_command(cmd='rank42', aliases={'42点排名', '42点排行'}, rule=check('calc42') & empty())
 
-manual_calc42 = on_command(cmd='manual42 ', aliases={'手动42点 '}, rule=check('calc42') & check('supercmd'))
+manual_calc42 = on_command(cmd='manual42 ', aliases={'手动42点 '}, rule=check('calc42') & check('calc42_temp'))
 
 
 @solve_problem.handle()
@@ -274,8 +277,8 @@ async def manual_calc42(bot: Bot, event: Event, state: dict):
     option = str(event.message).strip()
 
     if option == '+':
-        # no argument will be regarded as "start" command
         await start_game(bot, universal_id, False)
+        create('calc42_temp', str(event.self_id), str(event.group_id), {'+': [event.user_id]})
     elif option == '-':
         await finish_game(bot, universal_id)
 
@@ -287,6 +290,8 @@ async def _(allowed: list):
         bot = nonebot.get_bots()[bot_id]
         universal_id = str(bot_id) + str(group_id)
         try:
+            # this means no one can terminate the routined calc42 game
             await start_game(bot, universal_id)
+            create('calc42_temp', str(bot.self_id), str(group_id), {'+': []})
         except Exception:
             logger.error(traceback.format_exc())
