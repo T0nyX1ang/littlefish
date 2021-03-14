@@ -51,7 +51,7 @@ async def version_checker(bot: Bot, event: Event, state: dict):
 
     await get_server_version()
     version_message = '小鱼已启动，内核版本%s~' % version
-    for bot_id, group_id in valid():
+    for bot_id, group_id in valid('version'):
         bot = nonebot.get_bots()[bot_id]
         try:
             await bot.send_group_msg(group_id=int(group_id), message=version_message)
