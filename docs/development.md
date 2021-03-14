@@ -42,7 +42,6 @@
 	access_token # API上报密钥
 	frequent_face_id # 常用QQ表情ID(用于变形复读时表情替换)
 	database_compress_level # 数据库压缩程度(0-9, 默认为9)
-	ftpts_allowed_hours # 允许42点游戏的小时
 	ftpts_max_number # 42点最大可选择数字
 	ftpts_target # 42点目标数字
     ftpts_random_threshold # 42点目标阈值(该值越高, 目标不为42点可能性越大)
@@ -73,8 +72,6 @@
 ```
 
 > 42点只要开始，在结束前就不能再次触发。
-
-> 42点游戏频率及手工开启的权限默认为普通用户均可执行，需要进一步的权限配置。
 
 ## 更精细的权限控制
 + 为了使机器人在不同的群内使用不同的功能，可以新建一个权限控制文件`policy.json`，内部的结构需要写成这样:
