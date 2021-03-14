@@ -52,9 +52,7 @@ def _save_daily_star(uid: str):
     star_db = load('0', 'dailystar')
     if not star_db:
         star_db = {}
-    if uid not in star_db:
-        star_db[uid] = []
-    star_db[uid].append(today)
+
 
     save('0', 'dailystar', star_db)
 
