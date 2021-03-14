@@ -78,12 +78,13 @@ except Exception:
     policy_config = {}
     logger.warning('Failed to load policy file, using empty policy file ...')
 
-valid_tuple = [(bid, gid) for bid in policy_config.keys() for gid in policy_config[bid].keys()]
 
-
-def valid() -> list:
+def valid(command_name: str) -> list:
     """Get all valid (bot_id, group_id) tuple for policy control."""
-    return valid_tuple
+    return [(bid, gid)
+            for bid in policy_config.keys()
+            for gid in policy_config[bid].keys()
+            if command_name in policy_config[bid][gid]]
 
 
 def check(command_name: str, event_type: Event = GroupMessageEvent) -> Rule:
@@ -135,7 +136,7 @@ def broadcast(command_name: str) -> bool:
     def _broadcast(func):
         """Check the policy of the broadcast."""
         logger.debug('Checking broadcast: [%s].' % _name)
-        for bid, gid in valid():
+        for bid, gid in valid(_name):
             try:
                 scheduler.add_job(func=func,
                                   args=(bid, gid),
