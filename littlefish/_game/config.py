@@ -17,7 +17,6 @@ class FTPtsConfig(BaseSettings):
     # Configuration goes here.
     ftpts_target: int = 42
     ftpts_max_number: int = 13
-    ftpts_allowed_hours: list = []
     ftpts_random_threshold: float = 0.0
 
     class Config:

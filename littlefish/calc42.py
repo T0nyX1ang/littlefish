@@ -1,7 +1,7 @@
 """
 A game to calculate 42 with 5 numbers between 0 and 13.
 
-The command is invoked every 1 hour (within gaming hours) automatically.
+The command is invoked every 1 hour (within 8-23) automatically.
 The command requires to be invoked in groups.
 """
 
@@ -283,7 +283,7 @@ async def manual_calc42(bot: Bot, event: Event, state: dict):
         await finish_game(bot, universal_id)
 
 
-@scheduler.scheduled_job('cron', minute=42, second=42, misfire_grace_time=30)
+@scheduler.scheduled_job('cron', hour='8-23', minute=42, second=42, misfire_grace_time=30)
 @boardcast('calc42')
 async def _(allowed: list):
     for bot_id, group_id in allowed:
