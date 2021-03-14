@@ -12,7 +12,7 @@ import semver
 from nonebot import on_metaevent
 from nonebot.adapters.cqhttp import Bot, Event, LifecycleMetaEvent
 from nonebot.log import logger
-from littlefish._policy import boardcast
+from littlefish._policy import valid
 
 version_directory = os.path.join(os.path.join(os.getcwd(), 'docs'), 'changelog.md')
 
@@ -49,15 +49,11 @@ async def version_checker(bot: Bot, event: Event, state: dict):
     if not isinstance(event, LifecycleMetaEvent):
         return
 
-    @boardcast('version')
-    async def get_allowed(allowed: list):
-        await get_server_version()
-        version_message = '小鱼已启动，内核版本%s~' % version
-        for bot_id, group_id in allowed:
-            bot = nonebot.get_bots()[bot_id]
-            try:
-                await bot.send_group_msg(group_id=int(group_id), message=version_message)
-            except Exception:
-                logger.error(traceback.format_exc())
-
-    await get_allowed()
+    await get_server_version()
+    version_message = '小鱼已启动，内核版本%s~' % version
+    for bot_id, group_id in valid():
+        bot = nonebot.get_bots()[bot_id]
+        try:
+            await bot.send_group_msg(group_id=int(group_id), message=version_message)
+        except Exception:
+            logger.error(traceback.format_exc())
