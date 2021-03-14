@@ -1,7 +1,10 @@
 """
 A method to push live message in groups.
 
-The pusher will be activated every 20 seconds.
+The information includes:
+nickname, liveroom_url, liveroom_title of a subscribed user.
+
+The command requires to be invoked in groups.
 """
 
 import httpx
@@ -10,10 +13,8 @@ import traceback
 from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event
 from nonebot.log import logger
-from littlefish._policy import check, boardcast
+from littlefish._policy import check, broadcast
 from littlefish._db import load, save
-
-scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 
 
 async def get_user_info(uid: str) -> dict:
@@ -92,13 +93,12 @@ async def subscriber(bot: Bot, event: Event, state: dict):
         await bot.send(event=event, message='订阅用户信息更新失败，请检查日志文件~')
 
 
-@scheduler.scheduled_job('cron', second='*/20', misfire_grace_time=30)
-@boardcast('bilipush')
-async def _(allowed: list):
-    for bot_id, group_id in allowed:
-        bot = nonebot.get_bots()[bot_id]
-        universal_id = str(bot_id) + str(group_id)
-        try:
-            await push_live_message(bot, universal_id)
-        except Exception:
-            logger.error(traceback.format_exc())
+@broadcast('bilipush')
+async def _(bot_id: str, group_id: str):
+    """Push the live message."""
+    bot = nonebot.get_bots()[bot_id]
+    universal_id = str(bot_id) + str(group_id)
+    try:
+        await push_live_message(bot, universal_id)
+    except Exception:
+        logger.error(traceback.format_exc())

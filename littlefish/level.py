@@ -3,8 +3,8 @@ Fetch the infomation of the level status.
 
 The information includes:
 The number of people in each rank.
+The level information is automatically fetched at 00:00:00 +- 30s weekly.
 
-The command is automatically invoked at 00:00:00 +- 30s weekly.
 The command requires to be invoked in groups.
 """
 
@@ -13,7 +13,7 @@ import traceback
 from nonebot import on_command
 from nonebot.log import logger
 from nonebot.adapters.cqhttp import Bot, Event
-from littlefish._policy import check, boardcast, empty
+from littlefish._policy import check, broadcast, empty
 from littlefish._mswar.api import get_level_list
 from littlefish._mswar.references import level_ref
 from littlefish._db import load, save
@@ -63,17 +63,21 @@ async def level(bot: Bot, event: Event, state: dict):
     await bot.send(event=event, message=format_level_list(level_list_data))
 
 
-@scheduler.scheduled_job('cron', day_of_week=0, hour=0, minute=0, second=0, misfire_grace_time=30)
-@boardcast('level')
-async def _(allowed: list):
-    """Scheduled level boardcast at 00:00:00(weekly)."""
+@broadcast('level')
+async def _(bot_id: str, group_id: str):
+    """Scheduled level broadcast at 00:00:00(weekly)."""
     level_list_data = await get_level_list()
     message = format_level_list(level_list_data)
-    save('0', 'level_history', level_list_data)
 
-    for bot_id, group_id in allowed:
-        bot = nonebot.get_bots()[bot_id]
-        try:
-            await bot.send_group_msg(group_id=int(group_id), message=message)
-        except Exception:
-            logger.error(traceback.format_exc())
+    bot = nonebot.get_bots()[bot_id]
+    try:
+        await bot.send_group_msg(group_id=int(group_id), message=message)
+    except Exception:
+        logger.error(traceback.format_exc())
+
+
+@scheduler.scheduled_job('cron', day_of_week=0, hour=0, minute=0, second=0, misfire_grace_time=30)
+async def _():
+    """Scheduled level infomation fetch at 00:00:00(weekly)."""
+    level_list_data = await get_level_list()
+    save('0', 'level_history', level_list_data)
