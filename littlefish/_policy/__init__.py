@@ -51,6 +51,7 @@ be reloaded on every startup of the bot itself. The boardcast is wrapped
 as a normal decorator, you need to decorate the function only.
 
 Additional features:
+* Get validated (bot_id, group_id) tuples.
 * Create/Revoke a temporary policy: this will create/revoke a temporary
 policy into the memory, but not saved into the policy file on disk.
 """
@@ -78,6 +79,12 @@ except Exception:
     logger.warning('Failed to load policy file, using empty policy file ...')
 
 valid_tuple = [(bid, gid) for bid in policy_config.keys() for gid in policy_config[bid].keys()]
+
+
+def valid() -> list:
+    """Get all valid (bot_id, group_id) tuple for policy control."""
+    return valid_tuple
+
 
 def check(command_name: str, event_type: Event = GroupMessageEvent) -> Rule:
     """Check the policy of each command by name."""
