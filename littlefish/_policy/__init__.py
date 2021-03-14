@@ -66,6 +66,7 @@ from .config import Config
 global_config = nonebot.get_driver().config
 plugin_config = Config(**global_config.dict())
 policy_config_location = os.path.join(os.getcwd(), plugin_config.policy_config_location)
+scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 
 try:
     with open(policy_config_location, 'r', encoding='utf-8') as f:
@@ -76,6 +77,7 @@ except Exception:
     policy_config = {}
     logger.warning('Failed to load policy file, using empty policy file ...')
 
+valid_tuple = [(bid, gid) for bid in policy_config.keys() for gid in policy_config[bid].keys()]
 
 def check(command_name: str, event_type: Event = GroupMessageEvent) -> Rule:
     """Check the policy of each command by name."""
@@ -122,12 +124,6 @@ def empty() -> bool:
 def boardcast(command_name: str) -> bool:
     """Check the policy of each boardcast by name."""
     _name = command_name
-    allowed = [
-        (bid, gid)
-        for bid in policy_config.keys()
-        for gid in policy_config[bid].keys()
-        if _name in policy_config[bid][gid] and '@' in policy_config[bid][gid][_name] and policy_config[bid][gid][_name]['@']
-    ]
 
     def wrapper(func):
         """A wrapper for the checker."""
@@ -135,7 +131,12 @@ def boardcast(command_name: str) -> bool:
         async def _check() -> None:
             """Check the policy of the boardcast."""
             logger.debug('Checking boardcast: [%s].' % _name)
-            await func(allowed)
+            for bid, gid in valid_tuple:
+                try:
+                    scheduler.add_job('cron', kwargs=*policy_config[big][gid][_name]['@'], misfire_grace_time=30)
+                    await func(bid, gid)
+                except Exception:
+                    logger.warning('Failed to boardcast: [%s]. Please check your policy control.' % _name)
 
         return _check
 
