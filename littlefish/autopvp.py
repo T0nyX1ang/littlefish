@@ -4,7 +4,6 @@ Fetch the infomation of the autopvp bot.
 The information includes:
 Bot: rank, level (including progress), wins / loses, latest winner.
 
-The command is automatically invoked at 00:00:00 +- 30s everyday.
 The command requires to be invoked in groups.
 """
 
@@ -14,10 +13,8 @@ from nonebot import on_command
 from nonebot.log import logger
 from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._mswar.api import get_autopvp_info
-from littlefish._policy import check, boardcast, empty
+from littlefish._policy import check, broadcast, empty
 from littlefish._exclaim import exclaim_msg
-
-scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 
 
 def format_pvp_info(autopvp_info: dict) -> str:
@@ -48,19 +45,17 @@ async def autopvp(bot: Bot, event: Event, state: dict):
         await bot.send(event=event, message=exclaim_msg(autopvp_result['latest_battle_winner'], '1', False))
 
 
-@scheduler.scheduled_job('cron', hour=0, minute=0, second=0, misfire_grace_time=30)
-@boardcast('autopvp')
-async def _(allowed: list):
-    """Scheduled dailymap boardcast at 00:00:00."""
+@broadcast('autopvp')
+async def _(bot_id: str, group_id: str):
+    """Scheduled dailymap broadcast."""
     autopvp_result = await get_autopvp_info()
     message = [format_pvp_info(autopvp_result)]
     if autopvp_result['latest_battle_winner'] != 'autopvp':
         message.append(exclaim_msg(autopvp_result['latest_battle_winner'], '1', False))
 
-    for bot_id, group_id in allowed:
-        bot = nonebot.get_bots()[bot_id]
-        try:
-            for msg in message:
-                await bot.send_group_msg(group_id=int(group_id), message=msg)
-        except Exception:
-            logger.error(traceback.format_exc())
+    bot = nonebot.get_bots()[bot_id]
+    try:
+        for msg in message:
+            await bot.send_group_msg(group_id=int(group_id), message=msg)
+    except Exception:
+        logger.error(traceback.format_exc())

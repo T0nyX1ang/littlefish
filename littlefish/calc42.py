@@ -1,7 +1,6 @@
 """
 A game to calculate 42 with 5 numbers between 0 and 13.
 
-The command is invoked every 1 hour (within 8-23) automatically.
 The command requires to be invoked in groups.
 """
 
@@ -15,7 +14,7 @@ from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event, Message
 from nonebot.log import logger
 from littlefish._exclaim import exclaim_msg
-from littlefish._policy import check, boardcast, empty, create, revoke
+from littlefish._policy import check, broadcast, empty, create, revoke
 from littlefish._db import load, save
 from littlefish._game.ftpts import init, start, solve, stop, status
 
@@ -283,15 +282,14 @@ async def manual_calc42(bot: Bot, event: Event, state: dict):
         await finish_game(bot, universal_id)
 
 
-@scheduler.scheduled_job('cron', hour='8-23', minute=42, second=42, misfire_grace_time=30)
-@boardcast('calc42')
-async def _(allowed: list):
-    for bot_id, group_id in allowed:
-        bot = nonebot.get_bots()[bot_id]
-        universal_id = str(bot_id) + str(group_id)
-        try:
-            # this means no one can terminate the routined calc42 game
-            await start_game(bot, universal_id)
-            create('calc42_temp', str(bot.self_id), str(group_id), {'+': []})
-        except Exception:
-            logger.error(traceback.format_exc())
+@broadcast('calc42')
+async def _(bot_id: str, group_id: str):
+    """Boardcast a calc42 game."""
+    bot = nonebot.get_bots()[bot_id]
+    universal_id = str(bot_id) + str(group_id)
+    try:
+        # this means no one can terminate the routined calc42 game
+        await start_game(bot, universal_id)
+        create('calc42_temp', str(bot.self_id), str(group_id), {'+': []})
+    except Exception:
+        logger.error(traceback.format_exc())

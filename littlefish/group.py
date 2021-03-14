@@ -23,10 +23,8 @@ from nonebot.log import logger
 from littlefish._exclaim import exclaim_msg
 from littlefish._mswar.api import get_user_info
 from littlefish._mswar.references import level_ref
-from littlefish._policy import check, boardcast
+from littlefish._policy import check, broadcast
 from littlefish._db import save, load
-
-scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 
 
 async def update_group_members(bot: Bot, group_id: int):
@@ -151,12 +149,11 @@ async def update_user(bot: Bot, event: Event, state: dict):
         await bot.send(event=event, message='群成员信息更新失败，请检查日志文件~')
 
 
-@scheduler.scheduled_job('cron', hour='3-23/4', minute=0, second=0, misfire_grace_time=30)
-@boardcast('group')
-async def _(allowed: list):
-    for bot_id, group_id in allowed:
-        bot = nonebot.get_bots()[bot_id]
-        try:
-            await update_group_members(bot, group_id)
-        except Exception:
-            logger.error(traceback.format_exc())
+@broadcast('group')
+async def _(bot_id: str, group_id: str):
+    """Scheduled group member information update."""
+    bot = nonebot.get_bots()[bot_id]
+    try:
+        await update_group_members(bot, group_id)
+    except Exception:
+        logger.error(traceback.format_exc())

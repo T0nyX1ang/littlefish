@@ -5,7 +5,6 @@ The information includes:
 Map: lines, columns, mines, bv, openings, islands.
 User: best_time (math.inf) as default.
 
-The command is automatically invoked at 00:03:00 +- 30s everyday.
 The command requires to be invoked in groups.
 """
 
@@ -15,9 +14,7 @@ from nonebot import on_command
 from nonebot.log import logger
 from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._mswar.api import get_daily_map
-from littlefish._policy import check, boardcast, empty
-
-scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
+from littlefish._policy import check, broadcast, empty
 
 
 def format_daily_map(daily_map: dict) -> str:
@@ -44,15 +41,13 @@ async def dailymap(bot: Bot, event: Event, state: dict):
     await bot.send(event=event, message=format_daily_map(daily_map_info))
 
 
-@scheduler.scheduled_job('cron', hour=0, minute=3, second=0, misfire_grace_time=30)
-@boardcast('dailymap')
-async def _(allowed: list):
-    """Scheduled dailymap boardcast at 00:03:00."""
+@broadcast('dailymap')
+async def _(bot_id: str, group_id: str):
+    """Scheduled dailymap broadcast."""
     daily_map = await get_daily_map()
     message = format_daily_map(daily_map)
-    for bot_id, group_id in allowed:
-        try:
-            bot = nonebot.get_bots()[bot_id]
-            await bot.send_group_msg(group_id=int(group_id), message=message)
-        except Exception:
-            logger.error(traceback.format_exc())
+    try:
+        bot = nonebot.get_bots()[bot_id]
+        await bot.send_group_msg(group_id=int(group_id), message=message)
+    except Exception:
+        logger.error(traceback.format_exc())
