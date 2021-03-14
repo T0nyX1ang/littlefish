@@ -14,7 +14,7 @@ contain any annotations.
             "command": {
                 "+": [1, 2, 3], // this should be the whitelist
                 "-": [4, 5, 6], // this should be the blacklist
-                "@": true // this should be the boardcast option
+                "@": true // this should be the broadcast option
             }
             // config for another command
         }
@@ -39,7 +39,7 @@ if the sender appears in the whitelist AND doesn't appear in the black-
 list, the checker will allow the command, or it will block the command.
 Please note that, when a whitelist/blacklist key doesn' exist, the
 checker will assume the whitelist/blacklist doesn't exist and allow
-the command on the whitelist/blacklist level. About the boardcasting
+the command on the whitelist/blacklist level. About the broadcasting
 feature, you need to enable it manually in the configuration, or it
 is disabled by default. About the empty feature, you can enforce 0
 arguments in a command.
@@ -47,7 +47,7 @@ arguments in a command.
 How to use?
 The checker is wrapped as a nonebot.rule.Rule, you can use it in any
 commands containing the keyword argument 'rule'. The policy config will
-be reloaded on every startup of the bot itself. The boardcast is wrapped
+be reloaded on every startup of the bot itself. The broadcast is wrapped
 as a normal decorator, you need to decorate the function only.
 
 Additional features:
@@ -128,26 +128,26 @@ def empty() -> bool:
     return Rule(_empty)
 
 
-def boardcast(command_name: str) -> bool:
-    """Check the policy of each boardcast by name."""
+def broadcast(command_name: str) -> bool:
+    """Check the policy of each broadcast by name."""
     _name = command_name
 
-    def wrapper(func):
-        """A wrapper for the checker."""
+    def _broadcast(func):
+        """Check the policy of the broadcast."""
+        logger.debug('Checking broadcast: [%s].' % _name)
+        for bid, gid in valid():
+            try:
+                scheduler.add_job(func=func,
+                                  args=(bid, gid),
+                                  trigger='cron',
+                                  id='%s_broadcast_%s%s' % (_name, bid, gid),
+                                  misfire_grace_time=30,
+                                  replace_existing=True,
+                                  **policy_config[bid][gid][_name]['@'])
+            except Exception as e:
+                logger.debug('Skipped broadcast: [%s].' % _name)
 
-        async def _check() -> None:
-            """Check the policy of the boardcast."""
-            logger.debug('Checking boardcast: [%s].' % _name)
-            for bid, gid in valid_tuple:
-                try:
-                    scheduler.add_job('cron', kwargs=*policy_config[big][gid][_name]['@'], misfire_grace_time=30)
-                    await func(bid, gid)
-                except Exception:
-                    logger.warning('Failed to boardcast: [%s]. Please check your policy control.' % _name)
-
-        return _check
-
-    return wrapper
+    return _broadcast
 
 
 def create(command_name: str, bid: str, gid: str, policy_content: dict):
