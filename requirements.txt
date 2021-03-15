@@ -1,4 +1,4 @@
-nonebot2==2.0.0a10
+nonebot2==2.0.0a11
 nonebot-plugin-apscheduler==0.1.0
 nonebot-plugin-test==0.2.0
 42Points==1.2.6
