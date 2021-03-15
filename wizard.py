@@ -2,6 +2,7 @@
 
 import os
 import sys
+import json
 
 
 def question_prompt(item, default: str = ''):
@@ -20,7 +21,7 @@ def prompt_when_file_exist(filename):
     while os.path.isfile(fullname):
         result = input('This file exists on the disk, setting current '
                        'filename will override your file! Still proceed? '
-                       '[Y/n]')
+                       '[Y/n] ')
 
         if result and result[0].lower() == 'y':
             break
@@ -42,6 +43,59 @@ def exit_when_file_exist(filename):
               'it to proceed. It is strong recommended to have a backup '
               'of your file.' % filename)
         sys.exit()
+
+
+def setup_default_policy():
+    """Set up a default policy."""
+    policy = {
+        "dailymap": {
+            "@": {
+                "hour": 0,
+                "minute": 3,
+                "second": 0
+            }
+        },
+        "dailystar": {
+            "@": {
+                "hour": 0,
+                "minute": 1,
+                "second": 30
+            }
+        },
+        "autopvp": {
+            "@": {
+                "hour": 0,
+                "minute": 0,
+                "second": 0
+            }
+        },
+        "level": {
+            "@": {
+                "day_of_week": 0,
+                "hour": 0,
+                "minute": 0,
+                "second": 0
+            }
+        },
+        "calc42": {
+            "@": {
+                "hour": "8-23",
+                "minute": 42,
+                "second": 42
+            }
+        },
+        "group": {
+            "@": {
+                "hour": "3-23/4",
+                "minute": 0,
+                "second": 0
+            }
+        },
+        "supercmd": {
+            "+": []
+        }
+    }
+    return policy
 
 
 print('Hello! This is the wizard of littlefish. You need to enter some '
@@ -90,6 +144,25 @@ for k, v in config.items():
 with open(os.path.join(os.getcwd(), '.env'), 'w') as f:
     f.write(config_file)
 
+print('Setting up policy ...')
+policy = {}
+flag = True
+while flag:
+    try:
+        args = input('Please enter a bot_id and a group_id, or enter nothing to quit: ').split()
+        bid = args[0]
+        gid = args[1]
+        policy.setdefault(bid, {})
+        policy[bid].setdefault(gid, {})
+        policy[bid][gid] = setup_default_policy()
+        print('Policy for [bot %s] within [group %s] completed ...' % (bid, gid))
+    except Exception:
+        flag = bool(args)
+
+with open(os.path.join(os.getcwd(), config['policy_config_location']), 'w') as f:
+    f.write(json.dumps(policy, indent=4, sort_keys=True, ensure_ascii=False))
+
 print('You are all set! Run bot.py based on your to enjoy '
       'littlefish now. You can change your configurations '
-      'in .env later. Happy fishing!')
+      'in .env later. You can change you policy control in '
+      '%s later. Happy fishing!' % (config['policy_config_location']))
