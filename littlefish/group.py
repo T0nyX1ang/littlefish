@@ -23,7 +23,7 @@ from nonebot.log import logger
 from littlefish._exclaim import exclaim_msg
 from littlefish._mswar.api import get_user_info
 from littlefish._mswar.references import level_ref
-from littlefish._policy import check, broadcast
+from littlefish._policy import check, broadcast, empty
 from littlefish._db import save, load
 
 
@@ -59,9 +59,9 @@ say_hello = on_notice(priority=10, block=True, rule=check('group', GroupIncrease
 
 say_goodbye = on_notice(priority=10, block=True, rule=check('group', GroupDecreaseNoticeEvent))
 
-black_room = on_command(cmd='blackroom', aliases={'进入小黑屋'}, rule=check('group'))
+black_room = on_command(cmd='blackroom ', aliases={'进入小黑屋 '}, rule=check('group'))
 
-update_user = on_command(cmd='updateuser', aliases={'更新群成员'}, rule=check('group') & check('supercmd'))
+update_user = on_command(cmd='updateuser', aliases={'更新群成员'}, rule=check('group') & check('supercmd') & empty())
 
 
 @validate_user.handle()
@@ -136,7 +136,7 @@ async def black_room(bot: Bot, event: Event, state: dict):
     try:
         await bot.set_group_ban(group_id=group_id, user_id=user_id, duration=duration)
     except Exception:
-        await bot.send(event=event, message='权限不足，无法使用小黑屋~', at_sender=True)
+        await bot.send(event=event, message='权限不足，无法使用小黑屋~')
 
 
 @update_user.handle()
