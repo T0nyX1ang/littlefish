@@ -2,7 +2,7 @@
 
 ## 安装小鱼
 + 安装`go-cqhttp`。
-+ 安装`Python 3.7+`。
++ 安装`Python 3.7.3+`。
 + 安装依赖项:
 ```
     pip/pip3 install -r requirements.txt
