@@ -13,12 +13,7 @@ import time
 from nonebot.log import logger, default_format
 from nonebot.adapters.cqhttp import Bot
 
-run_time = time.time()
-time_sec = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(run_time))
-time_msec = '%03d' % ((run_time - int(run_time)) * 1000)
-file_time_tag = time_sec + '-' + time_msec
-
-logger.add("logs/%s-errors.log" % file_time_tag, rotation="00:00", diagnose=False, level="ERROR", format=default_format)
+logger.add("logs/errors_{time}.log", rotation="00:00", diagnose=False, level="ERROR", format=default_format)
 
 nonebot.init(debug=False)
 driver = nonebot.get_driver()
