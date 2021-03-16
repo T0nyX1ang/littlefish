@@ -68,15 +68,11 @@ async def fetch(page: str = '', query: str = ''):
     query: the query data you want to post. If "query" is empty,
            small changes will be made to fit in with the api.
     """
-    try:
-        hasquery = (len(query) > 0)
-        data = _aes_encrypt(query.encode()) if hasquery else None
-        validate_hash = hashlib.md5(data.encode()).hexdigest() if data else ''
-        url = 'http://' + mswar_host + page
-        async with httpx.AsyncClient() as client:  # using httpx instead
-            r = await client.post(url=url, data=data, headers=_generate_headers(validate_hash))
-        result = json.loads(_aes_decrypt(bytes.fromhex(r.text[32:])))
-        return result  # a dictionary will be generated
-    except Exception:
-        logger.error(traceback.format_exc())
-        return {}  # an empty dictionary will be generated
+    hasquery = (len(query) > 0)
+    data = _aes_encrypt(query.encode()) if hasquery else None
+    validate_hash = hashlib.md5(data.encode()).hexdigest() if data else ''
+    url = 'http://' + mswar_host + page
+    async with httpx.AsyncClient() as client:  # using httpx instead
+        r = await client.post(url=url, data=data, headers=_generate_headers(validate_hash))
+    result = json.loads(_aes_decrypt(bytes.fromhex(r.text[32:])))
+    return result  # a dictionary will be generated
