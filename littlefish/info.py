@@ -9,8 +9,10 @@ The command requires to be invoked in groups.
 """
 
 import time
+import traceback
 from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event
+from nonebot.log import logger
 from littlefish._exclaim import exclaim_msg
 from littlefish._policy import check, empty
 from littlefish._mswar.api import get_user_info
@@ -85,6 +87,7 @@ async def id_info(bot: Bot, event: Event, state: dict):
         user_info = await get_user_info(uid)
     except Exception:
         await bot.send(event=event, message='用户信息获取失败~')
+        logger.error(traceback.format_exc())
         return
 
     user_info_message = format_user_info(user_info)
@@ -106,6 +109,7 @@ async def id_battle(bot: Bot, event: Event, state: dict):
         uid1_info = await get_user_info(uid1, simple=True)
         uid2_info = await get_user_info(uid2, simple=True)
     except Exception:
+        logger.error(traceback.format_exc())
         await bot.send(event=event, message='用户信息获取失败~')
         return
 
@@ -143,6 +147,7 @@ async def _(bot: Bot, event: Event, state: dict):
     try:
         user_info = await get_user_info(uid)
     except Exception:
+        logger.error(traceback.format_exc())
         await bot.send(event=event, message='用户信息获取失败~')
         return
 
