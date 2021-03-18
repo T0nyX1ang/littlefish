@@ -1,9 +1,6 @@
 """
 An analyzer for minesweeping game.
 
-Please note that this module needs to be maintained or
-refactored properly.
-
 The analyzer will analyze available information during a game.
 Available information:
 * mode.
@@ -17,307 +14,231 @@ Available information:
 * ioe/iome.
 * qg/rqp.
 * corr/thrp.
-* stnb (in a standard game)
+* stnb (in a standard game).
 """
 
 import math
 
 
-def adjacent(row, col):
-    yield row - 1, col - 1
-    yield row, col - 1
-    yield row + 1, col - 1
-    yield row - 1, col
-    yield row + 1, col
-    yield row - 1, col + 1
-    yield row, col + 1
-    yield row + 1, col + 1
+class Board(object):
+    """Generate the board data from input."""
+
+    def __init__(self, raw_board: list):
+        """Initialize the board."""
+        self.result = {}
+        self.result['mines'] = 0
+        self.result['board'] = []
+        self.marker = []
+        for each_row in raw_board:
+            row = list(each_row)
+            mark = [1 if v == '9' else 0 for v in row]
+            self.marker.append(mark)  # construct the marks of the board
+            self.result['board'].append(row)  # convert the 1D raw board to 2D board
+            self.result['mines'] += sum(mark)
+
+        # get the information about row, columns
+        self.result['row'] = len(self.result['board'])
+        self.result['column'] = len(self.result['board'][0])
+        self.result['difficulty'] = self.get_difficulty()
+        self.result['op'] = self.get_openings_or_islands('openings')
+        self.result['bv'] = self.result['op'] + self.result['row'] * self.result['column'] - sum(sum(self.marker, []))
+        self.result['is'] = self.get_openings_or_islands('islands')
+
+    def get_difficulty(self) -> str:
+        """Get the difficulty of a board."""
+        size = (self.result['row'], self.result['column'], self.result['mines'])
+        difficulty_ref = {(8, 8, 10): 'beg', (16, 16, 40): 'int', (16, 30, 99): 'exp-h', (30, 16, 99): 'exp-v'}
+        try:
+            return difficulty_ref[size]
+        except Exception:
+            return '%dx%d + %d' % size
+
+    def filtered_adjacent(self, row: int, col: int, filters: list = [0]):
+        """Yield filtered adjacent coordinates."""
+        adjacent = [(row - 1, col - 1), (row, col - 1), (row + 1, col - 1), (row - 1, col), (row + 1, col), (row - 1, col + 1),
+                    (row, col + 1), (row + 1, col + 1)]
+        for r, c in adjacent:
+            if 0 <= r < self.result['row'] and 0 <= c < self.result['column'] and self.marker[r][c] in filters:
+                yield r, c
+
+    def recur_mark(self, row: int, col: int, condition: bool, mark: int):
+        """Mark an area recursively."""
+        self.marker[row][col] = mark
+        if condition(self.result['board'][row][col]):
+            for next_row, next_col in self.filtered_adjacent(row, col):
+                self.marker[next_row][next_col] = mark
+                self.recur_mark(next_row, next_col, condition, mark)
+
+    def get_openings_or_islands(self, _type: str) -> int:
+        """Get opening or islands of a board."""
+        items = 0
+        ref = {
+            'openings': lambda x: x == '0',
+            'islands': lambda x: x not in '09',
+        }
+        for v in range(self.result['row'] * self.result['column']):
+            row = v // self.result['column']
+            col = v % self.result['column']
+            if not self.marker[row][col] and ref[_type](self.result['board'][row][col]):
+                items += 1
+                self.recur_mark(row, col, ref[_type], 1)
+        return items
+
+    def get_result(self) -> dict:
+        """Get the result in dict format."""
+        return self.result
 
 
-def get_board(board_detail):
-    board = []
-    for each_row in board_detail:
-        row = list(each_row)
-        board.append(row)
-    return board
+class Record(Board):
+    """Generate record data from board and action."""
 
+    def __init__(self, raw_board: list, raw_action: list):
+        """Initialize the record."""
+        super(Record, self).__init__(raw_board)
+        self._threshold = 3  # the threshold between press and release
+        self.marker = [[0 for col in range(self.result['column'])] for row in range(self.result['row'])]
+        self.action = [list(map(int, v.split(':'))) for v in raw_action]
+        for current in range(len(self.action)):
+            self.__refine_action(current)
+        self.result['rtime'] = self.action[-1][3] / 1000
+        self.get_action_detail()
+        self.result['flags'], self.unflags, self.misflags, self.misunflags = 0, 0, 0, 0
+        self.result['ce'], self.result['solved_bv'], self.result['solved_op'] = 0, 0, 0
+        for current in range(len(self.action)):
+            self.replay_stepwise(current)
+        self.wasted_flags = self.misflags + self.unflags + self.misunflags
+        self.get_record_detail()
 
-def get_row(board):
-    return len(board)
+    def __find_final(self, start: int, direction: int, row: int, col: int) -> int:
+        """Find out the assurance final key and show whether a valid key is found. The direction should be +1 or -1."""
+        final = start + direction
+        while 0 <= final < len(
+                self.action) and (self.action[final][3] - self.action[start][3]) * direction <= self._threshold and not (
+                    self.action[final][0] == 1 and self.action[final][1] == row and self.action[final][2] == col):
+            final += direction
+        return final, 0 <= final < len(
+            self.action) and (self.action[final][3] - self.action[start][3]) * direction <= self._threshold
 
+    def __refine_action(self, current):
+        """
+        Refine the action to distinguish the actions that are really useful in a record.
 
-def get_column(board):
-    return len(board[0])
+        Find out the core keys in press (2) and release (3), and rename them to another opcode (4) for further use.
+        """
+        if self.action[current][0] != 3:
+            return  # only focus on release key
 
+        tag_row, tag_col = self.action[current][1:3]
+        release = current
 
-def get_mines(board, marker):
-    mines = 0
-    for row in range(0, get_row(board)):
-        for col in range(0, get_column(board)):
-            if board[row][col] == '9':
-                mines += 1
-                marker[row][col] = True
-    return mines
+        # find out the assurance final key
+        final, found = self.__find_final(release, +1, tag_row, tag_col)  # move forwards
+        if found:
+            self.action[final][0] = 4
+        else:
+            final, found = self.__find_final(release, -1, tag_row, tag_col)  # move backwards
+            if found:
+                self.action[final][0] = 4
 
+    def __deal_with_click(self, row: int, col: int) -> bool:
+        """Deal with clicking operation (corresponding to opcode 0)."""
+        if self.marker[row][col] != 0:  # the block is opened
+            return False  # do nothing, the click is ineffective
 
-def get_difficulty(row, column, mines):
-    size = (row, column, mines)
-    if size == (8, 8, 10):
-        return 'beg'
-    elif size == (16, 16, 40):
-        return 'int'
-    elif size == (16, 30, 99):
-        return 'exp-h'
-    elif size == (30, 16, 99):
-        return 'exp-v'
-    else:
-        return '%dx%d + %d' % size
+        # the block is not opened otherwise
+        if self.result['board'][row][col] == '9':  # step on a mine, oops
+            self.marker[row][col] = -2  # mark the blast with a special number
+        elif self.result['board'][row][col] == '0':  # step on an opening, ^wow^
+            self.result['solved_bv'] += 1
+            self.result['solved_op'] += 1
+            self.marker[row][col] = 1
+            self.recur_mark(row, col, lambda x: x == '0', 1)  # mark everything is the opening
+        else:  # normal click, nothing happens
+            # bv is added when the click is not on the edge of an opening
+            self.result['solved_bv'] += ('0' not in [self.result['board'][r][c] for r, c in self.filtered_adjacent(row, col)])
+            self.marker[row][col] = 1
 
+        return True  # any direct click is effective
 
-def get_openings(board, marker):
-    openings = 0
-    rows = get_row(board)
-    cols = get_column(board)
-    for row in range(0, rows):
-        for col in range(0, cols):
-            if board[row][col] == '0' and not marker[row][col]:
-                openings += 1
-                marker[row][col] = True
-                stack = [('0', row, col)]
-                while len(stack) > 0:
-                    cur_num, cur_row, cur_col = stack.pop()
-                    marker[cur_row][cur_col] = True
-                    # open again if find an opening
-                    if cur_num == '0':
-                        for each_coord in adjacent(cur_row, cur_col):
-                            ready_row, ready_col = each_coord
-                            if 0 <= ready_row < rows and 0 <= ready_col < cols and not marker[ready_row][ready_col]:
-                                ready_num = board[ready_row][ready_col]
-                                stack.append((ready_num, ready_row, ready_col))
-                                marker[ready_row][ready_col] = True
-    return openings
+    def __deal_with_flag(self, row: int, col: int):
+        """Deal with flagging operation (corresponding to opcode 1)."""
+        if self.marker[row][col] == 0:  # flagging
+            self.result['flags'] += 1  # count flags
+            self.marker[row][col] = -1  # mark the flag
+            self.misflags += self.result['board'][row][col] != '9'  # count misflags
+        elif self.marker[row][col] == -1:  # unflagging
+            misunflag_tag = self.result['board'][row][col] == '9'
+            self.result['flags'] -= 1  # count flags
+            self.marker[row][col] = 0  # unmark the flag
+            self.misunflags += misunflag_tag  # count misunflags
+            self.unflags += (not misunflag_tag)  # count unflags (opposite to misunflags)
 
+        return True  # any direct click is effective
 
-def get_isolated_bv(board, marker):
-    isolated_bv = 0
-    for row in range(0, get_row(board)):
-        for col in range(0, get_column(board)):
-            if not marker[row][col]:
-                isolated_bv += 1
-    return isolated_bv
+    def __deal_with_chord(self, row: int, col: int):
+        """Deal with chording operation (corresponding to opcode 4)."""
+        adjacent_flagged = list(self.filtered_adjacent(row, col, [-1]))
+        adjacent_unopened = list(self.filtered_adjacent(row, col))
+        if len(adjacent_flagged) != int(
+                self.result['board'][row][col]) or len(adjacent_flagged) == 0 or len(adjacent_unopened) == 0:
+            # trivial case, the chord operation is ineffective here
+            return False
 
+        for r, c in adjacent_unopened:
+            self.__deal_with_click(r, c)  # do the job as a click
 
-def get_islands(board, marker):
-    islands = 0
-    rows = get_row(board)
-    cols = get_column(board)
-    for row in range(0, rows):
-        for col in range(0, cols):
-            if not marker[row][col]:
-                islands += 1
-                marker[row][col] = True
-                stack = [(row, col)]
-                while len(stack) > 0:
-                    cur_row, cur_col = stack.pop()
-                    marker[cur_row][cur_col] = True
-                    # search again if find an adjacent isolated bv
-                    for each_coord in adjacent(cur_row, cur_col):
-                        ready_row, ready_col = each_coord
-                        if 0 <= ready_row < rows and 0 <= ready_col < cols and not marker[ready_row][ready_col]:
-                            stack.append((ready_row, ready_col))
-                            marker[ready_row][ready_col] = True
-    return islands
+        for r, c in adjacent_flagged:
+            # if misjudge, mark with a special number (-3), otherwise remain the original status (-1)
+            self.marker[r][c] -= 2 * (self.result['board'][r][c] != '9')
 
+        return True
 
-def get_action(action_detail):
-    split_action = []
-    for each_action in action_detail:
-        operation, row, column, current_time = each_action.split(':')
-        split_action.append([int(operation), int(row), int(column), int(current_time)])
+    def get_action_detail(self):
+        """Get total path length (Euclidean), clicks (L, R, D, total), clicks per second (cls), and style from action."""
+        self.result['path'], self.result['left'], self.result['right'], self.result['double'], current, last = 0, 0, 0, 0, 0, 0
+        while current < len(self.action):
+            if self.action[current][0] in [0, 1, 4]:
+                self.result['path'] += math.sqrt((self.action[current][1] - self.action[last][1])**2 +
+                                                 (self.action[current][2] - self.action[last][2])**2)
+                self.result['left'] += (self.action[current][0] == 0)
+                self.result['right'] += (self.action[current][0] == 1)
+                self.result['double'] += (self.action[current][0] == 4)
+                last = current
+            current += 1
+        self.result['cl'] = self.result['left'] + self.result['right'] + self.result['double']
+        self.result['cls'] = self.result['cl'] / self.result['rtime']
+        self.result['style'] = 'FL' if self.result['right'] > 0 else 'NF'
 
-    current, threshold = 0, 3
-    while current < len(split_action):
-        # find out the release key
-        if (split_action[current][0] == 3):
-            tag_row = split_action[current][1]
-            tag_col = split_action[current][2]
-            release = current
-            # find out the assurance final key
-            if release < len(split_action):
-                final = release + 1
-                while final < len(split_action) and (split_action[final][3] - split_action[release][3] <= threshold) and (
-                        split_action[final][0] != 1 or split_action[final][1] != tag_row or split_action[final][2] != tag_col):
-                    final += 1
-                if final < len(split_action) and (split_action[final][3] - split_action[release][3] <= threshold):
-                    split_action[final][0] = 4
-                else:
-                    final = release - 1
-                    while final >= 0 and (split_action[release][3] - split_action[final][3] <=
-                                          threshold) and (split_action[final][0] != 1 or split_action[final][1] != tag_row or
-                                                          split_action[final][2] != tag_col):
-                        final -= 1
-                    if final >= 0 and (split_action[release][3] - split_action[final][3] <= threshold):
-                        split_action[final][0] = 4
-        current += 1
-    return split_action
+    def replay_stepwise(self, current):
+        """Replay the game stepwise to gather detailed information."""
+        opcode, row, col, _ = self.action[current]
+        if opcode == 0:
+            self.result['ce'] += self.__deal_with_click(row, col)
+        elif opcode == 1:
+            self.result['ce'] += self.__deal_with_flag(row, col)
+        elif opcode == 4:
+            self.result['ce'] += self.__deal_with_chord(row, col)
 
+    def get_record_detail(self):
+        """Get detailed information about the record."""
+        self.result['bvs'] = self.result['solved_bv'] / self.result['rtime']
+        if self.result['solved_bv'] == 0:
+            self.result['est'], self.result['rqp'], self.result['qg'], self.result['iome'] = ' - ', ' - ', ' - ', 0.0
+        else:
+            self.result['est'] = self.result['rtime'] / self.result['solved_bv'] * self.result['bv']
+            self.result['rqp'] = (self.result['rtime'] + 1) / self.result['bvs']
+            self.result['qg'] = self.result['rtime']**1.7 / self.result['solved_bv']
+            self.result['iome'] = self.result['solved_bv'] / self.result['path']
+        self.result['ces'] = self.result['ce'] / self.result['rtime']
+        self.result['corr'] = (self.result['ce'] - self.wasted_flags -
+                               (self.result['bv'] != self.result['solved_bv'])) / self.result['cl']
+        self.result['thrp'] = self.result['solved_bv'] / self.result['ce']
+        self.result['ioe'] = self.result['solved_bv'] / self.result['cl']
 
-def get_rtime(action):
-    return action[-1][3] / 1000
-
-
-def get_path(action):
-    path = 0
-    current, last = 0, 0
-    while current < len(action):
-        if action[current][0] in [0, 1, 4]:
-            path += math.sqrt((action[current][1] - action[last][1])**2 + (action[current][2] - action[last][2])**2)
-            last = current
-        current += 1
-    return path
-
-
-def get_clicks(action):
-    left, double, right = 0, 0, 0
-    for current in range(0, len(action)):
-        if action[current][0] == 0:
-            left += 1
-        elif action[current][0] == 1:
-            right += 1
-        elif action[current][0] == 4:
-            double += 1
-
-    return left, right, double
-
-
-def get_effective_operations(board, action):
-    rows = get_row(board)
-    cols = get_column(board)
-    current_status = [[0 for col in range(0, get_column(board))] for row in range(0, get_row(board))]
-    effective, flags, unflags, misflags, misunflags, solved = 0, 0, 0, 0, 0, {'op': 0, 'bv': 0}
-
-    def deal_with_op(row, col):
-        number = board[row][col]
-        if number == '0':
-            solved['op'] += 1
-            solved['bv'] += 1
-        elif number != '9':
-            if '0' not in [
-                    board[each_coord[0]][each_coord[1]]
-                    for each_coord in adjacent(row, col)
-                    if 0 <= each_coord[0] < rows and 0 <= each_coord[1] < cols
-            ]:
-                solved['bv'] += 1
-
-        stack = [(number, row, col)]
-        while len(stack) > 0:
-            cur_num, cur_row, cur_col = stack.pop()
-
-            if cur_num == '9':
-                current_status[cur_row][cur_col] = -2
-
-            # open again if find an opening
-            if cur_num == '0':
-                for each_coord in adjacent(cur_row, cur_col):
-                    ready_row, ready_col = each_coord
-                    if 0 <= ready_row < rows and 0 <= ready_col < cols and not current_status[ready_row][
-                            ready_col] and board[ready_row][ready_col] != '9':
-                        ready_num = board[ready_row][ready_col]
-                        stack.append((ready_num, ready_row, ready_col))
-                        current_status[ready_row][ready_col] = 1
-
-    for current in range(0, len(action)):
-        act_no, row, col, time = action[current]
-
-        if act_no == 0:
-            # deal with opening
-            if current_status[row][col] == 0:
-                effective += 1
-                current_status[row][col] = 1
-                deal_with_op(row, col)
-
-        elif act_no == 1:
-            # deal with flagging and unflagging
-            effective += 1
-            if current_status[row][col] == 0:
-                flags += 1
-                current_status[row][col] = -1
-                if board[row][col] != '9':
-                    misflags += 1
-            elif current_status[row][col] == -1:
-                flags -= 1
-                current_status[row][col] = 0
-                if board[row][col] == '9':
-                    misunflags += 1
-                else:
-                    unflags += 1
-
-        elif act_no == 4:
-            # deal with chording
-            adjacent_mines, adjacent_unopen = 0, 0
-            for each_coord in adjacent(row, col):
-                ready_row, ready_col = each_coord
-                if 0 <= ready_row < rows and 0 <= ready_col < cols and current_status[ready_row][ready_col] == -1:
-                    adjacent_mines += 1
-                elif 0 <= ready_row < rows and 0 <= ready_col < cols and current_status[ready_row][ready_col] == 0:
-                    adjacent_unopen += 1
-
-            if adjacent_mines == int(board[row][col]) and adjacent_mines > 0 and adjacent_unopen:
-                effective += 1
-                for each_coord in adjacent(row, col):
-                    ready_row, ready_col = each_coord
-                    if 0 <= ready_row < rows and 0 <= ready_col < cols:
-                        if not current_status[ready_row][ready_col] and board[ready_row][ready_col] != '9':
-                            current_status[ready_row][ready_col] = 1
-                            deal_with_op(ready_row, ready_col)
-                        elif current_status[ready_row][ready_col] == -1 and board[ready_row][ready_col] != '9':
-                            current_status[ready_row][ready_col] = -3
-
-    return effective, flags, unflags + misflags + misunflags, solved['op'], solved['bv'], current_status
-
-
-def get_board_result(board):
-    result = {}
-    result['board'] = board
-    result['row'] = get_row(board)
-    result['column'] = get_column(board)
-
-    marker = [[False for col in range(0, get_column(board))] for row in range(0, get_row(board))]
-    result['mines'] = get_mines(board, marker)
-    result['difficulty'] = get_difficulty(result['row'], result['column'], result['mines'])
-    result['op'] = get_openings(board, marker)
-    result['bv'] = result['op'] + get_isolated_bv(board, marker)
-    result['is'] = get_islands(board, marker)
-    return result
-
-
-def get_result(board, action):
-    result = get_board_result(board)
-
-    result['rtime'] = get_rtime(action)
-    result['path'] = get_path(action)
-
-    result['left'], result['right'], result['double'] = get_clicks(action)
-    result['cl'] = result['left'] + result['right'] + result['double']
-    result['ce'], result['flags'], result['wasted_flagging'], result['solved_op'], result['solved_bv'], result[
-        'current_status'] = get_effective_operations(board, action)
-
-    result['fmode'] = 'FL' if result['right'] > 0 else 'NF'
-    result['bvs'] = result['solved_bv'] / result['rtime']
-    result['est'] = result['rtime'] / result['solved_bv'] * result['bv'] if result['solved_bv'] else math.inf
-    result['rqp'] = (result['rtime'] + 1) / result['bvs'] if result['solved_bv'] else math.inf
-    result['qg'] = result['rtime']**1.7 / result['solved_bv'] if result['solved_bv'] else math.inf
-    result['cls'] = result['cl'] / result['rtime']
-    result['ces'] = result['ce'] / result['rtime']
-    result['corr'] = (result['ce'] - result['wasted_flagging'] - (result['solved_bv'] != result['bv'])) / result['cl']
-    result['thrp'] = result['solved_bv'] / result['ce']
-    result['ioe'] = result['solved_bv'] / result['cl']
-    result['iome'] = result['solved_bv'] / result['path'] if result['solved_bv'] else 0.0  # if path is 0, solved_bv must be 0
-
-    mode_ref = {'beg': 1, 'int': 2, 'exp-v': 3, 'exp-h': 3}
-    if result['difficulty'] in mode_ref:
-        mode = mode_ref[result['difficulty']]
-        result['stnb'] = (87.420 * (mode**2) - 155.829 * mode + 115.708) / (
-            result['qg'] * math.sqrt(result['solved_bv'] / result['bv'])) if result['solved_bv'] else 0.0
-
-    return result
+        mode_ref = {'beg': 1, 'int': 2, 'exp-v': 3, 'exp-h': 3}
+        if self.result['difficulty'] in mode_ref and self.result['solved_bv'] > 0:
+            mode = mode_ref[self.result['difficulty']]
+            self.result['stnb'] = (87.420 * (mode**2) - 155.829 * mode +
+                                   115.708) / (self.result['qg'] * math.sqrt(self.result['solved_bv'] / self.result['bv']))
+        else:
+            self.result['stnb'] = ' - '
