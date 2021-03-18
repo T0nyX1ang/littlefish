@@ -1,5 +1,4 @@
-"""
-Base operations for the minesweeper game.
+"""Base operations for the minesweeper game.
 
 The plugin includes:
 An analyzer for the map.

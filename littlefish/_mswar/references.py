@@ -1,5 +1,4 @@
-"""
-References of data received from minesweeper app.
+"""References of data received from minesweeper app.
 
 Please use it as a dictionary.
 """

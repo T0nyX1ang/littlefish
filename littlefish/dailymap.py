@@ -1,5 +1,4 @@
-"""
-Fetch the information of the daily map.
+"""Fetch the information of the daily map.
 
 The information includes:
 Map: lines, columns, mines, bv, openings, islands.
@@ -31,10 +30,10 @@ def format_daily_map(daily_map: dict) -> str:
     return result_message.strip()
 
 
-dailymap = on_command(cmd='dailymap', aliases={'每日一图'}, rule=check('dailymap') & empty())
+dailymap_command = on_command(cmd='dailymap', aliases={'每日一图'}, rule=check('dailymap') & empty())
 
 
-@dailymap.handle()
+@dailymap_command.handle()
 async def dailymap(bot: Bot, event: Event, state: dict):
     """Handle the dailymap command."""
     daily_map_info = await get_daily_map()
@@ -42,7 +41,7 @@ async def dailymap(bot: Bot, event: Event, state: dict):
 
 
 @broadcast('dailymap')
-async def _(bot_id: str, group_id: str):
+async def dailymap_broadcast(bot_id: str, group_id: str):
     """Scheduled dailymap broadcast."""
     daily_map = await get_daily_map()
     message = format_daily_map(daily_map)

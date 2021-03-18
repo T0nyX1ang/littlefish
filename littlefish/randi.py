@@ -1,5 +1,4 @@
-"""
-Generate random integers.
+"""Generate random integers.
 
 Invoke this command by: [begin] [end] [count] [extras]
 Available extra commands:
@@ -39,7 +38,7 @@ def get_randi(begin: int, end: int, count: int, extras: list) -> list:
 
 
 @randi.handle()
-async def randi(bot: Bot, event: Event, state: dict):
+async def show_randi(bot: Bot, event: Event, state: dict):
     """Generate random integers."""
     args = str(event.message).split()
     try:

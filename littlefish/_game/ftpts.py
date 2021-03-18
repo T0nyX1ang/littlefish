@@ -1,5 +1,4 @@
-"""
-Basic operations of ftpts(calc42) game.
+"""Basic operations of ftpts(calc42) game.
 
 Available operations:
 * initialize the game.
@@ -10,7 +9,6 @@ Available operations:
 * get the current problem
 """
 
-import datetime
 import itertools
 import nonebot
 import random

@@ -1,5 +1,4 @@
-"""
-A method to push live message in groups.
+"""A method to push live message in groups.
 
 The information includes:
 nickname, liveroom_url, liveroom_title of a subscribed user.
@@ -68,7 +67,7 @@ subscriber = on_command(cmd='subscribe ', aliases={'订阅用户 '}, rule=check(
 
 
 @subscriber.handle()
-async def subscriber(bot: Bot, event: Event, state: dict):
+async def subscriber_update(bot: Bot, event: Event, state: dict):
     """Handle the subscribe command."""
     universal_id = str(event.self_id) + str(event.group_id)
     subscribed_list = load(universal_id, 'subscribed_list')
@@ -94,7 +93,7 @@ async def subscriber(bot: Bot, event: Event, state: dict):
 
 
 @broadcast('bilipush')
-async def _(bot_id: str, group_id: str):
+async def bilipush_broadcast(bot_id: str, group_id: str):
     """Push the live message."""
     bot = nonebot.get_bots()[bot_id]
     universal_id = str(bot_id) + str(group_id)

@@ -1,5 +1,4 @@
-"""
-Fetch the infomation of the level status.
+"""Fetch the infomation of the level status.
 
 The information includes:
 The number of people in each rank.
@@ -57,14 +56,14 @@ def format_level_list(level_list_data: dict) -> str:
 
 
 @level.handle()
-async def level(bot: Bot, event: Event, state: dict):
+async def show_level(bot: Bot, event: Event, state: dict):
     """Handle the level command."""
     level_list_data = await get_level_list()
     await bot.send(event=event, message=format_level_list(level_list_data))
 
 
 @broadcast('level')
-async def _(bot_id: str, group_id: str):
+async def level_broadcast(bot_id: str, group_id: str):
     """Scheduled level broadcast at 00:00:00(weekly)."""
     level_list_data = await get_level_list()
     message = format_level_list(level_list_data)
@@ -77,7 +76,7 @@ async def _(bot_id: str, group_id: str):
 
 
 @scheduler.scheduled_job('cron', day_of_week=0, hour=0, minute=0, second=0, misfire_grace_time=30)
-async def _():
+async def scheduled_level_fetch():
     """Scheduled level infomation fetch at 00:00:00(weekly)."""
     level_list_data = await get_level_list()
     save('0', 'level_history', level_list_data)

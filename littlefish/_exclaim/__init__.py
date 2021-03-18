@@ -1,5 +1,4 @@
-"""
-A exclaim module which handles the words to express in several situations.
+"""A exclaim module which handles the words to express in several situations.
 
 The module will load the exclaim resource location by the location.
 About the resource file:
@@ -50,12 +49,12 @@ import csv
 import os
 import random
 import nonebot
-from .config import Config
+from .config import ResourceConfig
 from nonebot.log import logger
 from nonebot.adapters.cqhttp import Message
 
 global_config = nonebot.get_driver().config
-plugin_config = Config(**global_config.dict())
+plugin_config = ResourceConfig(**global_config.dict())
 resource_location = os.path.join(os.getcwd(), plugin_config.resource_location)
 frequent_face_id = list(set(plugin_config.frequent_face_id))
 

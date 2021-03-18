@@ -1,5 +1,6 @@
-"""
-A game to calculate 42 with 5 numbers between 0 and 13.
+"""A game to calculate 42 with 5 numbers between 0 and 13.
+
+The rules can be found by invoking 'guide42' in groups.
 
 The command requires to be invoked in groups.
 """
@@ -186,16 +187,16 @@ async def show_solutions(bot: Bot, universal_id: str, result: dict):
         await bot.send_group_forward_msg(group_id=group_id, messages=Message(message))
 
 
-solve_problem = on_command(cmd='calc42 ', aliases={'42点 '}, rule=check('calc42'))
+problem_solver = on_command(cmd='calc42 ', aliases={'42点 '}, rule=check('calc42'))
 
-get_score = on_command(cmd='score42', aliases={'42点得分', '42点积分'}, rule=check('calc42') & empty())
+score_viewer = on_command(cmd='score42', aliases={'42点得分', '42点积分'}, rule=check('calc42') & empty())
 
-get_rank = on_command(cmd='rank42', aliases={'42点排名', '42点排行'}, rule=check('calc42') & empty())
+rank_viewer = on_command(cmd='rank42', aliases={'42点排名', '42点排行'}, rule=check('calc42') & empty())
 
-manual_calc42 = on_command(cmd='manual42 ', aliases={'手动42点 '}, rule=check('calc42') & check('calc42_temp'))
+manual_player = on_command(cmd='manual42 ', aliases={'手动42点 '}, rule=check('calc42') & check('calc42_temp'))
 
 
-@solve_problem.handle()
+@problem_solver.handle()
 async def solve_problem(bot: Bot, event: Event, state: dict):
     """Handle the calc42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
@@ -224,8 +225,8 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
         await finish_game(bot, universal_id)
 
 
-@get_score.handle()
-async def get_score(bot: Bot, event: Event, state: dict):
+@score_viewer.handle()
+async def view_score(bot: Bot, event: Event, state: dict):
     """Handle the score42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
     user_id = f'{event.user_id}'
@@ -248,8 +249,8 @@ async def get_score(bot: Bot, event: Event, state: dict):
                        message='当前积分: %d，排名: %d，距上一名%d分，' % (score, result + 1, distance) + exclaim_msg('大佬', '2', False))
 
 
-@get_rank.handle()
-async def get_rank(bot: Bot, event: Event, state: dict):
+@rank_viewer.handle()
+async def view_rank(bot: Bot, event: Event, state: dict):
     """Handle the rank42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
     members = load(universal_id, 'members')
@@ -269,7 +270,7 @@ async def get_rank(bot: Bot, event: Event, state: dict):
     await bot.send(event=event, message=rank_message.strip())
 
 
-@manual_calc42.handle()
+@manual_player.handle()
 async def manual_calc42(bot: Bot, event: Event, state: dict):
     """Control the calc42 game manually."""
     universal_id = str(event.self_id) + str(event.group_id)
@@ -283,7 +284,7 @@ async def manual_calc42(bot: Bot, event: Event, state: dict):
 
 
 @broadcast('calc42')
-async def _(bot_id: str, group_id: str):
+async def calc42_broadcast(bot_id: str, group_id: str):
     """Boardcast a calc42 game."""
     bot = nonebot.get_bots()[bot_id]
     universal_id = str(bot_id) + str(group_id)

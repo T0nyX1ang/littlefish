@@ -1,5 +1,4 @@
-"""
-Fetch the information of the daily star.
+"""Fetch the information of the daily star.
 
 The information includes:
 The user information of the daily star.
@@ -65,7 +64,7 @@ dailystar_count = on_command(cmd='dailystarcount ', aliases={'联萌每日一星
 
 
 @dailystar.handle()
-async def dailystar(bot: Bot, event: Event, state: dict):
+async def show_dailystar(bot: Bot, event: Event, state: dict):
     """Handle the dailystar command."""
     daily_star_info = await get_daily_star()
     _save_daily_star(str(daily_star_info['uid']))
@@ -73,7 +72,7 @@ async def dailystar(bot: Bot, event: Event, state: dict):
 
 
 @dailystar_count.handle()
-async def dailystar_count(bot: Bot, event: Event, state: dict):
+async def show_dailystar_count(bot: Bot, event: Event, state: dict):
     """Handle the dailystar_count command."""
     try:
         uid = str(int(str(event.message).strip()))
@@ -91,7 +90,7 @@ async def dailystar_count(bot: Bot, event: Event, state: dict):
 
 
 @broadcast('dailystar')
-async def _(bot_id: str, group_id: str):
+async def dailystar_broadcast(bot_id: str, group_id: str):
     """Scheduled dailystar broadcast."""
     daily_star = await get_daily_star()
     _save_daily_star(str(daily_star['uid']))

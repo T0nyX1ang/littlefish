@@ -1,5 +1,4 @@
-"""
-Configurations for the mswar plugin.
+"""Configurations for the mswar plugin.
 
 * Account configuration:
 Please write your configurations in the global setting file.
@@ -21,8 +20,8 @@ from pydantic import BaseSettings
 
 
 class AccountConfig(BaseSettings):
+    """Configurations for account."""
 
-    # Configuration goes here.
     mswar_uid: str = ""
     mswar_token: str = ""
     mswar_host: str = ""
@@ -31,13 +30,15 @@ class AccountConfig(BaseSettings):
     mswar_decryption_key: str = ""
 
     class Config:
+        """Deal with extra configurations."""
         extra = "ignore"
 
 
 class PVPConfig(BaseSettings):
+    """Configurations for autopvp account."""
 
-    # Configuration goes here.
     autopvp_uid: str = ""
 
     class Config:
+        """Deal with extra configurations."""
         extra = "ignore"

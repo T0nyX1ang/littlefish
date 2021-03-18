@@ -1,5 +1,4 @@
-"""
-Make the bot more responsive to words.
+"""Make the bot more responsive to words.
 
 The command requires to be invoked in groups.
 """
@@ -25,14 +24,14 @@ poke_greet = on_notice(priority=10, block=True, rule=check('exclaim', PokeNotify
 
 
 @admire.handle()
-async def admire(bot: Bot, event: Event, state: dict):
+async def show_admire(bot: Bot, event: Event, state: dict):
     """Admire the person."""
     person = str(event.message).strip()
     await bot.send(event=event, message=exclaim_msg(person, '1', True))
 
 
 @praise.handle()
-async def praise(bot: Bot, event: Event, state: dict):
+async def show_praise(bot: Bot, event: Event, state: dict):
     """Praise the person."""
     person = str(event.message).strip()
     message = exclaim_msg(person, '1', False)
@@ -41,14 +40,14 @@ async def praise(bot: Bot, event: Event, state: dict):
 
 
 @cheer.handle()
-async def cheer(bot: Bot, event: Event, state: dict):
+async def show_cheer(bot: Bot, event: Event, state: dict):
     """Cheer the person."""
     person = str(event.message).strip()
     await bot.send(event=event, message=exclaim_msg(person, '2', True))
 
 
 @cheer_ending.handle()
-async def cheer_ending(bot: Bot, event: Event, state: dict):
+async def show_cheer_ending(bot: Bot, event: Event, state: dict):
     """Cheer the person with the ending."""
     if str(event.message).strip()[-2:] != '加油':
         return  # recheck the message
@@ -57,7 +56,7 @@ async def cheer_ending(bot: Bot, event: Event, state: dict):
 
 
 @greet.handle()
-async def greet(bot: Bot, event: Event, state: dict):
+async def show_greet(bot: Bot, event: Event, state: dict):
     """Greet the person."""
     current_time = datetime.datetime.now()
     current_hour = current_time.hour
@@ -69,7 +68,7 @@ async def greet(bot: Bot, event: Event, state: dict):
 
 
 @poke_greet.handle()
-async def poke_greet(bot: Bot, event: Event, state: dict):
+async def show_poke_greet(bot: Bot, event: Event, state: dict):
     """Greet the person when the bot is poked."""
     if event.target_id == event.self_id:  # ensure poking target
-        await greet(bot, event, state)
+        await show_greet(bot, event, state)

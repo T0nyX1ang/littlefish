@@ -1,5 +1,4 @@
-"""
-Analyze a minesweeper game from post_id or record_id.
+"""Analyze a minesweeper game from post_id or record_id.
 
 Available information:
 * board info, action info.

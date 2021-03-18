@@ -1,5 +1,4 @@
-"""
-Print the version of littlefish.
+"""Print the version of littlefish.
 
 Support version check, version display on first connection.
 """
@@ -44,7 +43,7 @@ version_checker = on_metaevent(priority=1, block=True, temp=True)
 
 
 @version_checker.handle()
-async def version_checker(bot: Bot, event: Event, state: dict):
+async def check_version(bot: Bot, event: Event, state: dict):
     """Handle the version checker metaevent."""
     if not isinstance(event, LifecycleMetaEvent):
         return

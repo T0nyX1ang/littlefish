@@ -1,5 +1,4 @@
-"""
-Group relevant commands.
+"""Group relevant commands.
 
 Available features:
 * check before a user joins the group
@@ -7,6 +6,8 @@ Available features:
 * say goodbye when a user leaves the group
 * update group members' information (invoked every 4 hours automatically)
 * set block wordlist when repeating
+
+The command requires to be invoked in groups.
 """
 
 import nonebot
@@ -53,7 +54,7 @@ async def update_group_members(bot: Bot, group_id: int):
         save(universal_id, 'members', members)
 
 
-validate_user = on_request(priority=10, block=True, rule=check('group', GroupRequestEvent) & check('info', GroupRequestEvent))
+user_validator = on_request(priority=10, block=True, rule=check('group', GroupRequestEvent) & check('info', GroupRequestEvent))
 
 say_hello = on_notice(priority=10, block=True, rule=check('group', GroupIncreaseNoticeEvent))
 
@@ -61,10 +62,10 @@ say_goodbye = on_notice(priority=10, block=True, rule=check('group', GroupDecrea
 
 black_room = on_command(cmd='blackroom ', aliases={'进入小黑屋 '}, rule=check('group'))
 
-update_user = on_command(cmd='updateuser', aliases={'更新群成员'}, rule=check('group') & check('supercmd') & empty())
+user_updater = on_command(cmd='updateuser', aliases={'更新群成员'}, rule=check('group') & check('supercmd') & empty())
 
 
-@validate_user.handle()
+@user_validator.handle()
 async def validate_user(bot: Bot, event: Event, state: dict):
     """Handle the validate_user command. Admin privilege required."""
     if event.sub_type != 'add':
@@ -89,7 +90,7 @@ async def validate_user(bot: Bot, event: Event, state: dict):
 
 
 @say_hello.handle()
-async def say_hello(bot: Bot, event: Event, state: dict):
+async def say_hello_on_entering(bot: Bot, event: Event, state: dict):
     """Handle the say_hello command."""
     universal_id = str(event.self_id) + str(event.group_id)
     join_id = f'{event.user_id}'
@@ -110,7 +111,7 @@ async def say_hello(bot: Bot, event: Event, state: dict):
 
 
 @say_goodbye.handle()
-async def say_goodbye(bot: Bot, event: Event, state: dict):
+async def say_goodbye_on_leaving(bot: Bot, event: Event, state: dict):
     """Handle the say_goodbye command. Admin privilege required."""
     universal_id = str(event.self_id) + str(event.group_id)
     leave_id = f'{event.user_id}'
@@ -121,7 +122,7 @@ async def say_goodbye(bot: Bot, event: Event, state: dict):
 
 
 @black_room.handle()
-async def black_room(bot: Bot, event: Event, state: dict):
+async def enter_black_room(bot: Bot, event: Event, state: dict):
     """Handle the blackroom command."""
     group_id = event.group_id
     user_id = event.user_id
@@ -139,7 +140,7 @@ async def black_room(bot: Bot, event: Event, state: dict):
         await bot.send(event=event, message='权限不足，无法使用小黑屋~')
 
 
-@update_user.handle()
+@user_updater.handle()
 async def update_user(bot: Bot, event: Event, state: dict):
     """Handle the updateuser command."""
     try:
