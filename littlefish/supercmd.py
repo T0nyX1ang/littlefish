@@ -15,15 +15,15 @@ save_to_disk = on_command(cmd='save', aliases={'存档'}, rule=check('supercmd')
 
 repeater_status = on_command(cmd='repeaterstatus', aliases={'复读状态'}, rule=check('supercmd') & check('repeat') & empty())
 
-block_word = on_command(cmd='blockword ', aliases={'复读屏蔽词 '}, rule=check('supercmd') & check('repeat'))
+block_word_changer = on_command(cmd='blockword ', aliases={'复读屏蔽词 '}, rule=check('supercmd') & check('repeat'))
 
-set_repeater_param = on_command(cmd='repeaterparam ', aliases={'复读参数 '}, rule=check('supercmd') & check('repeat'))
+repeater_param_changer = on_command(cmd='repeaterparam ', aliases={'复读参数 '}, rule=check('supercmd') & check('repeat'))
 
-change_calc42_score = on_command(cmd='changescore42 ', aliases={'改变42点得分 '}, rule=check('supercmd') & check('calc42'))
+calc42_score_changer = on_command(cmd='changescore42 ', aliases={'改变42点得分 '}, rule=check('supercmd') & check('calc42'))
 
 
 @save_to_disk.handle()
-async def save_to_disk(bot: Bot, event: Event, state: dict):
+async def save_database_to_disk(bot: Bot, event: Event, state: dict):
     """Save the database on disk manually."""
     result = await commit()
     if result:
@@ -33,7 +33,7 @@ async def save_to_disk(bot: Bot, event: Event, state: dict):
 
 
 @repeater_status.handle()
-async def repeater_status(bot: Bot, event: Event, state: dict):
+async def show_repeater_status(bot: Bot, event: Event, state: dict):
     """Print the status of the repeater."""
     universal_id = str(event.self_id) + str(event.group_id)
     msg_base = load(universal_id, 'current_msg_base')
@@ -59,8 +59,8 @@ async def repeater_status(bot: Bot, event: Event, state: dict):
     await bot.send(event=event, message=message)
 
 
-@block_word.handle()
-async def block_word(bot: Bot, event: Event, state: dict):
+@block_word_changer.handle()
+async def update_block_word(bot: Bot, event: Event, state: dict):
     """Handle the blockword command."""
     universal_id = str(event.self_id) + str(event.group_id)
     wordlist = load(universal_id, 'block_wordlist')
@@ -82,8 +82,8 @@ async def block_word(bot: Bot, event: Event, state: dict):
         await bot.send(event=event, message='复读屏蔽词更新失败，请检查日志文件~')
 
 
-@set_repeater_param.handle()
-async def set_repeater_param(bot: Bot, event: Event, state: dict):
+@repeater_param_changer.handle()
+async def update_repeater_param(bot: Bot, event: Event, state: dict):
     """Set the parameters of the repeater."""
     universal_id = str(event.self_id) + str(event.group_id)
     try:
@@ -98,8 +98,8 @@ async def set_repeater_param(bot: Bot, event: Event, state: dict):
         await bot.send(event=event, message='复读参数设定失败，请重试')
 
 
-@change_calc42_score.handle()
-async def change_calc42_score(bot: Bot, event: Event, state: dict):
+@calc42_score_changer.handle()
+async def update_calc42_score(bot: Bot, event: Event, state: dict):
     """Change the calc42 game's score of a person manually."""
     universal_id = str(event.self_id) + str(event.group_id)
     args = str(event.message).split()
