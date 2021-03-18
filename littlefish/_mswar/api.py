@@ -1,5 +1,4 @@
-"""
-A module which provides necessary APIs.
+"""A module which provides necessary APIs.
 
 Available APIs:
 get_autopvp_info.

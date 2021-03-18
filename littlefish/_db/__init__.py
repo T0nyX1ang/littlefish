@@ -1,5 +1,4 @@
-"""
-A database module which handles internal data flows.
+"""A database module which handles internal data flows.
 
 The database is created on disk, using JSON format. The database contains
 two types: global and local. The global database can be used by all bots,
@@ -20,11 +19,11 @@ import json
 import nonebot
 import traceback
 from nonebot.log import logger
-from .config import Config
+from .config import DatabaseConfig
 
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 global_config = nonebot.get_driver().config
-plugin_config = Config(**global_config.dict())
+plugin_config = DatabaseConfig(**global_config.dict())
 database_location = os.path.join(os.getcwd(), plugin_config.database_location)
 database_compress_level = plugin_config.database_compress_level
 database_backup = f'{database_location}.bak'

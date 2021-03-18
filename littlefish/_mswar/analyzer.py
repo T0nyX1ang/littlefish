@@ -1,5 +1,4 @@
-"""
-An analyzer for minesweeping game.
+"""An analyzer for minesweeping game.
 
 The analyzer will analyze available information during a game.
 Available information:

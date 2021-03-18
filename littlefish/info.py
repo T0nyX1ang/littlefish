@@ -1,5 +1,4 @@
-"""
-Get personal information from the remote server.
+"""Get personal information from the remote server.
 
 The information includes:
 record of time and bvs in beg, int and exp).
@@ -68,7 +67,7 @@ id_me = on_command(cmd='me', aliases={'个人信息'}, rule=check('info') & empt
 
 
 @id_info.handle()
-async def id_info(bot: Bot, event: Event, state: dict):
+async def show_id_info(bot: Bot, event: Event, state: dict):
     """Handle the id_info command."""
     try:
         uid = int(str(event.message).strip())
@@ -95,7 +94,7 @@ async def id_info(bot: Bot, event: Event, state: dict):
 
 
 @id_battle.handle()
-async def id_battle(bot: Bot, event: Event, state: dict):
+async def show_id_battle(bot: Bot, event: Event, state: dict):
     """Handle the id_battle command."""
     try:
         uids = map(int, str(event.message).split())
@@ -127,7 +126,7 @@ async def id_battle(bot: Bot, event: Event, state: dict):
 
 
 @id_me.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def show_my_info(bot: Bot, event: Event, state: dict):
     """Handle the id_me command."""
     universal_id = str(event.self_id) + str(event.group_id)
     user_id = f'{event.user_id}'

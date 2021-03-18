@@ -1,5 +1,4 @@
-"""
-A netcore module which negotiates with the remote server.
+"""A netcore module which negotiates with the remote server.
 
 This module works as a kernel, and does not provide any of APIs.
 The APIs are seperated into the above layers.
@@ -7,14 +6,12 @@ The APIs are seperated into the above layers.
 
 import nonebot
 import time
-import traceback
 import hashlib
 import json
 import httpx
 from .config import AccountConfig
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
-from nonebot.log import logger
 
 global_config = nonebot.get_driver().config
 plugin_config = AccountConfig(**global_config.dict())
@@ -60,7 +57,7 @@ def _generate_headers(validate_hash: str):
     return headers
 
 
-async def fetch(page: str = '', query: str = ''):
+async def fetch(page: str, query: str = ''):
     """
     General module for fetching data from remote server.
 

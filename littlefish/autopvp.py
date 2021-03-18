@@ -1,5 +1,4 @@
-"""
-Fetch the infomation of the autopvp bot.
+"""Fetch the infomation of the autopvp bot.
 
 The information includes:
 Bot: rank, level (including progress), wins / loses, latest winner.
@@ -37,7 +36,7 @@ autopvp = on_command(cmd='autopvp', aliases={'对战机器人'}, rule=check('aut
 
 
 @autopvp.handle()
-async def autopvp(bot: Bot, event: Event, state: dict):
+async def show_autopvp(bot: Bot, event: Event, state: dict):
     """Handle the autopvp command."""
     autopvp_result = await get_autopvp_info()
     await bot.send(event=event, message=format_pvp_info(autopvp_result))
@@ -46,7 +45,7 @@ async def autopvp(bot: Bot, event: Event, state: dict):
 
 
 @broadcast('autopvp')
-async def _(bot_id: str, group_id: str):
+async def autopvp_broadcast(bot_id: str, group_id: str):
     """Scheduled dailymap broadcast."""
     autopvp_result = await get_autopvp_info()
     message = [format_pvp_info(autopvp_result)]

@@ -13,11 +13,12 @@ from pydantic import BaseSettings
 
 
 class FTPtsConfig(BaseSettings):
+    """Configurations for FTPtsGame."""
 
-    # Configuration goes here.
     ftpts_target: int = 42
     ftpts_max_number: int = 13
     ftpts_random_threshold: float = 0.0
 
     class Config:
+        """Deal with extra configurations."""
         extra = "ignore"
