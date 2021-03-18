@@ -1,4 +1,5 @@
-"""Basic operations of ftpts(calc42) game.
+"""
+Basic operations of ftpts(calc42) game.
 
 Available operations:
 * initialize the game.

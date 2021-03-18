@@ -1,4 +1,5 @@
-"""A netcore module which negotiates with the remote server.
+"""
+A netcore module which negotiates with the remote server.
 
 This module works as a kernel, and does not provide any of APIs.
 The APIs are seperated into the above layers.
@@ -58,8 +59,7 @@ def _generate_headers(validate_hash: str):
 
 
 async def fetch(page: str, query: str = ''):
-    """
-    General module for fetching data from remote server.
+    """General module for fetching data from remote server.
 
     page: the page which contains the information you want to get.
     query: the query data you want to post. If "query" is empty,

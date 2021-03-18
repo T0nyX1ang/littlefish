@@ -1,4 +1,5 @@
-"""Fetch the information of the daily star.
+"""
+Fetch the information of the daily star.
 
 The information includes:
 The user information of the daily star.

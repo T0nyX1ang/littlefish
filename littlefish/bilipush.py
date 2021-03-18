@@ -1,4 +1,5 @@
-"""A method to push live message in groups.
+"""
+A method to push live message in groups.
 
 The information includes:
 nickname, liveroom_url, liveroom_title of a subscribed user.

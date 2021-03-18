@@ -1,4 +1,5 @@
-"""Search user using a nickname filter.
+"""
+Search user using a nickname filter.
 
 The result will contain the exact nickname and ID of top-10 found users.
 """

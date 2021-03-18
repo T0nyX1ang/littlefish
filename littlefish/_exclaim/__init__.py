@@ -1,4 +1,5 @@
-"""A exclaim module which handles the words to express in several situations.
+"""
+A exclaim module which handles the words to express in several situations.
 
 The module will load the exclaim resource location by the location.
 About the resource file:
@@ -84,8 +85,7 @@ def _get_ending(_type: str):
 
 
 def exclaim_msg(person: str, _type: str, include_image: bool, max_repeat: int = 3):
-    """
-    Get exclaiming message from the database.
+    """Get exclaiming message from the database.
 
     This should be the only function being called when this package
     is imported. The message will be made up of 3 parts: person,

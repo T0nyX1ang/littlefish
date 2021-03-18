@@ -1,4 +1,5 @@
-"""Commands for superuser only.
+"""
+Commands for superuser only.
 
 Please handle these commands with great care.
 """

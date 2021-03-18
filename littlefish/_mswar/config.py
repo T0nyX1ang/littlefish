@@ -1,4 +1,5 @@
-"""Configurations for the mswar plugin.
+"""
+Configurations for the mswar plugin.
 
 * Account configuration:
 Please write your configurations in the global setting file.
