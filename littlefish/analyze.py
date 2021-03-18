@@ -24,7 +24,7 @@ def format_record(record: dict) -> str:
             level_ref[record['level']],
             record['rank'],
         ),
-        'mode: %s (%s)' % (record['difficulty'], record['fmode']),
+        'mode: %s (%s)' % (record['difficulty'], record['style']),
         'time/est: %.3f/%.3f' % (record['rtime'], record['est']),
         'bv/bvs: %d/%d, %.3f' % (record['solved_bv'], record['bv'], record['bvs']),
         'ce/ces: %d, %.3f' % (record['ce'], record['ces']),

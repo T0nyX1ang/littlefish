@@ -15,7 +15,7 @@ import math
 import gzip
 from base64 import b64decode
 from urllib.parse import quote
-from .analyzer import get_action, get_board, get_board_result, get_result
+from .analyzer import Board, Record
 from .config import PVPConfig
 from .netcore import fetch
 
@@ -56,8 +56,8 @@ async def get_autopvp_info() -> dict:
 async def get_daily_map() -> dict:
     """Get daily map information from the remote server."""
     daily_map_result = await fetch(page='/MineSweepingWar/minesweeper/daily/map/today')
-    daily_map_board = get_board(daily_map_result['data']['map']['map'].split('-')[0:-1])
-    daily_map = get_board_result(daily_map_board)
+    daily_map_board = Board(daily_map_result['data']['map']['map'].split('-')[0:-1])
+    daily_map = daily_map_board.get_result()
     daily_map['id'] = daily_map_result['data']['mapId']
 
     query = 'mapId=%d&page=0&count=1' % (daily_map['id'])
@@ -152,9 +152,10 @@ async def get_record(_id: int, use_post_id: bool = True) -> dict:
 
     record_file = await fetch(page='/MineSweepingWar/minesweeper/record/get', query='recordId=%d' % (_id))
 
-    board = get_board(record_file['data']['map'].split('-')[0:-1])
-    action = get_action(gzip.decompress(b64decode(record_file['data']['handle'])).decode().split('-'))
-    result = get_result(board, action)
+    board = record_file['data']['map'].split('-')[0:-1]
+    action = gzip.decompress(b64decode(record_file['data']['handle'])).decode().split('-')
+    record = Record(board, action)
+    result = record.get_result()
     result['uid'] = record_file['data']['user']['id']
     result['level'] = record_file['data']['user']['timingLevel']
     result['rank'] = record_file['data']['user']['timingRank']
