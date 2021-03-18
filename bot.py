@@ -1,5 +1,4 @@
-"""
-This is the initialization file.
+"""This is the initialization file.
 
 Please note that this file is for production.
 
@@ -9,7 +8,6 @@ all the dependencies and fonts required before you run this program.
 """
 
 import nonebot
-import time
 from nonebot.log import logger, default_format
 from nonebot.adapters.cqhttp import Bot
 

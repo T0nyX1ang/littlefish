@@ -62,10 +62,10 @@ import os
 from nonebot.log import logger
 from nonebot.adapters.cqhttp import Bot, Event, GroupMessageEvent
 from nonebot.rule import Rule
-from .config import Config
+from .config import PolicyConfig
 
 global_config = nonebot.get_driver().config
-plugin_config = Config(**global_config.dict())
+plugin_config = PolicyConfig(**global_config.dict())
 policy_config_location = os.path.join(os.getcwd(), plugin_config.policy_config_location)
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 
@@ -145,7 +145,7 @@ def broadcast(command_name: str) -> bool:
                                   misfire_grace_time=30,
                                   replace_existing=True,
                                   **policy_config[bid][gid][_name]['@'])
-            except Exception as e:
+            except Exception:
                 logger.debug('Skipped broadcast: [%s].' % _name)
 
     return _broadcast
