@@ -1,4 +1,5 @@
-"""Fetch the infomation of the level status.
+"""
+Fetch the infomation of the level status.
 
 The information includes:
 The number of people in each rank.

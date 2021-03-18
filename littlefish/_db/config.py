@@ -1,4 +1,5 @@
-"""Configurations for the database plugin.
+"""
+Configurations for the database plugin.
 
 Please write your configurations in the global setting file.
 Available configurations:

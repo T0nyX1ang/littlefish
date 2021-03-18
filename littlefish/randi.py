@@ -1,4 +1,5 @@
-"""Generate random integers.
+"""
+Generate random integers.
 
 Invoke this command by: [begin] [end] [count] [extras]
 Available extra commands:

@@ -1,4 +1,5 @@
-"""Print the version of littlefish.
+"""
+Print the version of littlefish.
 
 Support version check, version display on first connection.
 """

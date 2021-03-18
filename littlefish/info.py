@@ -1,4 +1,5 @@
-"""Get personal information from the remote server.
+"""
+Get personal information from the remote server.
 
 The information includes:
 record of time and bvs in beg, int and exp).

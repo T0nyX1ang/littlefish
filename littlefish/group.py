@@ -1,4 +1,5 @@
-"""Group relevant commands.
+"""
+Group relevant commands.
 
 Available features:
 * check before a user joins the group

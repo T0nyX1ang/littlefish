@@ -1,4 +1,5 @@
-"""Fetch the infomation of the autopvp bot.
+"""
+Fetch the infomation of the autopvp bot.
 
 The information includes:
 Bot: rank, level (including progress), wins / loses, latest winner.

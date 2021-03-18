@@ -1,4 +1,5 @@
-"""Fetch the information of the daily map.
+"""
+Fetch the information of the daily map.
 
 The information includes:
 Map: lines, columns, mines, bv, openings, islands.

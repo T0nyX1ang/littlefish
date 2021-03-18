@@ -1,4 +1,5 @@
-"""Fetch the information of a user's ranking.
+"""
+Fetch the information of a user's ranking.
 
 The information includes:
 The ranking and basic information of the user.

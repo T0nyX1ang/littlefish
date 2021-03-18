@@ -1,4 +1,5 @@
-"""A game to calculate 42 with 5 numbers between 0 and 13.
+"""
+A game to calculate 42 with 5 numbers between 0 and 13.
 
 The rules can be found by invoking 'guide42' in groups.
 

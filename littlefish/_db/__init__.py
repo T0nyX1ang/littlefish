@@ -1,4 +1,5 @@
-"""A database module which handles internal data flows.
+"""
+A database module which handles internal data flows.
 
 The database is created on disk, using JSON format. The database contains
 two types: global and local. The global database can be used by all bots,

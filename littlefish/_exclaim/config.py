@@ -1,4 +1,5 @@
-"""Configurations for the exclaim plugin.
+"""
+Configurations for the exclaim plugin.
 
 Please write your configurations in the global setting file.
 Available configurations:
