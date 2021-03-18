@@ -44,7 +44,6 @@ style_ref = defaultdict(lambda: -1, {
     'a': -1,
     'nf': 0,
     '盲扫': 0,
-    '盲扫': 0,
     'fl': 1,
     '标旗': 1,
     'f': 1,

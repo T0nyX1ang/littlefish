@@ -35,7 +35,7 @@ ranking = on_command(cmd='rank ', aliases={'排名 '}, rule=check('ranking'))
 
 
 @ranking.handle()
-async def ranking(bot: Bot, event: Event, state: dict):
+async def show_ranking(bot: Bot, event: Event, state: dict):
     """Handle the ranking command."""
     args = str(event.message).split()
 

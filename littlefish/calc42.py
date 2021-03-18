@@ -8,10 +8,7 @@ The command requires to be invoked in groups.
 
 import itertools
 import nonebot
-import random
-import datetime
 import traceback
-from ftptsgame import FTPtsGame
 from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event, Message
 from nonebot.log import logger
@@ -163,7 +160,7 @@ async def finish_game(bot: Bot, universal_id: str):
         try:
             await bot.send_group_msg(group_id=group_id, message=game_results)
             await show_solutions(bot, universal_id, result)
-        except Exception as e:
+        except Exception:
             logger.error(traceback.format_exc())
 
 
