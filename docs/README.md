@@ -20,4 +20,3 @@ littlefish(小鱼)是一个基于[NoneBot2](https://v2.nonebot.dev/)的异步IO�
 +   [jadx](https://github.com/skylot/jadx)：用于dex形式文件的反编译软件。
 +   [Genymotion](https://www.genymotion.com/)：运行安卓应用的虚拟机软件。
 +   [bilibili_api](https://github.com/Passkou/bilibili_api)：用于B站直播推送。
-
