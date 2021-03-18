@@ -85,7 +85,8 @@ def _get_ending(_type: str):
 
 
 def exclaim_msg(person: str, _type: str, include_image: bool, max_repeat: int = 3):
-    """Get exclaiming message from the database.
+    """
+    Get exclaiming message from the database.
 
     This should be the only function being called when this package
     is imported. The message will be made up of 3 parts: person,

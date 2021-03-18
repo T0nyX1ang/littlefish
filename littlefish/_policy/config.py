@@ -9,10 +9,11 @@ policy_config_location: str = "policy.json" (default)
 from pydantic import BaseSettings
 
 
-class Config(BaseSettings):
+class PolicyConfig(BaseSettings):
+    """Configurations for FTPtsGame."""
 
-    # Configuration goes here.
     policy_config_location: str = "policy.json"
 
     class Config:
+        """Deal with extra configurations."""
         extra = "ignore"

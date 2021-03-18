@@ -92,7 +92,8 @@ async def get_level_list() -> list:
 
 
 async def get_user_info(uid: int, simple: bool = False) -> dict:
-    """Gather user information.
+    """
+    Gather user information.
 
     The information is made up of two parts: home_info and career_info.
     If the variable 'simple' is set to True, only home_info will be fetched.

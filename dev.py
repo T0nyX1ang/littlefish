@@ -1,5 +1,4 @@
-"""
-This is the initialization file.
+"""This is the initialization file.
 
 Please note that this file is for development.
 
