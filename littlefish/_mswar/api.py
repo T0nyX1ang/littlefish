@@ -151,6 +151,8 @@ async def get_record(_id: int, use_post_id: bool = True) -> dict:
         _id = post_result['data']['recordId']
 
     record_file = await fetch(page='/MineSweepingWar/minesweeper/record/get', query='recordId=%d' % (_id))
+    if record_file['data']['mapStatus']:
+        raise NotImplementedError('The record type is not implemented yet.')
 
     board = record_file['data']['map'].split('-')[0:-1]
     action = gzip.decompress(b64decode(record_file['data']['handle'])).decode().split('-')
