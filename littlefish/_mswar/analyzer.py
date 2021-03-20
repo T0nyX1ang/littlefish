@@ -40,9 +40,17 @@ class Board(object):
         self.result['row'] = len(self.board)
         self.result['column'] = len(self.board[0])
         self.result['difficulty'] = self.get_difficulty()
-        self.result['op'] = self.get_openings_or_islands('openings')
+        self.result['op'] = self.get_openings_or_islands(self.is_opening)
         self.result['bv'] = self.result['op'] + self.result['row'] * self.result['column'] - sum(sum(self.marker, []))
-        self.result['is'] = self.get_openings_or_islands('islands')
+        self.result['is'] = self.get_openings_or_islands(self.is_not_opening_or_mine)
+
+    def is_opening(self, row: int, col: int) -> str:
+        """Judge the current position is an opening."""
+        return self.board[row][col] == '0'
+
+    def is_not_opening_or_mine(self, row: int, col: int) -> str:
+        """Judge the current position is not an opening or a mine."""
+        return self.board[row][col] not in '09'
 
     def get_difficulty(self) -> str:
         """Get the difficulty of a board."""
@@ -64,24 +72,20 @@ class Board(object):
     def recur_mark(self, row: int, col: int, condition: bool):
         """Mark an area recursively."""
         self.marker[row][col] = 1
-        if condition(self.board[row][col]):
+        if condition(row, col):
             for next_row, next_col in self.filtered_adjacent(row, col):
                 self.marker[next_row][next_col] = 1
                 self.recur_mark(next_row, next_col, condition)
 
-    def get_openings_or_islands(self, _type: str) -> int:
+    def get_openings_or_islands(self, condition: bool) -> int:
         """Get opening or islands of a board."""
         items = 0
-        ref = {
-            'openings': lambda x: x == '0',
-            'islands': lambda x: x not in '09',
-        }
         for v in range(self.result['row'] * self.result['column']):
             row = v // self.result['column']
             col = v % self.result['column']
-            if not self.marker[row][col] and ref[_type](self.board[row][col]):
+            if not self.marker[row][col] and condition(row, col):
                 items += 1
-                self.recur_mark(row, col, ref[_type])
+                self.recur_mark(row, col, condition)
         return items
 
     def get_result(self) -> dict:
@@ -151,7 +155,7 @@ class Record(Board):
             self.result['solved_bv'] += 1
             self.result['solved_op'] += 1
             self.marker[row][col] = 1
-            self.recur_mark(row, col, lambda x: x == '0')  # mark everything is the opening
+            self.recur_mark(row, col, self.is_opening)  # mark everything is the opening
         else:  # normal click, nothing happens
             # bv is added when the click is not on the edge of an opening
             self.result['solved_bv'] += ('0' not in [self.board[r][c] for r, c in self.filtered_adjacent(row, col)])
