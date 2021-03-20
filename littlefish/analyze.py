@@ -63,9 +63,6 @@ async def analyze(bot: Bot, event: Event, state: dict):
     except TypeError:
         # indicates the message can't be found from the remote server
         await bot.send(event=event, message='无法查询到录像信息')
-    except NotImplementedError:
-        # indicates the record type is not implemented yet
-        await bot.send(event=event, message='暂未支持此录像类型')
     except Exception:
         await bot.send(event=event, message=exclaim_msg('', '3', False, 1))
 

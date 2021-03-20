@@ -96,7 +96,7 @@ class Board(object):
 class Record(Board):
     """Generate record data from board and action."""
 
-    def __init__(self, raw_board: list, raw_action: list):
+    def __init__(self, raw_board: list, raw_action: list, raw_initial: list = []):
         """Initialize the record."""
         super(Record, self).__init__(raw_board)
         self._threshold = 3  # the threshold between press and release
@@ -108,6 +108,7 @@ class Record(Board):
         self.get_action_detail()
         self.result['flags'], self.result['unflags'], self.result['misflags'], self.result['misunflags'] = 0, 0, 0, 0
         self.result['ce'], self.result['solved_bv'], self.result['solved_op'] = 0, 0, 0
+        self.prepare_initial_board(raw_initial)
         for current in range(len(self.action)):
             self.replay_stepwise(current)
         self.get_record_detail()
@@ -210,6 +211,19 @@ class Record(Board):
         self.result['cl'] = self.result['left'] + self.result['right'] + self.result['double']
         self.result['style'] = 'FL' if self.result['right'] > 0 else 'NF'
 
+    def prepare_initial_board(self, raw_initial: list = []):
+        """Prepare the initial board with raw data."""
+        if not raw_initial:
+            return  # no need to prepare the initial board if there is not data
+
+        for v in range(self.result['row'] * self.result['column']):
+            row = v // self.result['column']
+            col = v % self.result['column']
+            if raw_initial[row][col] == '1':
+                self.__deal_with_click(row, col)  # calculate initial values
+
+        self.marker = [[int(v) for v in each_row] for each_row in raw_initial]  # reset the marker by raw data
+
     def replay_stepwise(self, current):
         """Replay the game stepwise to gather detailed information."""
         opcode, row, col, _ = self.action[current]
@@ -222,6 +236,8 @@ class Record(Board):
 
     def get_record_detail(self):
         """Get detailed information about the record."""
+        self.result['rtime'] += 0.001 * (self.result['rtime'] == 0)
+        self.result['path'] += 0.001 * (self.result['path'] == 0)
         self.result['bvs'] = self.result['solved_bv'] / self.result['rtime']
         self.result['cls'] = self.result['cl'] / self.result['rtime']
         if self.result['solved_bv'] == 0:
