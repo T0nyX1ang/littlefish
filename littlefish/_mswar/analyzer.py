@@ -27,18 +27,18 @@ class Board(object):
         """Initialize the board."""
         self.result = {}
         self.result['mines'] = 0
-        self.result['board'] = []
+        self.board = []
         self.marker = []
         for each_row in raw_board:
             row = list(each_row)
             mark = [1 if v == '9' else 0 for v in row]
             self.marker.append(mark)  # construct the marks of the board
-            self.result['board'].append(row)  # convert the 1D raw board to 2D board
+            self.board.append(row)  # convert the 1D raw board to 2D board
             self.result['mines'] += sum(mark)
 
         # get the information about row, columns
-        self.result['row'] = len(self.result['board'])
-        self.result['column'] = len(self.result['board'][0])
+        self.result['row'] = len(self.board)
+        self.result['column'] = len(self.board[0])
         self.result['difficulty'] = self.get_difficulty()
         self.result['op'] = self.get_openings_or_islands('openings')
         self.result['bv'] = self.result['op'] + self.result['row'] * self.result['column'] - sum(sum(self.marker, []))
@@ -61,13 +61,13 @@ class Board(object):
             if 0 <= r < self.result['row'] and 0 <= c < self.result['column'] and self.marker[r][c] in filters:
                 yield r, c
 
-    def recur_mark(self, row: int, col: int, condition: bool, mark: int):
+    def recur_mark(self, row: int, col: int, condition: bool):
         """Mark an area recursively."""
-        self.marker[row][col] = mark
-        if condition(self.result['board'][row][col]):
+        self.marker[row][col] = 1
+        if condition(self.board[row][col]):
             for next_row, next_col in self.filtered_adjacent(row, col):
-                self.marker[next_row][next_col] = mark
-                self.recur_mark(next_row, next_col, condition, mark)
+                self.marker[next_row][next_col] = 1
+                self.recur_mark(next_row, next_col, condition)
 
     def get_openings_or_islands(self, _type: str) -> int:
         """Get opening or islands of a board."""
@@ -79,9 +79,9 @@ class Board(object):
         for v in range(self.result['row'] * self.result['column']):
             row = v // self.result['column']
             col = v % self.result['column']
-            if not self.marker[row][col] and ref[_type](self.result['board'][row][col]):
+            if not self.marker[row][col] and ref[_type](self.board[row][col]):
                 items += 1
-                self.recur_mark(row, col, ref[_type], 1)
+                self.recur_mark(row, col, ref[_type])
         return items
 
     def get_result(self) -> dict:
@@ -102,11 +102,10 @@ class Record(Board):
             self.__refine_action(current)
         self.result['rtime'] = self.action[-1][3] / 1000
         self.get_action_detail()
-        self.result['flags'], self.unflags, self.misflags, self.misunflags = 0, 0, 0, 0
+        self.result['flags'], self.result['unflags'], self.result['misflags'], self.result['misunflags'] = 0, 0, 0, 0
         self.result['ce'], self.result['solved_bv'], self.result['solved_op'] = 0, 0, 0
         for current in range(len(self.action)):
             self.replay_stepwise(current)
-        self.wasted_flags = self.misflags + self.unflags + self.misunflags
         self.get_record_detail()
 
     def __find_final(self, start: int, direction: int, row: int, col: int) -> int:
@@ -146,16 +145,16 @@ class Record(Board):
             return False  # do nothing, the click is ineffective
 
         # the block is not opened otherwise
-        if self.result['board'][row][col] == '9':  # step on a mine, oops
+        if self.board[row][col] == '9':  # step on a mine, oops
             self.marker[row][col] = -2  # mark the blast with a special number
-        elif self.result['board'][row][col] == '0':  # step on an opening, ^wow^
+        elif self.board[row][col] == '0':  # step on an opening, ^wow^
             self.result['solved_bv'] += 1
             self.result['solved_op'] += 1
             self.marker[row][col] = 1
-            self.recur_mark(row, col, lambda x: x == '0', 1)  # mark everything is the opening
+            self.recur_mark(row, col, lambda x: x == '0')  # mark everything is the opening
         else:  # normal click, nothing happens
             # bv is added when the click is not on the edge of an opening
-            self.result['solved_bv'] += ('0' not in [self.result['board'][r][c] for r, c in self.filtered_adjacent(row, col)])
+            self.result['solved_bv'] += ('0' not in [self.board[r][c] for r, c in self.filtered_adjacent(row, col)])
             self.marker[row][col] = 1
 
         return True  # any direct click is effective
@@ -165,13 +164,13 @@ class Record(Board):
         if self.marker[row][col] == 0:  # flagging
             self.result['flags'] += 1  # count flags
             self.marker[row][col] = -1  # mark the flag
-            self.misflags += self.result['board'][row][col] != '9'  # count misflags
+            self.result['misflags'] += self.board[row][col] != '9'  # count misflags
         elif self.marker[row][col] == -1:  # unflagging
-            misunflag_tag = self.result['board'][row][col] == '9'
+            misunflag_tag = self.board[row][col] == '9'
             self.result['flags'] -= 1  # count flags
             self.marker[row][col] = 0  # unmark the flag
-            self.misunflags += misunflag_tag  # count misunflags
-            self.unflags += (not misunflag_tag)  # count unflags (opposite to misunflags)
+            self.result['misunflags'] += misunflag_tag  # count misunflags
+            self.result['unflags'] += (not misunflag_tag)  # count unflags (opposite to misunflags)
 
         return True  # any direct click is effective
 
@@ -179,8 +178,7 @@ class Record(Board):
         """Deal with chording operation (corresponding to opcode 4)."""
         adjacent_flagged = list(self.filtered_adjacent(row, col, [-1]))
         adjacent_unopened = list(self.filtered_adjacent(row, col))
-        if len(adjacent_flagged) != int(
-                self.result['board'][row][col]) or len(adjacent_flagged) == 0 or len(adjacent_unopened) == 0:
+        if len(adjacent_flagged) != int(self.board[row][col]) or len(adjacent_flagged) == 0 or len(adjacent_unopened) == 0:
             # trivial case, the chord operation is ineffective here
             return False
 
@@ -189,7 +187,7 @@ class Record(Board):
 
         for r, c in adjacent_flagged:
             # if misjudge, mark with a special number (-3), otherwise remain the original status (-1)
-            self.marker[r][c] -= 2 * (self.result['board'][r][c] != '9')
+            self.marker[r][c] -= 2 * (self.board[r][c] != '9')
 
         return True
 
@@ -199,14 +197,13 @@ class Record(Board):
         while current < len(self.action):
             if self.action[current][0] in [0, 1, 4]:
                 self.result['path'] += math.sqrt((self.action[current][1] - self.action[last][1])**2 +
-                                                 (self.action[current][2] - self.action[last][2])**2)
-                self.result['left'] += (self.action[current][0] == 0)
-                self.result['right'] += (self.action[current][0] == 1)
-                self.result['double'] += (self.action[current][0] == 4)
+                                                 (self.action[current][2] - self.action[last][2])**2)  # Euclidean path
+                self.result['left'] += (self.action[current][0] == 0)  # left clicks (open)
+                self.result['right'] += (self.action[current][0] == 1)  # right clicks (flag)
+                self.result['double'] += (self.action[current][0] == 4)  # double clicks (chord)
                 last = current
             current += 1
         self.result['cl'] = self.result['left'] + self.result['right'] + self.result['double']
-        self.result['cls'] = self.result['cl'] / self.result['rtime']
         self.result['style'] = 'FL' if self.result['right'] > 0 else 'NF'
 
     def replay_stepwise(self, current):
@@ -222,6 +219,7 @@ class Record(Board):
     def get_record_detail(self):
         """Get detailed information about the record."""
         self.result['bvs'] = self.result['solved_bv'] / self.result['rtime']
+        self.result['cls'] = self.result['cl'] / self.result['rtime']
         if self.result['solved_bv'] == 0:
             self.result['est'], self.result['rqp'], self.result['qg'], self.result['iome'] = ' - ', ' - ', ' - ', 0.0
         else:
@@ -230,8 +228,8 @@ class Record(Board):
             self.result['qg'] = self.result['rtime']**1.7 / self.result['solved_bv']
             self.result['iome'] = self.result['solved_bv'] / self.result['path']
         self.result['ces'] = self.result['ce'] / self.result['rtime']
-        self.result['corr'] = (self.result['ce'] - self.wasted_flags -
-                               (self.result['bv'] != self.result['solved_bv'])) / self.result['cl']
+        self.result['corr'] = (self.result['ce'] - self.result['misflags'] - self.result['unflags'] -
+                               self.result['misunflags'] - (self.result['bv'] != self.result['solved_bv'])) / self.result['cl']
         self.result['thrp'] = self.result['solved_bv'] / self.result['ce']
         self.result['ioe'] = self.result['solved_bv'] / self.result['cl']
 
