@@ -23,17 +23,16 @@ import math
 class Board(object):
     """Generate the board data from input."""
 
-    def __init__(self, raw_board: list):
+    def __init__(self, board: list):
         """Initialize the board."""
         self.result = {}
         self.result['mines'] = 0
         self.board = []
         self.marker = []
-        for each_row in raw_board:
-            row = list(each_row)
-            mark = [1 if v == '9' else 0 for v in row]
+        for each_row in board:
+            mark = [1 if v == '9' else 0 for v in each_row]
             self.marker.append(mark)  # construct the marks of the board
-            self.board.append(row)  # convert the 1D raw board to 2D board
+            self.board.append(each_row)  # convert the 1D raw board to 2D board
             self.result['mines'] += sum(mark)
 
         # get the information about row, columns
@@ -96,21 +95,23 @@ class Board(object):
 class Record(Board):
     """Generate record data from board and action."""
 
-    def __init__(self, raw_board: list, raw_action: list, raw_initial: list = []):
+    def __init__(self, board: list, action: list, initial: list = []):
         """Initialize the record."""
-        super(Record, self).__init__(raw_board)
+        super(Record, self).__init__(board)
         self._threshold = 3  # the threshold between press and release
         self.marker = [[0 for col in range(self.result['column'])] for row in range(self.result['row'])]
-        self.action = [list(map(int, v.split(':'))) for v in raw_action]
+        self.action = action
         for current in range(len(self.action)):
             self.__refine_action(current)
         self.result['rtime'] = self.action[-1][3] / 1000
         self.get_action_detail()
         self.result['flags'], self.result['unflags'], self.result['misflags'], self.result['misunflags'] = 0, 0, 0, 0
         self.result['ce'], self.result['solved_bv'], self.result['solved_op'] = 0, 0, 0
-        self.prepare_initial_board(raw_initial)
+        self.prepare_initial_board(initial)
+        self.stepwise = [self.marker]
         for current in range(len(self.action)):
             self.replay_stepwise(current)
+            self.stepwise.append(self.marker)  # record each step
         self.get_record_detail()
 
     def __find_final(self, start: int, direction: int, row: int, col: int) -> int:
@@ -218,9 +219,9 @@ class Record(Board):
         self.result['cl'] = self.result['left'] + self.result['right'] + self.result['double']
         self.result['style'] = 'FL' if self.result['right'] > 0 else 'NF'
 
-    def prepare_initial_board(self, raw_initial: list = []):
+    def prepare_initial_board(self, initial: list = []):
         """Prepare the initial board with raw data."""
-        if not raw_initial:
+        if not initial:
             self.result['upk'] = False
             return  # no need to prepare the initial board if there is not data
 
@@ -229,10 +230,10 @@ class Record(Board):
         for v in range(self.result['row'] * self.result['column']):
             row = v // self.result['column']
             col = v % self.result['column']
-            if raw_initial[row][col] == '1':
+            if initial[row][col] == '1':
                 self.__deal_with_click(row, col)  # calculate initial values
 
-        self.marker = [[int(v) for v in each_row] for each_row in raw_initial]  # reset the marker by raw data
+        self.marker = [[int(v) for v in each_row] for each_row in initial]  # reset the marker by raw data
 
     def replay_stepwise(self, current):
         """Replay the game stepwise to gather detailed information."""
@@ -250,11 +251,12 @@ class Record(Board):
         self.result['cls'] = self.__divide(self.result['cl'], self.result['rtime'])
         self.result['est'] = self.__divide(self.result['rtime'], self.result['solved_bv']) * self.result['bv']
         self.result['rqp'] = self.__divide(self.result['rtime'] + 1, self.result['bvs'])
-        self.result['qg'] = self.__divide(self.result['rtime'] ** 1.7, self.result['solved_bv'])
+        self.result['qg'] = self.__divide(self.result['rtime']**1.7, self.result['solved_bv'])
         self.result['iome'] = self.__divide(self.result['solved_bv'], self.result['path'])
         self.result['ces'] = self.__divide(self.result['ce'], self.result['rtime'])
-        self.result['corr'] = self.__divide(self.result['ce'] - self.result['misflags'] - self.result['unflags'] -
-                              self.result['misunflags'] - (self.result['bv'] != self.result['solved_bv']), self.result['cl'])
+        self.result['corr'] = self.__divide(
+            self.result['ce'] - self.result['misflags'] - self.result['unflags'] - self.result['misunflags'] -
+            (self.result['bv'] != self.result['solved_bv']), self.result['cl'])
         self.result['thrp'] = self.__divide(self.result['solved_bv'], self.result['ce'])
         self.result['ioe'] = self.__divide(self.result['solved_bv'], self.result['cl'])
 
