@@ -20,6 +20,14 @@ Available information:
 import math
 
 
+def _divide(a: float, b: float) -> float:
+    """Safely divide two numbers without throwing a ZeroDivisionError."""
+    try:
+        return a / b  # normal division
+    except ZeroDivisionError:
+        return 0.0 if a == 0 else math.inf  # include special cases for infinity (a / 0 = inf) and zero (0 / 0 = 0)
+
+
 class Board(object):
     """Generate the board data from input."""
 
@@ -60,7 +68,7 @@ class Board(object):
         except Exception:
             return '%dx%d+%d' % size
 
-    def filtered_adjacent(self, row: int, col: int, filters: list = [0]):
+    def filtered_adjacent(self, row: int, col: int, filters: tuple = (0,)):
         """Yield filtered adjacent coordinates."""
         adjacent = [(row - 1, col - 1), (row, col - 1), (row + 1, col - 1), (row - 1, col), (row + 1, col), (row - 1, col + 1),
                     (row, col + 1), (row + 1, col + 1)]
@@ -95,7 +103,7 @@ class Board(object):
 class Record(Board):
     """Generate record data from board and action."""
 
-    def __init__(self, board: list, action: list, initial: list = []):
+    def __init__(self, board: list, action: list, initial: list = None):
         """Initialize the record."""
         super(Record, self).__init__(board)
         self._threshold = 3  # the threshold between press and release
@@ -182,7 +190,7 @@ class Record(Board):
 
     def __deal_with_chord(self, row: int, col: int):
         """Deal with chording operation (corresponding to opcode 4)."""
-        adjacent_flagged = list(self.filtered_adjacent(row, col, [-1]))
+        adjacent_flagged = list(self.filtered_adjacent(row, col, (-1,)))
         adjacent_unopened = list(self.filtered_adjacent(row, col))
         if len(adjacent_flagged) != int(self.board[row][col]) or len(adjacent_flagged) == 0 or len(adjacent_unopened) == 0:
             # trivial case, the chord operation is ineffective here
@@ -196,13 +204,6 @@ class Record(Board):
             self.marker[r][c] -= 2 * (self.board[r][c] != '9')
 
         return True
-
-    def __divide(self, a: float, b: float):
-        """Safely divide two numbers without throwing a ZeroDivisionError."""
-        try:
-            return a / b  # normal division
-        except ZeroDivisionError:
-            return 0.0 if a == 0 else math.inf  # include special cases for infinity (a / 0 = inf) and zero (0 / 0 = 0)
 
     def get_action_detail(self):
         """Get total path length (Euclidean), clicks (L, R, D, total), clicks per second (cls), and style from action."""
@@ -219,7 +220,7 @@ class Record(Board):
         self.result['cl'] = self.result['left'] + self.result['right'] + self.result['double']
         self.result['style'] = 'FL' if self.result['right'] > 0 else 'NF'
 
-    def prepare_initial_board(self, initial: list = []):
+    def prepare_initial_board(self, initial: list):
         """Prepare the initial board with raw data."""
         if not initial:
             self.result['upk'] = False
@@ -247,21 +248,21 @@ class Record(Board):
 
     def get_record_detail(self):
         """Get detailed information about the record."""
-        self.result['bvs'] = self.__divide(self.result['solved_bv'], self.result['rtime'])
-        self.result['cls'] = self.__divide(self.result['cl'], self.result['rtime'])
-        self.result['est'] = self.__divide(self.result['rtime'], self.result['solved_bv']) * self.result['bv']
-        self.result['rqp'] = self.__divide(self.result['rtime'] + 1, self.result['bvs'])
-        self.result['qg'] = self.__divide(self.result['rtime']**1.7, self.result['solved_bv'])
-        self.result['iome'] = self.__divide(self.result['solved_bv'], self.result['path'])
-        self.result['ces'] = self.__divide(self.result['ce'], self.result['rtime'])
-        self.result['corr'] = self.__divide(
+        self.result['bvs'] = _divide(self.result['solved_bv'], self.result['rtime'])
+        self.result['cls'] = _divide(self.result['cl'], self.result['rtime'])
+        self.result['est'] = _divide(self.result['rtime'], self.result['solved_bv']) * self.result['bv']
+        self.result['rqp'] = _divide(self.result['rtime'] + 1, self.result['bvs'])
+        self.result['qg'] = _divide(self.result['rtime']**1.7, self.result['solved_bv'])
+        self.result['iome'] = _divide(self.result['solved_bv'], self.result['path'])
+        self.result['ces'] = _divide(self.result['ce'], self.result['rtime'])
+        self.result['corr'] = _divide(
             self.result['ce'] - self.result['misflags'] - self.result['unflags'] - self.result['misunflags'] -
             (self.result['bv'] != self.result['solved_bv']), self.result['cl'])
-        self.result['thrp'] = self.__divide(self.result['solved_bv'], self.result['ce'])
-        self.result['ioe'] = self.__divide(self.result['solved_bv'], self.result['cl'])
+        self.result['thrp'] = _divide(self.result['solved_bv'], self.result['ce'])
+        self.result['ioe'] = _divide(self.result['solved_bv'], self.result['cl'])
 
         mode_ref = {'beg': 1, 'int': 2, 'exp-v': 3, 'exp-h': 3}
         if self.result['difficulty'] in mode_ref:
             mode = mode_ref[self.result['difficulty']]
-            self.result['stnb'] = self.__divide(87.420 * (mode**2) - 155.829 * mode + 115.708,
-                                                self.result['qg'] * math.sqrt(self.result['solved_bv'] / self.result['bv']))
+            self.result['stnb'] = _divide(87.420 * (mode**2) - 155.829 * mode + 115.708,
+                                          self.result['qg'] * math.sqrt(self.result['solved_bv'] / self.result['bv']))

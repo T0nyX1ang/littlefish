@@ -6,7 +6,6 @@ The rules can be found by invoking 'guide42' in groups.
 The command requires to be invoked in groups.
 """
 
-import itertools
 import nonebot
 import traceback
 from nonebot import on_command
