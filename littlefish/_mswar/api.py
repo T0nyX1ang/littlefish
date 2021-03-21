@@ -157,7 +157,8 @@ async def get_record(_id: int, use_post_id: bool = True) -> dict:
         status = record_file['data']['mapStatus'].split('-')[0:-1]
 
     board = record_file['data']['map'].split('-')[0:-1]
-    action = gzip.decompress(b64decode(record_file['data']['handle'])).decode().split('-')
+    raw_action = gzip.decompress(b64decode(record_file['data']['handle'])).decode().split('-')
+    action = [list(map(int, v.split(':'))) for v in raw_action]
     record = Record(board, action, status)
     result = record.get_result()
     result['uid'] = record_file['data']['user']['id']
