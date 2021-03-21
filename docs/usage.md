@@ -296,7 +296,7 @@
     analyze/分析 [p]ost/帖子 帖子ID           
 ```
 
-> 详细的统计信息包含：ID/level/rank，time/est，solved_bv/bv/bvs，ce/ces，cl/cls，l/fl/r/d，path，op/is，ioe/iome，qg/rqp，corr/thrp，stnb。
+> 详细的统计信息包含：ID/level/rank，mode，time/est，solved_bv/bv/bvs，ce/ces，cl/cls，l/fl/r/d，path，op/is，ioe/iome，qg/rqp，corr/thrp，stnb。
 
 +   分享录像链接自动解析功能：该功能在提取到`http://tapsss.com`与`post=`关键词后自动触发。
 +   自动膜佬功能：该功能在提取到`http://tapsss.com`关键词后自动触发，包含录像解析功能.
