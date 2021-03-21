@@ -196,6 +196,13 @@ class Record(Board):
 
         return True
 
+    def __divide(self, a: float, b: float):
+        """Safely divide two numbers without throwing a ZeroDivisionError."""
+        try:
+            return a / b  # normal division
+        except ZeroDivisionError:
+            return 0.0 if a == 0 else math.inf  # include special cases for infinity (a / 0 = inf) and zero (0 / 0 = 0)
+
     def get_action_detail(self):
         """Get total path length (Euclidean), clicks (L, R, D, total), clicks per second (cls), and style from action."""
         self.result['path'], self.result['left'], self.result['right'], self.result['double'], current, last = 0, 0, 0, 0, 0, 0
@@ -236,27 +243,20 @@ class Record(Board):
 
     def get_record_detail(self):
         """Get detailed information about the record."""
-        self.result['rtime'] += 0.001 * (self.result['rtime'] == 0)
-        self.result['path'] += 0.001 * (self.result['path'] == 0)
-        self.result['bvs'] = self.result['solved_bv'] / self.result['rtime']
-        self.result['cls'] = self.result['cl'] / self.result['rtime']
-        if self.result['solved_bv'] == 0:
-            self.result['est'], self.result['rqp'], self.result['qg'], self.result['iome'] = ' - ', ' - ', ' - ', 0.0
-        else:
-            self.result['est'] = self.result['rtime'] / self.result['solved_bv'] * self.result['bv']
-            self.result['rqp'] = (self.result['rtime'] + 1) / self.result['bvs']
-            self.result['qg'] = self.result['rtime']**1.7 / self.result['solved_bv']
-            self.result['iome'] = self.result['solved_bv'] / self.result['path']
-        self.result['ces'] = self.result['ce'] / self.result['rtime']
-        self.result['corr'] = (self.result['ce'] - self.result['misflags'] - self.result['unflags'] -
-                               self.result['misunflags'] - (self.result['bv'] != self.result['solved_bv'])) / self.result['cl']
-        self.result['thrp'] = self.result['solved_bv'] / self.result['ce']
-        self.result['ioe'] = self.result['solved_bv'] / self.result['cl']
+        self.result['bvs'] = self.__divide(self.result['solved_bv'], self.result['rtime'])
+        self.result['cls'] = self.__divide(self.result['cl'], self.result['rtime'])
+        self.result['est'] = self.__divide(self.result['rtime'], self.result['solved_bv']) * self.result['bv']
+        self.result['rqp'] = self.__divide(self.result['rtime'] + 1, self.result['bvs'])
+        self.result['qg'] = self.__divide(self.result['rtime'] ** 1.7, self.result['solved_bv'])
+        self.result['iome'] = self.__divide(self.result['solved_bv'], self.result['path'])
+        self.result['ces'] = self.__divide(self.result['ce'], self.result['rtime'])
+        self.result['corr'] = self.__divide(self.result['ce'] - self.result['misflags'] - self.result['unflags'] -
+                              self.result['misunflags'] - (self.result['bv'] != self.result['solved_bv']), self.result['cl'])
+        self.result['thrp'] = self.__divide(self.result['solved_bv'], self.result['ce'])
+        self.result['ioe'] = self.__divide(self.result['solved_bv'], self.result['cl'])
 
         mode_ref = {'beg': 1, 'int': 2, 'exp-v': 3, 'exp-h': 3}
-        if self.result['difficulty'] in mode_ref and self.result['solved_bv'] > 0:
+        if self.result['difficulty'] in mode_ref:
             mode = mode_ref[self.result['difficulty']]
-            self.result['stnb'] = (87.420 * (mode**2) - 155.829 * mode +
-                                   115.708) / (self.result['qg'] * math.sqrt(self.result['solved_bv'] / self.result['bv']))
-        else:
-            self.result['stnb'] = ' - '
+            self.result['stnb'] = self.__divide(87.420 * (mode**2) - 155.829 * mode + 115.708,
+                                                self.result['qg'] * math.sqrt(self.result['solved_bv'] / self.result['bv']))
