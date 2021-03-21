@@ -24,7 +24,7 @@ def format_record(record: dict) -> str:
             level_ref[record['level']],
             record['rank'],
         ),
-        'mode: %s (%s)' % (record['difficulty'], record['style']),
+        'mode: %s%s (%s)' % ('UPK ' * record['upk'], record['difficulty'], record['style']),
         'time/est: %.3f/%.3f' % (record['rtime'], record['est']),
         'bv/bvs: %d/%d, %.3f' % (record['solved_bv'], record['bv'], record['bvs']),
         'ce/ces: %d, %.3f' % (record['ce'], record['ces']),
@@ -64,6 +64,7 @@ async def analyze(bot: Bot, event: Event, state: dict):
         # indicates the message can't be found from the remote server
         await bot.send(event=event, message='无法查询到录像信息')
     except Exception:
+        logger.error(traceback.format_exc())
         await bot.send(event=event, message=exclaim_msg('', '3', False, 1))
 
 

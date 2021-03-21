@@ -59,7 +59,7 @@ class Board(object):
         try:
             return difficulty_ref[size]
         except Exception:
-            return '%dx%d + %d' % size
+            return '%dx%d+%d' % size
 
     def filtered_adjacent(self, row: int, col: int, filters: list = [0]):
         """Yield filtered adjacent coordinates."""
@@ -221,7 +221,10 @@ class Record(Board):
     def prepare_initial_board(self, raw_initial: list = []):
         """Prepare the initial board with raw data."""
         if not raw_initial:
+            self.result['upk'] = False
             return  # no need to prepare the initial board if there is not data
+
+        self.result['upk'] = True
 
         for v in range(self.result['row'] * self.result['column']):
             row = v // self.result['column']
