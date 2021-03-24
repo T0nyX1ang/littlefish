@@ -39,8 +39,8 @@ def init(universal_id: str):
         raise PermissionError('Game has started.')
 
 
-def _info(universal_id: str) -> dict:
-    """Get the problem's information. Protected method."""
+def current(universal_id: str) -> dict:
+    """Get the problem's information."""
     elapsed = app_pool[universal_id].get_elapsed_time()
     elapsed_time = elapsed.seconds + elapsed.microseconds / 1000000
     info = {
@@ -48,15 +48,18 @@ def _info(universal_id: str) -> dict:
         'target': app_pool[universal_id].get_current_target(),
         'total': app_pool[universal_id].get_total_solution_number(),
         'current': app_pool[universal_id].get_current_solution_number(),
+        'remaining': [],
+        'solve_id': solve_id_pool[universal_id],
         'elapsed': elapsed_time,
     }
     return info
 
 
-def start(universal_id: str, addscore: bool = True) -> dict:
+def start(universal_id: str, addscore: bool = True, enforce_random: bool = False) -> dict:
     """Start the game."""
     found = False
-    real = target + random.randint(-18, 18) * (random.random() < random_threshold)
+    threshold = random_threshold + enforce_random  # make sure the threshold greater than 1 if enforced
+    real = target + random.randint(-18, 18) * (random.random() < threshold)
     while not found:
         problem = random.choice(problem_database)
         try:
@@ -67,15 +70,14 @@ def start(universal_id: str, addscore: bool = True) -> dict:
     app_pool[universal_id].start()
     solve_id_pool[universal_id] = []
     addscore_pool[universal_id] = addscore
-    return _info(universal_id)
+    return current(universal_id)
 
 
 def stop(universal_id: str) -> dict:
     """Stop the game."""
-    info = _info(universal_id)
+    info = current(universal_id)
     info['stats'] = app_pool[universal_id].get_current_player_statistics()
     info['remaining'] = app_pool[universal_id].get_remaining_solutions()
-    info['solve_id'] = solve_id_pool[universal_id]
     info['addscore'] = addscore_pool[universal_id]
     solve_id_pool[universal_id] = []
     app_pool[universal_id].stop()
@@ -100,7 +102,7 @@ def solve(universal_id: str, expr: str, player_id: str, _id: int) -> dict:
         hint = '未知错误'
         logger.error(traceback.format_exc())
 
-    info = _info(universal_id)
+    info = current(universal_id)
     info['hint'] = hint
     info['interval'] = solution_time
     return info
