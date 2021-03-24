@@ -107,6 +107,7 @@ async def start_game(bot: Bot, universal_id: str, addscore: bool = True, enforce
     result = start(universal_id, addscore, enforce_random)
     message = print_current_problem(result)
     deadline = get_deadline(result['total'])
+    hint_time_left = 60
     scheduler.add_job(
         func=finish_game,
         trigger='interval',
@@ -119,8 +120,8 @@ async def start_game(bot: Bot, universal_id: str, addscore: bool = True, enforce
     scheduler.add_job(
         func=timeout_reminder,
         trigger='interval',
-        seconds=deadline - 60,
-        args=(bot, universal_id),
+        seconds=deadline - hint_time_left,
+        args=(bot, universal_id, hint_time_left),
         misfire_grace_time=30,
         id='calc42_timeout_reminder_%s' % universal_id,
         replace_existing=True,
@@ -136,13 +137,14 @@ async def start_game(bot: Bot, universal_id: str, addscore: bool = True, enforce
         stop()  # stop the app instantly
 
 
-async def timeout_reminder(bot: Bot, universal_id: str):
+async def timeout_reminder(bot: Bot, universal_id: str, time_left: int):
     """Reminder of the calc42 game."""
     group_id = int(universal_id[len(str(bot.self_id)):])
     if status(universal_id):
         try:
-            message = '距离本局游戏结束还有60秒，冲鸭~'
+            message = '距离本局游戏结束还有%d秒，冲鸭~' % time_left
             await bot.send_group_msg(group_id=group_id, message=message)
+            await show_solutions(bot, universal_id, current(universal_id))
         except Exception:
             logger.error(traceback.format_exc())
 
