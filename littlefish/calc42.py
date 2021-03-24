@@ -14,7 +14,7 @@ from nonebot.log import logger
 from littlefish._exclaim import exclaim_msg
 from littlefish._policy import check, broadcast, empty, create, revoke
 from littlefish._db import load, save
-from littlefish._game.ftpts import init, start, solve, stop, status
+from littlefish._game.ftpts import init, start, solve, stop, current, status
 
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 
@@ -100,11 +100,11 @@ def get_results(universal_id, result: dict) -> str:
     return result_message.strip()
 
 
-async def start_game(bot: Bot, universal_id: str, addscore: bool = True):
+async def start_game(bot: Bot, universal_id: str, addscore: bool = True, enforce_random = False):
     """Start the calc42 game."""
     group_id = int(universal_id[len(str(bot.self_id)):])
     init(universal_id)
-    result = start(universal_id, addscore)
+    result = start(universal_id, addscore, enforce_random)
     message = print_current_problem(result)
     deadline = get_deadline(result['total'])
     scheduler.add_job(
@@ -273,7 +273,10 @@ async def manual_calc42(bot: Bot, event: Event, state: dict):
     universal_id = str(event.self_id) + str(event.group_id)
     option = str(event.message).strip()
 
-    if option == '+':
+    if option == '++':
+        await start_game(bot, universal_id, False, True)
+        create('calc42_temp', str(event.self_id), str(event.group_id), {'+': [event.user_id]})
+    elif option == '+':
         await start_game(bot, universal_id, False)
         create('calc42_temp', str(event.self_id), str(event.group_id), {'+': [event.user_id]})
     elif option == '-':
