@@ -157,13 +157,13 @@ def create(command_name: str, bid: str, gid: str, policy_content: dict):
     policy_config[bid].setdefault(gid, {})
     policy_config[bid][gid].setdefault(command_name, {})
     policy_config[bid][gid][command_name] = policy_content
-    logger.debug('A temporary policy [%s] was added to the policy control' % command_name)
+    logger.debug('A temporary policy [%s] was added to the policy control.' % command_name)
 
 
 def revoke(command_name: str, bid: str, gid: str):
     """Revoke a temporary policy from the memory."""
     try:
         policy_config[bid][gid].pop(command_name)
-        logger.debug('A temporary policy [%s] was revoked from the policy control' % command_name)
+        logger.debug('A temporary policy [%s] was revoked from the policy control.' % command_name)
     except Exception:
         logger.debug('Failed to revoke the temporary policy, the policy may be revoked already.')
