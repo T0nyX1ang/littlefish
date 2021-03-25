@@ -100,7 +100,7 @@ def get_results(universal_id, result: dict) -> str:
     return result_message.strip()
 
 
-async def start_game(bot: Bot, universal_id: str, addscore: bool = True, enforce_random = False):
+async def start_game(bot: Bot, universal_id: str, addscore: bool = True, enforce_random: bool = False):
     """Start the calc42 game."""
     group_id = int(universal_id[len(str(bot.self_id)):])
     init(universal_id)
@@ -169,18 +169,13 @@ async def show_solutions(bot: Bot, universal_id: str, result: dict):
     """Generate a message node from all solutions."""
     group_id = int(universal_id[len(str(bot.self_id)):])
     message = []
-    for message_id in result['solve_id']:
-        message.append({'type': 'node', 'data': {'id': message_id}})
+    for i in range(result['current']):
+        user_id = result['stats'][i][0]
+        name = get_member_name(universal_id, user_id)
+        message.append({'type': 'node', 'data': {'name': name, 'uin': user_id, 'content': result['solutions'][i]}})
 
     for remaining in result['remaining']:
-        message.append({
-            'type': 'node',
-            'data': {
-                'name': '小鱼',
-                'uin': bot.self_id,
-                'content': remaining,
-            }
-        })
+        message.append({'type': 'node', 'data': {'name': '小鱼', 'uin': bot.self_id, 'content': remaining}})
 
     if message:
         await bot.send_group_forward_msg(group_id=group_id, messages=Message(message))
