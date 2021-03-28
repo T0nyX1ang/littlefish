@@ -4,7 +4,7 @@
 A bot for minesweeper war. Happy fishing!
 
 ## 简介
-littlefish(小鱼)是一个基于[NoneBot2](https://v2.nonebot.dev/)的异步IO机器人，用于[扫雷联萌](http://tapsss.com)(原扫雷大作战)的相关信息查询和膜佬操作。如果该机器人已经部署在你所在的群里，你可能需要阅读[使用指南](/usage)；如果你希望将机器人部署在某些群里，你可能需要阅读[开发指南](/development)；此外还有本项目的[开发日志](/changelog)可供查阅。
+littlefish(小鱼)是一个基于[NoneBot2](https://v2.nonebot.dev/)的异步IO机器人，用于[扫雷联萌](http://tapsss.com)(原扫雷大作战)的相关信息查询和膜佬操作。如果该机器人已经部署在你所在的群里，你可能需要阅读[使用指南](/usage.md)；如果你希望将机器人部署在某些群里，你可能需要阅读[开发指南](/development.md)；此外还有本项目的[开发日志](/changelog.md)可供查阅。
 
 祝你使用愉快 ^\_^ ! 
 
