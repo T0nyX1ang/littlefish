@@ -1,0 +1,29 @@
+{
+  "name": "littlefish",
+  "description": "A bot for minesweeper league.",
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {
+    "vuepress": "^1.8.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/T0nyX1ang/littlefish.git"
+  },
+  "keywords": [
+    "nonebot2",
+    "minesweeper"
+  ],
+  "author": "Tony Xiang",
+  "license": "AGPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/T0nyX1ang/littlefish/issues"
+  },
+  "homepage": "https://t0nyx1ang.github.io/littlefish/"
+}
