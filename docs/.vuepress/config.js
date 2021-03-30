@@ -2,7 +2,7 @@
 module.exports = {
   base: '/littlefish/',
   title: 'littlefish',
-  description: 'A bot for minesweeper league.',
+  description: '扫雷联萌查询机器人 🐟 小鱼',
   themeConfig: {
     activeHeaderLinks: false,
     nav: [

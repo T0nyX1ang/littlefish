@@ -1,12 +1,13 @@
 ---
+
 home: true
 footer: littlefish 🐟 ~ Licensed under AGPL ~ Copyright © 2020-2021 Tony Xiang
+
 ---
 
-# 小鱼
-
 ## 简介
-littlefish(小鱼)是一个基于[NoneBot2](https://v2.nonebot.dev/)和[go-cqhttp](http://docs.go-cqhttp.org/)的异步IO机器人，用于[扫雷联萌](http://tapsss.com)(原扫雷大作战)的相关信息查询和膜佬操作。如果该机器人已经部署在你所在的群里，你可能需要阅读[相关命令](./guide/normal.md)这一节；如果你希望将机器人部署在某些群里，你可能需要阅读[配置与部署](./guide/advanced.md)这一节。此外，你可以通过站内搜索或导航栏中的**了解更多**栏目以进一步了解本项目。
+
+小鱼是一个基于[NoneBot2](https://v2.nonebot.dev/)和[go-cqhttp](http://docs.go-cqhttp.org/)的异步IO机器人，用于[扫雷联萌](http://tapsss.com)(原扫雷大作战)的相关信息查询和膜佬操作。如果小鱼已经部署在你所在的群里，你可能需要阅读[相关命令](./guide/normal.md)这一节；如果你希望将小鱼部署在某些群里，你可能需要阅读[配置与部署](./guide/advanced.md)这一节。此外，你可以通过站内搜索或导航栏以进一步了解本项目。
 
 祝你使用愉快 ^\_^ ! 
 
