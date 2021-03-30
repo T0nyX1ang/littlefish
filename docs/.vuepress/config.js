@@ -3,11 +3,6 @@ module.exports = {
   base: '/littlefish/',
   title: 'littlefish',
   description: 'A bot for minesweeper league.',
-  locale: {
-    '/': {
-      'lang': 'zh-CN'
-    }
-  },
   themeConfig: {
     activeHeaderLinks: false,
     nav: [
@@ -33,16 +28,13 @@ module.exports = {
     repoLabel: 'Github',
     docsDir: 'docs',
     editLinks: true,
-    editLinkText: '编辑此页面'
+    editLinkText: '编辑此页面',
+    footer: 'littlefish 🐟 ~ Licensed under AGPL ~ Copyright © 2020-2021 Tony Xiang'
   },
   plugins: [
     '@vuepress/back-to-top',
-    'vuepress-plugin-mathjax',
-    {
-      target: 'svg',
-      macros: {
-        '*': '\\times',
-      },
-    }
+    [
+      'vuepress-plugin-mathjax', { target: 'svg' }
+    ]
   ]
 }
