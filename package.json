@@ -6,7 +6,8 @@
   },
   "dependencies": {
     "@vuepress/plugin-back-to-top": "^1.8.2",
-    "vuepress": "^1.8.2"
+    "vuepress": "^1.8.2",
+    "vuepress-plugin-mathjax": "^1.2.8"
   },
   "devDependencies": {},
   "scripts": {

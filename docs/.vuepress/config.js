@@ -35,8 +35,14 @@ module.exports = {
     editLinks: true,
     editLinkText: '编辑此页面'
   },
-  footer: 'Copyright &copy; 2020-2021 Tony Xiang<a href="https://github.com/T0nyX1ang">(@T0nyX1ang)</a>.',
   plugins: [
-    '@vuepress/back-to-top'
+    '@vuepress/back-to-top',
+    'vuepress-plugin-mathjax',
+    {
+      target: 'svg',
+      macros: {
+        '*': '\\times',
+      },
+    }
   ]
 }
