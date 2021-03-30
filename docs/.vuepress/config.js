@@ -33,6 +33,7 @@ module.exports = {
   },
   plugins: [
     '@vuepress/back-to-top',
+    'vuepress-plugin-reading-progress',
     [
       'vuepress-plugin-mathjax', { target: 'svg' }
     ]
