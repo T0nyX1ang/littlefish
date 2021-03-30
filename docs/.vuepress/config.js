@@ -15,7 +15,7 @@ module.exports = {
       {
         text: '指南',
         items: [
-          { text: '相关指令', link: '/guide/normal' },
+          { text: '功能与指令', link: '/guide/normal' },
           { text: '配置与部署', link: '/guide/advanced' },
         ]
       },
