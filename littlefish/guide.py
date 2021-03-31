@@ -62,7 +62,6 @@ async def show_push_line(bot: Bot, event: Event, state: dict):
 @guide_42.handle()
 async def show_guide_42(bot: Bot, event: Event, state: dict):
     """Show minesweeping guide."""
-    guide42_link = "42点说明：https://github.com/T0nyX1ang/littlefish\
-/blob/master/docs/usage.md#42%E7%82%B9"
+    guide42_link = "https://littlefish.vercel.app/guide/normal.html#%E7%AE%9742%E7%82%B9"
 
     await bot.send(event=event, message=guide42_link)
