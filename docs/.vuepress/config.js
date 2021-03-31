@@ -2,6 +2,11 @@
 module.exports = {
   title: 'littlefish',
   description: '扫雷联萌查询机器人 🐟 小鱼',
+  locales: {
+    '/': {
+      'lang': 'zh-CN',
+    }
+  },
   themeConfig: {
     activeHeaderLinks: false,
     nav: [
@@ -20,8 +25,12 @@ module.exports = {
         ]
       }
     ],
+    locales: {
+      '/': {
+          lastUpdated: '最后更新于'
+      }
+    },
     sidebar: 'auto',
-    lastUpdated: '最后更新于',
     smoothScroll: true,
     repo: 'T0nyX1ang/littlefish',
     repoLabel: 'Github',
