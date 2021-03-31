@@ -27,7 +27,7 @@ guide_42 = on_command(cmd='guide42', aliases={'42点说明'}, rule=check('guide'
 @guide.handle()
 async def show_guide(bot: Bot, event: Event, state: dict):
     """Show guide page for littlefish."""
-    guide_link = "用户指南详见: https://t0nyx1ang.github.io/littlefish/"
+    guide_link = "用户指南详见: https://littlefish.vercel.app"
     await bot.send(event=event, message=guide_link)
 
 
