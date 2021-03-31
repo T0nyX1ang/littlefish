@@ -1,5 +1,6 @@
 {
   "name": "littlefish",
+  "version": "1.0.2",
   "description": "A bot for minesweeper league.",
   "directories": {
     "doc": "docs"
