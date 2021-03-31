@@ -9,19 +9,16 @@ import httpx
 import nonebot
 import traceback
 import semver
+import json
 from nonebot import on_metaevent
 from nonebot.adapters.cqhttp import Bot, Event, LifecycleMetaEvent
 from nonebot.log import logger
 from littlefish._policy import valid
 
-version_directory = os.path.join(os.path.join(os.getcwd(), 'docs'), 'changelog.md')
+version_directory = os.path.join(os.getcwd(), 'package.json')
 
 with open(version_directory, 'r', encoding='utf-8') as f:
-    changelog = f.read()
-
-start = changelog.find('##') + 2
-stop = changelog.find('\n', start)
-version = changelog[start:stop].strip()
+    version = json.loads(f.read())['version']
 
 
 async def get_server_version():
