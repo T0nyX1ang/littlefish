@@ -7,7 +7,7 @@ footer: littlefish 🐟 ~ Licensed under AGPL ~ Copyright © 2020-2021 Tony Xian
 
 ## 简介
 
-小鱼是一个基于[NoneBot2](https://v2.nonebot.dev/)和[go-cqhttp](http://docs.go-cqhttp.org/)的异步IO机器人，用于[扫雷联萌](http://tapsss.com)(原扫雷大作战)的相关信息查询和膜佬操作。如果小鱼已经部署在你所在的群里，你可能需要阅读[相关命令](./guide/normal.md)这一节；如果你希望将小鱼部署在某些群里，你可能需要阅读[配置与部署](./guide/advanced.md)这一节。此外，你可以通过站内搜索或导航栏以进一步了解本项目。
+小鱼是一个基于[NoneBot2](https://v2.nonebot.dev/)和[go-cqhttp](http://docs.go-cqhttp.org/)的异步IO机器人，用于[扫雷联萌](http://tapsss.com)(原扫雷大作战)的相关信息查询和膜佬操作。如果小鱼已经部署在你所在的群里，你可能需要阅读[功能与指令](./guide/normal.md)这一节；如果你希望将小鱼部署在某些群里，你可能需要阅读[配置与部署](./guide/advanced.md)这一节。此外，你可以通过站内搜索或导航栏以进一步了解本项目。
 
 祝你使用愉快 ^\_^ ! 
 
@@ -22,4 +22,5 @@ footer: littlefish 🐟 ~ Licensed under AGPL ~ Copyright © 2020-2021 Tony Xian
 +   [jadx](https://github.com/skylot/jadx)：用于dex形式文件的反编译软件。
 +   [Genymotion](https://www.genymotion.com/)：运行安卓应用的虚拟机软件。
 +   [bilibili_api](https://github.com/Passkou/bilibili_api)：用于B站直播推送。
++   [Vuepress](https://vuepress.vuejs.org/zh/)：用于此网页的生成。
 +   And you ~
