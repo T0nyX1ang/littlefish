@@ -18,7 +18,7 @@ const msgs = [
   `If you really want to find something ...`,
   `Here's a puzzle for you!`,
   `Solve: 106454dd91c9`,
-  `Search: RC4-MD5`,
+  `Search: RC4`,
   `Solve: N2J3MjoxOFp0MDhPQzI3eGViZTRVNW9sVHIwZw==`,
   `Search: Base64`,
 ]
