@@ -44,6 +44,17 @@ module.exports = {
     'vuepress-plugin-reading-progress',
     [
       'vuepress-plugin-mathjax', { target: 'svg' }
+    ],
+    [
+      '@vuepress/last-updated',
+      {
+        dateOptions:{
+          hour12: false,
+          timeZone: 'Asia/Shanghai',
+          timeStyle: 'long',
+          dateStyle: 'long'
+        }
+      }
     ]
   ]
 }
