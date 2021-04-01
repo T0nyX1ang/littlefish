@@ -21,6 +21,7 @@ const msgs = [
   `Search: RC4`,
   `Solve: N2J3MjoxOFp0MDhPQzI3eGViZTRVNW9sVHIwZw==`,
   `Search: Base64`,
+  `Range: *.baidu.com`
 ]
 
 export default {
