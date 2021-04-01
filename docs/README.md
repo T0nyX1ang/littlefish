@@ -11,6 +11,9 @@ footer: littlefish 🐟 ~ Licensed under AGPL ~ Copyright © 2020-2021 Tony Xian
 
 祝你使用愉快 ^\_^ ! 
 
+## 协议
++   本项目基于`AGPL 3.0`开源, 详细的协议见[这里](http://www.gnu.org/licenses/agpl-3.0.html)。
+
 ## 鸣谢
 +   雷网 [17373](https://github.com/hxtscjk17373) 的小爆，分担了雷网查询的任务。
 +   雷网 [13688](https://github.com/darknessgod) 的[小喵](https://github.com/darknessgod/littlemeow/wiki/%E5%B0%8F%E5%96%B5%E4%BD%BF%E7%94%A8%E5%B8%AE%E5%8A%A9%EF%BC%88%E6%9C%80%E5%90%8E%E6%9B%B4%E6%96%B0%E4%BA%8E2020%E5%B9%B44%E6%9C%886%E6%97%A5%EF%BC%89)——本项目的灵感来源。
