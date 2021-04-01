@@ -27,7 +27,7 @@ guide_42 = on_command(cmd='guide42', aliases={'42点说明'}, rule=check('guide'
 @guide.handle()
 async def show_guide(bot: Bot, event: Event, state: dict):
     """Show guide page for littlefish."""
-    guide_link = "用户指南详见: https://littlefish.vercel.app"
+    guide_link = "用户指南详见: https://littlefish.vercel.app/guide/normal.html"
     await bot.send(event=event, message=guide_link)
 
 
@@ -62,6 +62,6 @@ async def show_push_line(bot: Bot, event: Event, state: dict):
 @guide_42.handle()
 async def show_guide_42(bot: Bot, event: Event, state: dict):
     """Show minesweeping guide."""
-    guide42_link = "https://littlefish.vercel.app/guide/normal.html#%E7%AE%9742%E7%82%B9"
+    guide42_link = "42点指南详见: https://littlefish.vercel.app/guide/normal.html#%E7%AE%9742%E7%82%B9"
 
     await bot.send(event=event, message=guide42_link)
