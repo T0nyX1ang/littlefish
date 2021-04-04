@@ -76,7 +76,7 @@ async def level_broadcast(bot_id: str, group_id: str):
         logger.error(traceback.format_exc())
 
 
-@scheduler.scheduled_job('cron', day_of_week=0, hour=0, minute=0, second=0, misfire_grace_time=30)
+@scheduler.scheduled_job('cron', day_of_week=0, hour=0, minute=10, second=0, misfire_grace_time=30)
 async def scheduled_level_fetch():
     """Scheduled level infomation fetch at 00:00:00(weekly)."""
     level_list_data = await get_level_list()
