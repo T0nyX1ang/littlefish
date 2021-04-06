@@ -15,7 +15,7 @@ from nonebot.adapters.cqhttp import Bot, Event, LifecycleMetaEvent
 from nonebot.log import logger
 from littlefish._policy import valid
 
-version_directory = os.path.join(os.getcwd(), 'package.json')
+version_directory = os.path.join(os.path.join(os.getcwd(), 'docs'), 'package.json')
 
 with open(version_directory, 'r', encoding='utf-8') as f:
     version = json.loads(f.read())['version']
