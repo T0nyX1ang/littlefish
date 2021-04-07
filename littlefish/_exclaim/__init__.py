@@ -144,9 +144,10 @@ def mutate_msg(message: str, mutate: bool = False):
     place = random.choice(range(0, len(msg)))
     seg = msg[place]
     if seg.type == 'text':
-        # reverse the text
-        plain = seg.data['text']
+        number = random.choice('一' * 42 + '二三四五六七八九')
+        plain = seg.data['text'].replace('一', number)
         start, stop = sorted(random.sample(range(0, len(plain)), 2))
+        stop = start + (stop - start) * (plain == seg.data['text'])  # reverse the text if the number is not replaced
         target = plain[start:stop]
         result = plain[:start] + target[::-1] + plain[stop:]
         seg.data['text'] = result
