@@ -120,9 +120,24 @@ def slim_msg(message: str):
     return Message(message)
 
 
+def replace_redbag_msg(message: str):
+    """Replace the red bag message as the bot can not send red bags."""
+    msg = Message(message)
+    if len(msg) != 1:
+        return msg
+
+    seg = msg[0]
+    if seg.type == 'redbag':
+        # replace redbag with a custom message
+        seg.type = 'text'
+        seg.data.pop('title')
+        seg.data['text'] = '我发了一个[雷币红包]，请下载最新版扫雷联萌领取~'
+    msg[0] = seg
+    return msg
+
 def mutate_msg(message: str, mutate: bool = False):
     """Mutate a message."""
-    msg = Message(message)
+    msg = replace_redbag_msg(message)
     if not mutate:
         return msg  # just wrap the message
 
