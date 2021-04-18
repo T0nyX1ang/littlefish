@@ -1,6 +1,6 @@
 {
   "name": "littlefish",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A bot for minesweeper league.",
   "directories": {
     "doc": "docs"
@@ -29,5 +29,5 @@
   "bugs": {
     "url": "https://github.com/T0nyX1ang/littlefish/issues"
   },
-  "homepage": "https://t0nyx1ang.github.io/littlefish/"
+  "homepage": "https://littlefish.vercel.app"
 }
