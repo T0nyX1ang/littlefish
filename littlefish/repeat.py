@@ -42,13 +42,13 @@ def update_combo(universal_id: str, message: str, combo: int) -> bool:
         place = message.find(msg_base)
         left_increment = message[:place]
         right_increment = message[place + len(msg_base):]
-        save(universal_id, 'current_msg_base', msg_base)
-        save(universal_id, 'current_left_increment', left_increment)
-        save(universal_id, 'current_right_increment', right_increment)
 
     left_append = combo * left_increment + msg_base
     right_append = msg_base + combo * right_increment
     if message == right_append or message == left_append:
+        save(universal_id, 'current_msg_base', msg_base)
+        save(universal_id, 'current_left_increment', left_increment)
+        save(universal_id, 'current_right_increment', right_increment)
         return combo + 1
     else:
         save(universal_id, 'current_msg_base', message)
