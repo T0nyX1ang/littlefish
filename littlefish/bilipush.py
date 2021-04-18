@@ -51,7 +51,6 @@ async def push_live_message(bot: Bot, universal_id: str):
         subscribed_list = {}
         save(universal_id, 'subscribed_list', subscribed_list)
 
-    print(subscribed_list)
     uids = tuple(subscribed_list.keys())
     if not uids:
         return
@@ -68,7 +67,6 @@ async def push_live_message(bot: Bot, universal_id: str):
 
     subscribed_list.pop(uid)  # pop the first item in the subscribed list
     subscribed_list[uid] = status['live_status']  # update the live status and move the item to the end
-    print(subscribed_list)
     save(universal_id, 'subscribed_list', subscribed_list)
 
 
