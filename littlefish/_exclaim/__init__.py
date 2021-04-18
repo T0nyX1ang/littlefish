@@ -135,6 +135,7 @@ def replace_redbag_msg(message: str):
     msg[0] = seg
     return msg
 
+
 def mutate_msg(message: str, mutate: bool = False):
     """Mutate a message."""
     msg = replace_redbag_msg(message)
