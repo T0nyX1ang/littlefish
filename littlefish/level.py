@@ -3,7 +3,7 @@ Fetch the infomation of the level status.
 
 The information includes:
 The number of people in each rank.
-The level information is automatically fetched at 00:00:00 +- 30s weekly.
+The level information is automatically fetched at 00:00:10 +- 30s weekly.
 
 The command requires to be invoked in groups.
 """
@@ -78,6 +78,6 @@ async def level_broadcast(bot_id: str, group_id: str):
 
 @scheduler.scheduled_job('cron', day_of_week=0, hour=0, minute=10, second=0, misfire_grace_time=30)
 async def scheduled_level_fetch():
-    """Scheduled level infomation fetch at 00:00:00(weekly)."""
+    """Scheduled level infomation fetch at 00:00:10(weekly)."""
     level_list_data = await get_level_list()
     save('0', 'level_history', level_list_data)
