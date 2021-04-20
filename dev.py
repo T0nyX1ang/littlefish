@@ -4,8 +4,7 @@ Please note that this file is for development.
 
 Please run this file by typing: py -3 dev.py on Windows,
 and python3 dev.py on *nix. You need to install an additional
-package named: nonebot_plugin_test and change view.py#L14 with:
-from nonebot.drivers import WebSocket as BaseWebSocket
+package named: nonebot_plugin_test.
 """
 
 import nonebot
