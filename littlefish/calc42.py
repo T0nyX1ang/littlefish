@@ -144,7 +144,6 @@ async def timeout_reminder(bot: Bot, universal_id: str, time_left: int):
         try:
             message = '距离本局游戏结束还有%d秒，冲鸭~' % time_left
             await bot.send_group_msg(group_id=group_id, message=message)
-            await show_solutions(bot, universal_id, current(universal_id))
         except Exception:
             logger.error(traceback.format_exc())
 
