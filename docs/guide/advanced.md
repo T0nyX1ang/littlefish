@@ -52,6 +52,7 @@
 	access_token # API上报密钥
 	frequent_face_id # 常用QQ表情ID(用于变形复读时表情替换)
 	database_compress_level # 数据库压缩程度(0-9, 默认为9)
+    database_backup_max_storage # 数据库最大备份数目(正整数, 小于等于0时不限制备份数, 默认为0)
 	ftpts_max_number # 42点最大可选择数字
 	ftpts_target # 42点目标数字
     ftpts_random_threshold # 42点目标阈值(该值越高, 目标不为42点可能性越大)
@@ -128,6 +129,7 @@ resource/exclaim/1.gif|1|1|1
 
 ## 数据库相关
 +   数据库采用`gzip`压缩的`JSON`格式，将所有数据存放在一起。索引使用`universal_id`，当数据为共用的全局数据时，`universal_id = 0`，当数据为群组相关的局部数据时，`universal_id = 小鱼QQ号拼接群号`。
++   每次写入数据库时，小鱼会对当前数据进行全量备份，可以通过设置`database_backup_max_storage`限制最大备份数目。
 
 ::: danger
 
