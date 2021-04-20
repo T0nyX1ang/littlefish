@@ -14,6 +14,7 @@ commit: save the database on disk. This module is invoked every two hours.
 """
 
 import os
+import time
 import gzip
 import shutil
 import json
@@ -27,7 +28,8 @@ global_config = nonebot.get_driver().config
 plugin_config = DatabaseConfig(**global_config.dict())
 database_location = os.path.join(os.getcwd(), plugin_config.database_location)
 database_compress_level = plugin_config.database_compress_level
-database_backup = f'{database_location}.bak'
+database_backup_directory = os.path.join(os.path.dirname(database_location), 'backup')
+database_backup_max_storage = plugin_config.database_backup_max_storage
 database = {}
 
 logger.info('Loading the database from disk ...')
@@ -39,6 +41,10 @@ except Exception:
     logger.info('Creating a empty database on disk ...')
     with gzip.open(database_location, 'wb', compresslevel=database_compress_level) as f:
         f.write(json.dumps(database).encode())
+
+logger.info('Detecting backup directory ...')
+if not os.path.isdir(database_backup_directory):
+    os.mkdir(database_backup_directory)
 
 
 def load(universal_id: str, item_name: str) -> json:
@@ -61,7 +67,14 @@ def save(universal_id: str, item_name: str, new_data: json):
 async def commit():
     """Commit to the database, saving the file on disk from memory."""
     logger.info('Saving the database to disk ...')
+
+    database_backup = os.path.join(database_backup_directory, '%d.bak' % int(time.time() * 1000000))
     shutil.copyfile(database_location, database_backup)
+
+    backups = os.listdir(database_backup_directory)
+    removes = (0 < database_backup_max_storage < len(backups)) * (len(backups) - database_backup_max_storage)
+    for i in range(removes):
+        os.remove(os.path.join(database_backup_directory, backups[i]))  # remove the redundant files
 
     try:
         with gzip.open(database_location, 'wb', compresslevel=database_compress_level) as f:
