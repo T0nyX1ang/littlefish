@@ -217,3 +217,4 @@ policy.json
 resource*
 database*
 logs/
+backup/
