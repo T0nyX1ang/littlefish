@@ -7,9 +7,9 @@ nickname, liveroom_url, liveroom_title of a subscribed user.
 The command requires to be invoked in groups.
 """
 
+import traceback
 import httpx
 import nonebot
-import traceback
 from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event
 from nonebot.log import logger

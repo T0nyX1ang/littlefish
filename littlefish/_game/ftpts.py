@@ -11,12 +11,12 @@ Available operations:
 """
 
 import itertools
-import nonebot
 import random
 import traceback
-from .config import FTPtsConfig
+import nonebot
 from ftptsgame import FTPtsGame
 from nonebot.log import logger
+from .config import FTPtsConfig
 
 global_config = nonebot.get_driver().config
 plugin_config = FTPtsConfig(**global_config.dict())

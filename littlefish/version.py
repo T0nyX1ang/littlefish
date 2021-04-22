@@ -5,11 +5,11 @@ Support version check, version display on first connection.
 """
 
 import os
+import json
+import traceback
 import httpx
 import nonebot
-import traceback
 import semver
-import json
 from nonebot import on_metaevent
 from nonebot.adapters.cqhttp import Bot, Event, LifecycleMetaEvent
 from nonebot.log import logger

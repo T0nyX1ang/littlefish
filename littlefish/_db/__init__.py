@@ -18,8 +18,8 @@ import time
 import gzip
 import shutil
 import json
-import nonebot
 import traceback
+import nonebot
 from nonebot.log import logger
 from .config import DatabaseConfig
 
@@ -77,8 +77,8 @@ async def commit():
         os.remove(os.path.join(database_backup_directory, backups[i]))  # remove the redundant files
 
     try:
-        with gzip.open(database_location, 'wb', compresslevel=database_compress_level) as f:
-            f.write(json.dumps(database, sort_keys=True).encode())
+        with gzip.open(database_location, 'wb', compresslevel=database_compress_level) as tf:
+            tf.write(json.dumps(database, sort_keys=True).encode())
         return True
     except Exception:
         logger.error('Failed to save the database ...')

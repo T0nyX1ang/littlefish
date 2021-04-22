@@ -11,8 +11,8 @@ Available features:
 The command requires to be invoked in groups.
 """
 
-import nonebot
 import traceback
+import nonebot
 from nonebot import on_command, on_notice, on_request
 from nonebot.adapters.cqhttp import (
     Bot,
