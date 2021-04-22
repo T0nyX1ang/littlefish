@@ -7,8 +7,8 @@ Bot: rank, level (including progress), wins / loses, latest winner.
 The command requires to be invoked in groups.
 """
 
-import nonebot
 import traceback
+import nonebot
 from nonebot import on_command
 from nonebot.log import logger
 from nonebot.adapters.cqhttp import Bot, Event

@@ -5,13 +5,13 @@ import sys
 import json
 
 
-def question_prompt(item, default: str = ''):
+def question_prompt(question_item, default: str = ''):
     """Ask a question for the user."""
-    question = 'Please enter %s (default: %s): ' % (item, default)
+    question = 'Please enter %s (default: %s): ' % (question_item, default)
     answer = input(question)
     if not answer:
         answer = default
-    print('%s has been set to: %s' % (item, answer))
+    print('%s has been set to: %s' % (question_item, answer))
     return answer
 
 
@@ -47,7 +47,7 @@ def exit_when_file_exist(filename):
 
 def setup_default_policy():
     """Set up a default policy."""
-    policy = {
+    default_policy = {
         "dailymap": {
             "@": {
                 "hour": 0,
@@ -95,7 +95,7 @@ def setup_default_policy():
             "+": []
         }
     }
-    return policy
+    return default_policy
 
 
 print('Hello! This is the wizard of littlefish. You need to enter some '

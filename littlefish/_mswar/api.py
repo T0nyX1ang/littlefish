@@ -10,11 +10,11 @@ get_record(with record_id or post_id)
 _get_latest_battle_winner.
 """
 
-import nonebot
 import math
 import gzip
-from base64 import b64decode
-from urllib.parse import quote
+import base64
+import urllib.parse
+import nonebot
 from .analyzer import Board, Record
 from .config import PVPConfig
 from .netcore import fetch
@@ -157,7 +157,7 @@ async def get_record(_id: int, use_post_id: bool = True) -> dict:
         status = record_file['data']['mapStatus'].split('-')[0:-1]
 
     board = record_file['data']['map'].split('-')[0:-1]
-    raw_action = gzip.decompress(b64decode(record_file['data']['handle'])).decode().split('-')
+    raw_action = gzip.decompress(base64.b64decode(record_file['data']['handle'])).decode().split('-')
     action = [list(map(int, v.split(':'))) for v in raw_action]
     record = Record(board, action, status)
     result = record.get_result()
@@ -170,7 +170,7 @@ async def get_record(_id: int, use_post_id: bool = True) -> dict:
 
 async def get_search_info(nickname: str) -> list:
     """Get search information from the remote server."""
-    result = await fetch(page='/MineSweepingWar/user/search', query='name=%s&page=0&count=10' % quote(nickname))
+    result = await fetch(page='/MineSweepingWar/user/search', query='name=%s&page=0&count=10' % urllib.parse.quote(nickname))
 
     search_result = []
 

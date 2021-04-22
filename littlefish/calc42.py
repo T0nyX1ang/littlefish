@@ -6,15 +6,15 @@ The rules can be found by invoking 'guide42' in groups.
 The command requires to be invoked in groups.
 """
 
-import nonebot
 import traceback
+import nonebot
 from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event, Message
 from nonebot.log import logger
 from littlefish._exclaim import exclaim_msg
 from littlefish._policy import check, broadcast, empty, create, revoke
 from littlefish._db import load, save
-from littlefish._game.ftpts import init, start, solve, stop, current, status
+from littlefish._game.ftpts import init, start, solve, stop, status
 
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 
@@ -134,7 +134,7 @@ async def start_game(bot: Bot, universal_id: str, addscore: bool = True, enforce
         scheduler.remove_job('calc42_timeout_reminder_%s' % universal_id)
         scheduler.remove_job('calc42_process_%s' % universal_id)
         revoke('calc42_temp', str(bot.self_id), str(group_id))
-        stop()  # stop the app instantly
+        stop(universal_id)  # stop the app instantly
 
 
 async def timeout_reminder(bot: Bot, universal_id: str, time_left: int):

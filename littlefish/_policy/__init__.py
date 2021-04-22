@@ -56,9 +56,9 @@ Additional features:
 policy into the memory, but not saved into the policy file on disk.
 """
 
-import nonebot
 import json
 import os
+import nonebot
 from nonebot.log import logger
 from nonebot.adapters.cqhttp import Bot, Event, GroupMessageEvent
 from nonebot.rule import Rule

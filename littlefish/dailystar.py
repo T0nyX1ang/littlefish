@@ -8,9 +8,9 @@ The dailystar information is automatically fetched on every trigger.
 The command requires to be invoked in groups.
 """
 
-import nonebot
 import time
 import traceback
+import nonebot
 from nonebot import on_command
 from nonebot.log import logger
 from nonebot.adapters.cqhttp import Bot, Event
@@ -61,7 +61,7 @@ def _save_daily_star(uid: str):
 
 dailystar = on_command(cmd='dailystar', aliases={'今日之星', '联萌每日一星'}, rule=check('dailystar') & empty())
 
-dailystar_count = on_command(cmd='dailystarcount ', aliases={'联萌每日一星次数 '}, rule=check('dailystar'))
+dailystar_counter = on_command(cmd='dailystarcount ', aliases={'联萌每日一星次数 '}, rule=check('dailystar'))
 
 
 @dailystar.handle()
@@ -72,7 +72,7 @@ async def show_dailystar(bot: Bot, event: Event, state: dict):
     await bot.send(event=event, message=format_daily_star(daily_star_info))
 
 
-@dailystar_count.handle()
+@dailystar_counter.handle()
 async def show_dailystar_count(bot: Bot, event: Event, state: dict):
     """Handle the dailystar_count command."""
     try:
