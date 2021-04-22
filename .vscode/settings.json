@@ -1,0 +1,14 @@
+{
+    "python.linting.pylintArgs": [
+        "--disable=broad-except",
+        "--disable=invalid-name",
+        "--disable=unnecessary-lambda",
+        "--disable=line-too-long"
+    ],
+    "python.linting.pylintUseMinimalCheckers": false,
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+        "--max-line-length=127"
+    ],
+    "python.linting.pydocstyleEnabled": true
+}
