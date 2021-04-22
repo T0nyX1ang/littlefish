@@ -95,14 +95,16 @@ async def say_hello_on_entering(bot: Bot, event: Event, state: dict):
     """Handle the say_hello command."""
     universal_id = str(event.self_id) + str(event.group_id)
     join_id = f'{event.user_id}'
-    person = load(universal_id, join_id)
+    members = load(universal_id, 'members')
 
-    if person:
+    if event.user_id == event.self_id:  # the bot can not respond to itself
+        return
+
+    if join_id in members:  # this means the user has been a group member before
         await bot.send(event=event, message='欢迎大佬回归，希望大佬天天破pb~')
         return  # preserve former information
 
-    if event.user_id != event.self_id:  # the bot can not respond to itself
-        await bot.send(event=event, message='欢迎大佬，希望大佬天天破pb~')
+    await bot.send(event=event, message='欢迎大佬，希望大佬天天破pb~')
 
     # Creating a new user
     try:
@@ -116,10 +118,13 @@ async def say_goodbye_on_leaving(bot: Bot, event: Event, state: dict):
     """Handle the say_goodbye command. Admin privilege required."""
     universal_id = str(event.self_id) + str(event.group_id)
     leave_id = f'{event.user_id}'
-    person = load(universal_id, leave_id)
-    uid = person['id'] if person['id'] else '未知'
+    members = load(universal_id, 'members')
+
+    print(members[leave_id]['id'])
+    uid = members[leave_id]['id'] if leave_id in members and members[leave_id]['id'] else '未知'
+
     if event.user_id != event.self_id:  # the bot can not respond to itself
-        await bot.send(event=event, message='有群员[%s]跑路了QAQ' % uid)
+        await bot.send(event=event, message='有群员[Id: %s]跑路了QAQ' % uid)
 
 
 @black_room.handle()
