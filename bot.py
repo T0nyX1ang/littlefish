@@ -4,8 +4,8 @@ This is the initialization file.
 Please run this file by typing: py -3 bot.py on Windows,
 and python3 bot.py on *nix. Make sure you have installed
 all the dependencies required before you run this program.
-If you want to enable the developing mode, please add a --dev
-option after the original command.
+If you want to enable the developing mode, please add a -d or
+--dev option after the original command.
 
 In the developing mode, the logging will not be saved to disk,
 the logging level will be DEBUG level, the auto-reloading feature
@@ -20,7 +20,7 @@ from nonebot.log import logger, default_format
 from nonebot.adapters.cqhttp import Bot
 
 parser = argparse.ArgumentParser(description='A bot for minesweeper league.')
-parser.add_argument('--dev', action='store_true', default=False, help='Enable the developing mode')
+parser.add_argument('-d', '--dev', action='store_true', default=False, help='Enable the developing mode')
 args = parser.parse_args()
 
 if not args.dev:  # save the logs to disk in non-developing mode
