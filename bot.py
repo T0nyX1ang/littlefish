@@ -26,7 +26,7 @@ args = parser.parse_args()
 if not args.dev:  # save the logs to disk in non-developing mode
     logger.add("logs/errors_{time}.log", rotation="00:00", diagnose=False, level="ERROR", format=default_format)
 
-nonebot.init(debug=args.dev)
+nonebot.init(debug=args.dev, fastapi_reload_dirs=['littlefish'])
 driver = nonebot.get_driver()
 driver.register_adapter("cqhttp", Bot)
 nonebot.load_plugin('nonebot_plugin_apscheduler')
