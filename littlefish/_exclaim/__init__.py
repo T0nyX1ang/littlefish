@@ -59,16 +59,16 @@ plugin_config = ResourceConfig(**global_config.dict())
 resource_location = os.path.join(os.getcwd(), plugin_config.resource_location)
 frequent_face_id = list(set(plugin_config.frequent_face_id))
 
-try:
-    resource_database = {}
-    logger.info('Constructing resource database ...')
-    with open(resource_location, 'r', encoding='utf-8') as f:
-        csv_reader = csv.reader(f, delimiter=plugin_config.resource_separator)
-        for line in csv_reader:
+resource_database = {}
+logger.info('Constructing resource database ...')
+with open(resource_location, 'r', encoding='utf-8') as f:
+    csv_reader = csv.reader(f, delimiter=plugin_config.resource_separator)
+    for line in csv_reader:
+        try:
             _resource, _type, _img, _weight = line
-            # convert the data to required format, if _img and _weight is undefined, it will be set to the default value
-            _img = bool(int(_img + '0' * (not bool(_img))))
-            _weight = max(1, int(_weight + '1' * (not bool(_weight))))
+            # convert the data to required format, the item will be skipped if it doesn't meet the requirements
+            _img = bool(int(_img))
+            _weight = max(1, int(_weight))
             logger.debug('Loading resource: %s, TYPE=%s, IMG=%s, WEIGHT=%s' % (_resource, _type, _img, _weight))
             # convert the CSV format raw database to dict format database
             resource_database.setdefault(_type, {})  # select the type as the key of the database
@@ -78,11 +78,10 @@ try:
             resource_database[_type]['total_weight'] += _weight
             resource_database[_type]['total_image_weight'] += _weight * _img
             resource_database[_type]['data'].append((_resource, _img, _weight))
-except Exception:
-    resource_database = {}
-    logger.warning('Failed to load resource database, feature limited.')
+        except Exception:
+            logger.error('Failed to load current resource: RAW=%s.' % line)
 
-# sort the database to make the image and non-image resource split apart
+# sort the database to make the image and non-image resources split apart
 for _type in resource_database:
     resource_database[_type]['data'].sort(key=lambda x: x[1])
 
