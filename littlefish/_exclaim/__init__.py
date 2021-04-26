@@ -86,43 +86,51 @@ except Exception:
 for _type in resource_database:
     resource_database[_type]['data'].sort(key=lambda x: x[1])
 
-def _get_body(_type: str, _image: str):
-    """A database filter to generate required message body."""
-    body_all = [[row[0]] * int(row[3]) for row in resource_database if _type == row[1] and _image == row[2]]
-    return random.choice(sum(body_all, [])) if body_all else '太强了'
 
-
-def _get_ending(_type: str):
-    """A database filter to generate required message ending."""
-    ending_all = [[row[0]] * int(row[3]) for row in resource_database if row[1] == f'-{_type}']
-    return random.choice(sum(ending_all, [])) if ending_all else '！'
+def _get_msg_from_database(_type: str, _image: bool = False):
+    """Get message from the resource database."""
+    try:
+        selection = resource_database[_type]
+    except Exception:
+        logger.warning('Unable to find the item in the resource database.')
+        return None
+    key = random.randint(1, selection['total_weight'] - (not _image) * selection['total_image_weight'])
+    for v in selection['data']:
+        key -= v[2]
+        if key <= 0:
+            return v
+    return None
 
 
 def exclaim_msg(person: str, _type: str, include_image: bool, max_repeat: int = 3):
     """
     Get exclaiming message from the database.
 
-    This should be the only function being called when this package
-    is imported. The message will be made up of 3 parts: person,
+    The exclaiming message will be made up of 3 basic parts: person,
     body and ending (with a maximum repetition). If the include_image
     parameter is set to True, an image will be sent. Please note that
     the resource should be specified explicitly, and the message won't
     be sent successfully if the resource file is empty.
     """
 
-    if include_image and random.randint(0, 1):
-        image_data = _get_body(_type=_type, _image='1')
+    msg_body_selection = _get_msg_from_database(_type=_type, _image=include_image)
+    msg_ending_selection = _get_msg_from_database(_type=f'-{_type}')
+
+    if not (msg_body_selection and msg_ending_selection):  # indicates the search fails
+        return '小鱼词穷了QAQ~'
+
+    if msg_body_selection[1]:  # indicates an image
+        image_data = msg_body_selection[0]
         image_path = os.path.join(os.getcwd(), image_data)
         message = f'[CQ:image,file=file:///{image_path}]'
         return Message(message)  # return the image only
 
-    msg_body = _get_body(_type=_type, _image='0')
-    msg_ending = _get_ending(_type=_type) * random.randint(1, max_repeat)
+    msg_body = msg_body_selection[0]
+    msg_ending = msg_ending_selection[0] * random.randint(1, max_repeat)
 
     # beautify visualizations
     if not person:
         return Message(msg_body + msg_ending)
-
     return Message(person + ' ' * (person[-1].isascii() and msg_body[0].isascii()) + msg_body + msg_ending)
 
 
