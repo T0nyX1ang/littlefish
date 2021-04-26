@@ -151,8 +151,8 @@ def replace_redbag_msg(message: str):
     if seg.type == 'redbag':
         # replace redbag with a custom message
         seg.type = 'text'
-        seg.data.pop('title')
-        seg.data['text'] = '我发了一个[雷币红包]，请下载最新版扫雷联萌领取~'
+        title = seg.data.pop('title')
+        seg.data['text'] = '我发了一个[%s红包]，请下载最新版扫雷联萌领取~' % title
     msg[0] = seg
     return msg
 
