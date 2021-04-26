@@ -60,17 +60,31 @@ resource_location = os.path.join(os.getcwd(), plugin_config.resource_location)
 frequent_face_id = list(set(plugin_config.frequent_face_id))
 
 try:
-    resource_database = []
+    resource_database = {}
     logger.info('Constructing resource database ...')
     with open(resource_location, 'r', encoding='utf-8') as f:
         csv_reader = csv.reader(f, delimiter=plugin_config.resource_separator)
         for line in csv_reader:
-            logger.debug('Loading resource: %s, TYPE=%s, IMG=%s, WEIGHT=%s' % tuple(line))
-            resource_database.append(line)
+            _resource, _type, _img, _weight = line
+            # convert the data to required format, if _img and _weight is undefined, it will be set to the default value
+            _img = bool(int(_img + '0' * (not bool(_img))))
+            _weight = max(1, int(_weight + '1' * (not bool(_weight))))
+            logger.debug('Loading resource: %s, TYPE=%s, IMG=%s, WEIGHT=%s' % (_resource, _type, _img, _weight))
+            # convert the CSV format raw database to dict format database
+            resource_database.setdefault(_type, {})  # select the type as the key of the database
+            resource_database[_type].setdefault('total_weight', 0)
+            resource_database[_type].setdefault('total_image_weight', 0)
+            resource_database[_type].setdefault('data', [])
+            resource_database[_type]['total_weight'] += _weight
+            resource_database[_type]['total_image_weight'] += _weight * _img
+            resource_database[_type]['data'].append((_resource, _img, _weight))
 except Exception:
-    resource_database = []
+    resource_database = {}
     logger.warning('Failed to load resource database, feature limited.')
 
+# sort the database to make the image and non-image resource split apart
+for _type in resource_database:
+    resource_database[_type]['data'].sort(key=lambda x: x[1])
 
 def _get_body(_type: str, _image: str):
     """A database filter to generate required message body."""
