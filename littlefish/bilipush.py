@@ -16,6 +16,17 @@ from nonebot.log import logger
 from littlefish._policy import check, broadcast
 from littlefish._db import load, save
 
+scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
+
+
+def _initialize_subscribed_list(universal_id: str, _type: str):
+    """Initialize the subscribed list."""
+    subscribed_list = load(universal_id, _type)
+    if not subscribed_list:
+        subscribed_list = {}
+        save(universal_id, _type, subscribed_list)
+    return subscribed_list
+
 
 async def get_user_info(uid: str) -> dict:
     """Get the bilibili user info from UID."""
@@ -46,16 +57,25 @@ async def get_user_info(uid: str) -> dict:
 async def push_live_message(bot: Bot, universal_id: str):
     """Push the live message."""
     group_id = int(universal_id[len(str(bot.self_id)):])
-    subscribed_list = load(universal_id, 'subscribed_list')
-    if not subscribed_list:
-        subscribed_list = {}
-        save(universal_id, 'subscribed_list', subscribed_list)
+    subscribed_list = _initialize_subscribed_list(universal_id, 'subscribed_list')
+    global_subscribed_list = _initialize_subscribed_list('0', 'global_subscribed_list')
 
     uids = tuple(subscribed_list.keys())
     if not uids:
         return
 
     uid = uids[0]  # get the first item in the subscribed list
+
+    if uid in global_subscribed_list:
+        status = global_subscribed_list[uid]['status']  # fetch the status from the global list
+    else:
+        status = await get_user_info(uid)  # fetch the status first
+        global_subscribed_list[uid] = {}
+        global_subscribed_list[uid]['status'] = status  # assign the status to the global list
+
+    # refresh the active counter
+    global_subscribed_list[uid]['active'] = 5
+
     status = await get_user_info(uid)
     if status['live_status'] and not subscribed_list[uid]:
         url_msg = '订阅用户%s开播了~\n' % status['name']
@@ -68,6 +88,7 @@ async def push_live_message(bot: Bot, universal_id: str):
     subscribed_list.pop(uid)  # pop the first item in the subscribed list
     subscribed_list[uid] = status['live_status']  # update the live status and move the item to the end
     save(universal_id, 'subscribed_list', subscribed_list)
+    save('0', 'global_subscribed_list', global_subscribed_list)
 
 
 subscriber = on_command(cmd='subscribe ', aliases={'订阅用户 '}, rule=check('bilipush'))
@@ -108,3 +129,27 @@ async def bilipush_broadcast(bot_id: str, group_id: str):
         await push_live_message(bot, universal_id)
     except Exception:
         logger.error(traceback.format_exc())
+
+
+@scheduler.scheduled_job('cron', second='10,30,50', misfire_grace_time=5)
+async def update_live_info():
+    """Update the live info of bilipush every 20 seconds."""
+    # the global subscribed list, contains full information
+    global_subscribed_list = _initialize_subscribed_list('0', 'global_subscribed_list')
+
+    uid = None
+    for uid in tuple(global_subscribed_list.keys()):
+        if global_subscribed_list[uid]['active'] <= 0:  # inactive check
+            global_subscribed_list.pop(uid)  # pop the uid if it's not active
+            uid = None
+            continue
+        break
+
+    if not uid:
+        return  # if no uid is left after the active check, or the subscribed list doesn't contain any uid.
+
+    info = global_subscribed_list.pop(uid)  # pop the first item in the subscribed list
+    global_subscribed_list[uid] = info
+    global_subscribed_list[uid]['active'] -= 1  # decrease the active counter
+    global_subscribed_list[uid]['status'] = await get_user_info(uid)  # update the status
+    save('0', 'global_subscribed_list', global_subscribed_list)
