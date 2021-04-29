@@ -52,6 +52,7 @@ as a normal decorator, you need to decorate the function only.
 
 Additional features:
 * Get validated (bot_id, group_id) tuples.
+* Check the raw message contains a single command.
 * Create/Revoke a temporary policy: this will create/revoke a temporary
 policy into the memory, but not saved into the policy file on disk.
 """
@@ -113,6 +114,16 @@ def check(command_name: str, event_type: Event = GroupMessageEvent) -> Rule:
             return True
 
     return Rule(_check)
+
+
+def raw_keyword(keyword: str) -> Rule:
+    """Ensure the raw message contains the target keyword."""
+
+    async def _raw_keyword(bot: Bot, event: Event, state: dict) -> bool:
+        """A rule wrapper for each command."""
+        return keyword in str(event.message)
+
+    return Rule(_raw_keyword)
 
 
 def empty() -> bool:
