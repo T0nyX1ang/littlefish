@@ -29,9 +29,9 @@ from littlefish._policy import check, broadcast, empty
 from littlefish._db import save, load
 
 
-async def update_group_members(bot: Bot, group_id: int):
+async def update_group_members(bot: Bot, group_id: str):
     """Update group members' information and store it to the database."""
-    logger.info('Updating group members ...')
+    logger.info('Updating group [%s] members ...' % group_id)
     universal_id = str(bot.self_id) + str(group_id)
     group_members_list = await bot.get_group_member_list(group_id=group_id)
     for m in group_members_list:
@@ -120,7 +120,6 @@ async def say_goodbye_on_leaving(bot: Bot, event: Event, state: dict):
     leave_id = f'{event.user_id}'
     members = load(universal_id, 'members')
 
-    print(members[leave_id]['id'])
     uid = members[leave_id]['id'] if leave_id in members and members[leave_id]['id'] else '未知'
 
     if event.user_id != event.self_id:  # the bot can not respond to itself
