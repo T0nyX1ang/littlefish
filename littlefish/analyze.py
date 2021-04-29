@@ -7,12 +7,12 @@ Available information:
 
 import time
 import traceback
-from nonebot import on_command, on_endswith
+from nonebot import on_command, on_message
 from nonebot.adapters.cqhttp import Bot, Event
 from nonebot.log import logger
 from littlefish._mswar.api import get_record
 from littlefish._mswar.references import level_ref
-from littlefish._policy import check
+from littlefish._policy import check, raw_keyword
 from littlefish._exclaim import exclaim_msg
 
 
@@ -46,7 +46,7 @@ def format_record(record: dict) -> str:
 
 
 analyzer = on_command(cmd='analyze ', aliases={'分析 '}, rule=check('analyze'))
-record_pusher = on_endswith(msg='', priority=10, block=False, rule=check('analyze'))
+record_pusher = on_message(rule=raw_keyword('http://tapsss.com') & check('analyze'), priority=10, block=True)
 
 
 @analyzer.handle()
@@ -72,7 +72,6 @@ async def analyze(bot: Bot, event: Event, state: dict):
 async def push_record(bot: Bot, event: Event, state: dict):
     """Push the record."""
     msg = str(event.message).strip()
-    msg = msg * ('http://tapsss.com' in msg)  # ensure the keyword located in the message
     current = msg.find('post=') + 5
     post_id = '0'
     # If it can't find 'post=', current will be 4. Then the loop works fine.
