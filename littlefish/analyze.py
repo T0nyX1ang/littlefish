@@ -46,7 +46,7 @@ def format_record(record: dict) -> str:
 
 
 analyzer = on_command(cmd='analyze ', aliases={'分析 '}, rule=check('analyze'))
-record_pusher = on_endswith(msg='', priority=10, block=True, rule=check('analyze'))
+record_pusher = on_endswith(msg='', priority=10, block=False, rule=check('analyze'))
 
 
 @analyzer.handle()
