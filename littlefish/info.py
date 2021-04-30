@@ -14,7 +14,8 @@ from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event
 from nonebot.log import logger
 from littlefish._exclaim import exclaim_msg
-from littlefish._policy import check, empty
+from littlefish._policy.rule import check
+from littlefish._policy.plugin import on_simple_command
 from littlefish._mswar.api import get_user_info
 from littlefish._mswar.references import sex_ref, level_ref
 from littlefish._db import load, save
@@ -64,7 +65,7 @@ id_info = on_command(cmd='id ', aliases={'联萌 '}, rule=check('info'))
 
 id_battle = on_command(cmd='battle ', aliases={'对战 '}, rule=check('info'))
 
-id_me = on_command(cmd='me', aliases={'个人信息'}, rule=check('info') & empty())
+id_me = on_simple_command(cmd='me', aliases={'个人信息'}, rule=check('info'))
 
 
 @id_info.handle()

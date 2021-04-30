@@ -13,7 +13,7 @@ import nonebot
 from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event
 from nonebot.log import logger
-from littlefish._policy import check, broadcast
+from littlefish._policy.rule import check, broadcast
 from littlefish._db import load, save
 
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler

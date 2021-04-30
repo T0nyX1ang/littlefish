@@ -7,21 +7,21 @@ is included here.
 The command requires to be invoked in groups.
 """
 
-from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event, Message
-from littlefish._policy import check, empty
+from littlefish._policy.rule import check
+from littlefish._policy.plugin import on_simple_command
 
-guide = on_command(cmd='guide', aliases={'指南'}, rule=check('guide') & empty())
+guide = on_simple_command(cmd='guide', aliases={'指南'}, rule=check('guide'))
 
-source_code = on_command(cmd='source', aliases={'源码'}, rule=check('guide') & empty())
+source_code = on_simple_command(cmd='source', aliases={'源码'}, rule=check('guide'))
 
-get_package = on_command(cmd='getpackage', aliases={'安装包', '安装链接'}, rule=check('guide') & empty())
+get_package = on_simple_command(cmd='getpackage', aliases={'安装包', '安装链接'}, rule=check('guide'))
 
-ms_guide = on_command(cmd='msguide', aliases={'扫雷指南'}, rule=check('guide') & empty())
+ms_guide = on_simple_command(cmd='msguide', aliases={'扫雷指南'}, rule=check('guide'))
 
-push_line = on_command(cmd='pushline', aliases={'推送线'}, rule=check('guide') & empty())
+push_line = on_simple_command(cmd='pushline', aliases={'推送线'}, rule=check('guide'))
 
-guide_42 = on_command(cmd='guide42', aliases={'42点说明'}, rule=check('guide') & check('calc42') & empty())
+guide_42 = on_simple_command(cmd='guide42', aliases={'42点说明'}, rule=check('guide') & check('calc42'))
 
 
 @guide.handle()

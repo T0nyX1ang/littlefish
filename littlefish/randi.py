@@ -13,7 +13,7 @@ The command requires to be invoked in groups.
 import random
 from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event
-from littlefish._policy import check
+from littlefish._policy.rule import check
 from littlefish._exclaim import exclaim_msg
 
 randi = on_command(cmd='randi ', aliases={'随机数 '}, rule=check('randi'))

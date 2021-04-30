@@ -7,7 +7,7 @@ The result will contain the exact nickname and ID of top-10 found users.
 from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._mswar.api import get_search_info
-from littlefish._policy import check
+from littlefish._policy.rule import check
 from littlefish._exclaim import exclaim_msg
 
 

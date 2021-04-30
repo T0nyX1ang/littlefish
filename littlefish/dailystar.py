@@ -17,7 +17,8 @@ from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._exclaim import exclaim_msg
 from littlefish._mswar.api import get_daily_star
 from littlefish._mswar.references import sex_ref
-from littlefish._policy import check, broadcast, empty
+from littlefish._policy.rule import check, broadcast
+from littlefish._policy.plugin import on_simple_command
 from littlefish._db import load, save
 
 
@@ -59,7 +60,7 @@ def _save_daily_star(uid: str):
     save('0', 'dailystar', star_db)
 
 
-dailystar = on_command(cmd='dailystar', aliases={'今日之星', '联萌每日一星'}, rule=check('dailystar') & empty())
+dailystar = on_simple_command(cmd='dailystar', aliases={'今日之星', '联萌每日一星'}, rule=check('dailystar'))
 
 dailystar_counter = on_command(cmd='dailystarcount ', aliases={'联萌每日一星次数 '}, rule=check('dailystar'))
 

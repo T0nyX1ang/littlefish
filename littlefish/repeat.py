@@ -12,7 +12,7 @@ import random
 from nonebot import on_endswith
 from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._exclaim import exclaim_msg, slim_msg, mutate_msg
-from littlefish._policy import check
+from littlefish._policy.rule import check
 from littlefish._db import load, save
 
 

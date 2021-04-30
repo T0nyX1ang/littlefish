@@ -7,12 +7,13 @@ Available information:
 
 import time
 import traceback
-from nonebot import on_command, on_message
+from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event
 from nonebot.log import logger
 from littlefish._mswar.api import get_record
 from littlefish._mswar.references import level_ref
-from littlefish._policy import check, raw_keyword
+from littlefish._policy.rule import check
+from littlefish._policy.plugin import on_raw_keyword
 from littlefish._exclaim import exclaim_msg
 
 
@@ -46,7 +47,7 @@ def format_record(record: dict) -> str:
 
 
 analyzer = on_command(cmd='analyze ', aliases={'分析 '}, rule=check('analyze'))
-record_pusher = on_message(rule=raw_keyword('http://tapsss.com') & check('analyze'), priority=10, block=True)
+record_pusher = on_raw_keyword(keyword='http://tapsss.com', rule=check('analyze'), priority=10, block=True)
 
 
 @analyzer.handle()

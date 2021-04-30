@@ -10,11 +10,11 @@ The command requires to be invoked in groups.
 
 import traceback
 import nonebot
-from nonebot import on_command
 from nonebot.log import logger
 from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._mswar.api import get_daily_map
-from littlefish._policy import check, broadcast, empty
+from littlefish._policy.rule import check, broadcast
+from littlefish._policy.plugin import on_simple_command
 
 
 def format_daily_map(daily_map: dict) -> str:
@@ -31,7 +31,7 @@ def format_daily_map(daily_map: dict) -> str:
     return result_message.strip()
 
 
-dailymap_command = on_command(cmd='dailymap', aliases={'每日一图'}, rule=check('dailymap') & empty())
+dailymap_command = on_simple_command(cmd='dailymap', aliases={'每日一图'}, rule=check('dailymap'))
 
 
 @dailymap_command.handle()

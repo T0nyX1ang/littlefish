@@ -9,11 +9,11 @@ The command requires to be invoked in groups.
 
 import traceback
 import nonebot
-from nonebot import on_command
 from nonebot.log import logger
 from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._mswar.api import get_autopvp_info
-from littlefish._policy import check, broadcast, empty
+from littlefish._policy.rule import check, broadcast
+from littlefish._policy.plugin import on_simple_command
 from littlefish._exclaim import exclaim_msg
 
 
@@ -33,7 +33,7 @@ def format_pvp_info(autopvp_info: dict) -> str:
     return result_message.strip()
 
 
-autopvp = on_command(cmd='autopvp', aliases={'对战机器人'}, rule=check('autopvp') & empty())
+autopvp = on_simple_command(cmd='autopvp', aliases={'对战机器人'}, rule=check('autopvp'))
 
 
 @autopvp.handle()

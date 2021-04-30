@@ -12,7 +12,8 @@ from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event, Message
 from nonebot.log import logger
 from littlefish._exclaim import exclaim_msg
-from littlefish._policy import check, broadcast, empty, create, revoke
+from littlefish._policy.rule import check, broadcast, create, revoke
+from littlefish._policy.plugin import on_simple_command
 from littlefish._db import load, save
 from littlefish._game.ftpts import init, start, solve, stop, status
 
@@ -182,9 +183,9 @@ async def show_solutions(bot: Bot, universal_id: str, result: dict):
 
 problem_solver = on_command(cmd='calc42 ', aliases={'42点 '}, rule=check('calc42'))
 
-score_viewer = on_command(cmd='score42', aliases={'42点得分', '42点积分'}, rule=check('calc42') & empty())
+score_viewer = on_simple_command(cmd='score42', aliases={'42点得分', '42点积分'}, rule=check('calc42'))
 
-rank_viewer = on_command(cmd='rank42', aliases={'42点排名', '42点排行'}, rule=check('calc42') & empty())
+rank_viewer = on_simple_command(cmd='rank42', aliases={'42点排名', '42点排行'}, rule=check('calc42'))
 
 manual_player = on_command(cmd='manual42 ', aliases={'手动42点 '}, rule=check('calc42') & check('calc42_temp'))
 

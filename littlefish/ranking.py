@@ -17,7 +17,7 @@ from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._exclaim import exclaim_msg
 from littlefish._mswar.api import get_ranking_info
 from littlefish._mswar.references import type_ref, style_ref, mode_ref
-from littlefish._policy import check
+from littlefish._policy.rule import check
 
 
 def format_ranking_info(ranking_info: list) -> str:

@@ -8,7 +8,8 @@ import datetime
 import random
 from nonebot import on_command, on_endswith, on_notice
 from nonebot.adapters.cqhttp import Bot, Event, PokeNotifyEvent
-from littlefish._policy import check, empty
+from littlefish._policy.rule import check
+from littlefish._policy.plugin import on_simple_command
 from littlefish._exclaim import exclaim_msg
 
 admire = on_command(cmd='admire', aliases={'膜'}, rule=check('exclaim'))
@@ -19,7 +20,7 @@ cheer = on_command(cmd='cheer', aliases={'加油 '}, rule=check('exclaim'))
 
 cheer_ending = on_endswith(msg='加油', priority=10, rule=check('exclaim'))
 
-greet = on_command(cmd='greet', aliases={'小鱼'}, rule=check('exclaim') & empty())
+greet = on_simple_command(cmd='greet', aliases={'小鱼'}, rule=check('exclaim'))
 
 poke_greet = on_notice(priority=10, block=True, rule=check('exclaim', PokeNotifyEvent))
 

@@ -10,17 +10,17 @@ The command requires to be invoked in groups.
 
 import traceback
 import nonebot
-from nonebot import on_command
 from nonebot.log import logger
 from nonebot.adapters.cqhttp import Bot, Event
-from littlefish._policy import check, broadcast, empty
+from littlefish._policy.rule import check, broadcast
+from littlefish._policy.plugin import on_simple_command
 from littlefish._mswar.api import get_level_list
 from littlefish._mswar.references import level_ref
 from littlefish._db import load, save
 
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 min_level, max_level = 1, max(level_ref)
-level = on_command(cmd='level', aliases={'用户等级'}, rule=check('level') & empty())
+level = on_simple_command(cmd='level', aliases={'用户等级'}, rule=check('level'))
 
 
 def _initialize_history() -> dict:
