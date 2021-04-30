@@ -10,7 +10,7 @@ from pydantic import BaseSettings
 
 
 class PolicyConfig(BaseSettings):
-    """Configurations for FTPtsGame."""
+    """Configurations for policy module."""
 
     policy_config_location: str = "policy.json"
 
