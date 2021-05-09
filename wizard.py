@@ -82,6 +82,11 @@ def setup_default_policy():
                 "hour": "8-23",
                 "minute": 42,
                 "second": 42
+            },
+            "@daily": {
+                "hour": 0,
+                "minute": 4,
+                "second": 30
             }
         },
         "group": {
