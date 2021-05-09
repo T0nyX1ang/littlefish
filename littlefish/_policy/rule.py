@@ -115,9 +115,9 @@ def check(command_name: str, event_type: Event = GroupMessageEvent) -> Rule:
     return Rule(_check)
 
 
-def broadcast(command_name: str) -> bool:
+def broadcast(command_name: str, identifier: str = '@') -> bool:
     """Check the policy of each broadcast by name."""
-    _name = command_name
+    _name, _idt = command_name, identifier
 
     def _broadcast(func):
         """Check the policy of the broadcast."""
@@ -127,10 +127,10 @@ def broadcast(command_name: str) -> bool:
                 scheduler.add_job(func=func,
                                   args=(bid, gid),
                                   trigger='cron',
-                                  id='%s_broadcast_%s%s' % (_name, bid, gid),
+                                  id='%s_%s_broadcast_%s_%s' % (_name, _idt, bid, gid),
                                   misfire_grace_time=30,
                                   replace_existing=True,
-                                  **policy_config[bid][gid][_name]['@'])
+                                  **policy_config[bid][gid][_name][_idt])
             except Exception:
                 logger.debug('Skipped broadcast: [%s].' % _name)
 
