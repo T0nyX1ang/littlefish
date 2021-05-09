@@ -11,22 +11,13 @@ import nonebot
 from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event, Message
 from nonebot.log import logger
-from littlefish._exclaim import exclaim_msg
 from littlefish._policy.rule import check, broadcast, create, revoke
 from littlefish._policy.plugin import on_simple_command
 from littlefish._db import load, save
+from littlefish._game import get_member_name, get_member_stats, get_game_rank
 from littlefish._game.ftpts import init, start, solve, stop, status
 
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
-
-
-def get_member_name(universal_id: str, user_id: str) -> str:
-    """Get member name."""
-    members = load(universal_id, 'members')
-    if not members:
-        return '匿名大佬'
-
-    return members[user_id]['card'] if members[user_id]['card'] else members[user_id]['nickname']
 
 
 def print_current_problem(info: dict) -> str:
@@ -67,13 +58,9 @@ def get_results(universal_id, result: dict) -> str:
         solutions[player_id] += 1
 
         # Accumulate score
-        time_ratio = time_elapsed / deadline
-        solution_ratio = (i + 1) / result['total']
-
-        t_score = 5 - int(5 * time_ratio)
-        n_score = int(10 * (solution_ratio**(2 - time_ratio)))
-        f_bonus = 5 * (i == 0)
-        v_bonus = int(n_score * victory_coeff * (result['current'] == i + 1))
+        time_ratio, solution_ratio = time_elapsed / deadline, (i + 1) / result['total']
+        t_score, n_score = 5 - int(5 * time_ratio), int(10 * (solution_ratio**(2 - time_ratio)))
+        f_bonus, v_bonus = 5 * (i == 0), int(n_score * victory_coeff * (result['current'] == i + 1))
         scores[player_id] += (t_score + n_score + f_bonus + v_bonus)
 
     if players:
@@ -93,7 +80,7 @@ def get_results(universal_id, result: dict) -> str:
 
     for player in ordered:
         members = load(universal_id, 'members')
-        name = get_member_name(universal_id, player)
+        name = get_member_name(members, player)
         result_message += '%s: %d解/+%d %s\n' % (name, solutions[player], scores[player], achievements[player])
         members[player]['42score'] += (scores[player] * result['addscore'])
         save(universal_id, 'members', members)
@@ -168,10 +155,11 @@ async def finish_game(bot: Bot, universal_id: str):
 async def show_solutions(bot: Bot, universal_id: str, result: dict):
     """Generate a message node from all solutions."""
     group_id = int(universal_id[len(str(bot.self_id)):])
+    members = load(universal_id, 'members')
     message = []
     for i in range(result['current']):
         user_id = result['stats'][i][0]
-        name = get_member_name(universal_id, user_id)
+        name = get_member_name(members, user_id)
         message.append({'type': 'node', 'data': {'name': name, 'uin': user_id, 'content': result['solutions'][i]}})
 
     for remaining in result['remaining']:
@@ -183,17 +171,18 @@ async def show_solutions(bot: Bot, universal_id: str, result: dict):
 
 problem_solver = on_command(cmd='calc42 ', aliases={'42点 '}, rule=check('calc42'))
 
+manual_player = on_command(cmd='manual42 ', aliases={'手动42点 '}, rule=check('calc42') & check('calc42_temp'))
+
 score_viewer = on_simple_command(cmd='score42', aliases={'42点得分', '42点积分'}, rule=check('calc42'))
 
 rank_viewer = on_simple_command(cmd='rank42', aliases={'42点排名', '42点排行'}, rule=check('calc42'))
-
-manual_player = on_command(cmd='manual42 ', aliases={'手动42点 '}, rule=check('calc42') & check('calc42_temp'))
 
 
 @problem_solver.handle()
 async def solve_problem(bot: Bot, event: Event, state: dict):
     """Handle the calc42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
+    members = load(universal_id, 'members')
     if not status(universal_id):
         return
 
@@ -208,7 +197,7 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
         elapsed = int(result['elapsed'])
         left = get_deadline(result['total']) - elapsed
         message = '恭喜[%s]完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒~' % (get_member_name(
-            universal_id, user_id), result['current'], result['total'], result['interval'], left)
+            members, user_id), result['current'], result['total'], result['interval'], left)
 
     is_finished = (result['current'] == result['total'])
     message += (not is_finished) * ('\n%s' % print_current_problem(result))
@@ -217,51 +206,6 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
 
     if is_finished:
         await finish_game(bot, universal_id)
-
-
-@score_viewer.handle()
-async def view_score(bot: Bot, event: Event, state: dict):
-    """Handle the score42 command."""
-    universal_id = str(event.self_id) + str(event.group_id)
-    user_id = f'{event.user_id}'
-    members = load(universal_id, 'members')
-    ranking = sorted(members, key=lambda x: (members[x]['42score'], x), reverse=True)
-
-    result = 0
-    for i in range(0, len(ranking)):
-        if user_id == ranking[i]:
-            result = i
-            break
-
-    score = members[user_id]['42score']
-    if result == 0:
-        await bot.send(event=event, message='当前积分: %d，排名: %d，' % (score, result + 1) + exclaim_msg('大佬', '1', False))
-    else:
-        upper_score = members[ranking[result - 1]]['42score']
-        distance = upper_score - score
-        await bot.send(event=event,
-                       message='当前积分: %d，排名: %d，距上一名%d分，' % (score, result + 1, distance) + exclaim_msg('大佬', '2', False))
-
-
-@rank_viewer.handle()
-async def view_rank(bot: Bot, event: Event, state: dict):
-    """Handle the rank42 command."""
-    universal_id = str(event.self_id) + str(event.group_id)
-    members = load(universal_id, 'members')
-    ranking = sorted(members, key=lambda x: (members[x]['42score'], x), reverse=True)
-
-    if not ranking:
-        await bot.send(event=event, message='当前暂无排名~')
-        return
-
-    rank_message = '42点积分排行榜:\n最高得分: %d\n-- 归一化得分 --\n' % (members[ranking[0]]['42score'])
-
-    for i in range(0, len(ranking)):
-        if i < 10 and members[ranking[i]]['42score'] > 0:
-            rank_message += '[%d] %.1f - %s\n' % (i + 1, members[ranking[i]]['42score'] / members[ranking[0]]['42score'] * 100,
-                                                  get_member_name(universal_id, ranking[i]))
-
-    await bot.send(event=event, message=rank_message.strip())
 
 
 @manual_player.handle()
@@ -278,6 +222,23 @@ async def manual_calc42(bot: Bot, event: Event, state: dict):
         create('calc42_temp', str(event.self_id), str(event.group_id), {'+': [event.user_id]})
     elif option == '-':
         await finish_game(bot, universal_id)
+
+
+@score_viewer.handle()
+async def view_score(bot: Bot, event: Event, state: dict):
+    """Handle the score42 command."""
+    universal_id = str(event.self_id) + str(event.group_id)
+    user_id = f'{event.user_id}'
+    members = load(universal_id, 'members')
+    await bot.send(event=event, message=get_member_stats(members, user_id, '42score'))
+
+
+@rank_viewer.handle()
+async def view_rank(bot: Bot, event: Event, state: dict):
+    """Handle the rank42 command."""
+    universal_id = str(event.self_id) + str(event.group_id)
+    members = load(universal_id, 'members')
+    await bot.send(event=event, message=get_game_rank(members, '42score'))
 
 
 @broadcast('calc42')
