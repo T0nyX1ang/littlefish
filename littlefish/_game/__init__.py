@@ -41,7 +41,7 @@ def get_game_rank(members: dict, game_type: str):
     rank_message = ''
 
     i = 0
-    while i < min(10, len(ranking)):
+    while i < min(10, len(ranking)) and members[ranking[i]][game_type] > 0:
         rank_message += '%d: %s - %d\n' % (i + 1, get_member_name(members, ranking[i]), members[ranking[i]][game_type])
         i += 1
 
