@@ -51,6 +51,7 @@ async def update_group_members(bot: Bot, group_id: str):
         members[user_id]['nickname'] = group_member_info['nickname']
         members[user_id]['card'] = group_member_info['card']
         members[user_id].setdefault('42score', 0)
+        members[user_id].setdefault('42score_daily', 0)
 
         # save the updated information to the database
         save(universal_id, 'members', members)

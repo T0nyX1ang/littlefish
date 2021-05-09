@@ -83,6 +83,7 @@ def get_results(universal_id, result: dict) -> str:
         name = get_member_name(members, player)
         result_message += '%s: %d解/+%d %s\n' % (name, solutions[player], scores[player], achievements[player])
         members[player]['42score'] += (scores[player] * result['addscore'])
+        members[player]['42score_daily'] += (scores[player] * result['addscore'])
         save(universal_id, 'members', members)
 
     return result_message.strip()
@@ -250,5 +251,20 @@ async def calc42_broadcast(bot_id: str, group_id: str):
         # this means no one can terminate the routined calc42 game
         await start_game(bot, universal_id)
         create('calc42_temp', str(bot.self_id), str(group_id), {'+': []})
+    except Exception:
+        logger.error(traceback.format_exc())
+
+
+@broadcast('calc42', identifier='@daily')
+async def scheduled_calc42_daily_rank(bot_id: str, group_id: str):
+    """Boardcast the ranks of daily calc42 scores."""
+    bot = nonebot.get_bots()[bot_id]
+    universal_id = str(bot_id) + str(group_id)
+    members = load(universal_id, 'members')
+    try:
+        daily_rank_message = '42点昨日成绩:\n' + get_game_rank(members, '42score_daily')
+        await bot.send_group_msg(group_id=int(group_id), message=daily_rank_message)
+        for user_id in members:
+            members[user_id]['42score_daily'] = 0  # reset the score counter every day
     except Exception:
         logger.error(traceback.format_exc())
