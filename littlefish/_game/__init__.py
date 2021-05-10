@@ -19,8 +19,6 @@ def get_member_stats(members: dict, user_id: str, game_type: str) -> tuple:
     """Get a member's score and rank of a certain game within a dictionary."""
     ranking = sorted(members, key=lambda x: (members[x][game_type], x), reverse=True)
     result = 0
-
-    # note: this part can be optimized with binary search
     for user in ranking:
         result += 1
         if user_id == user:
@@ -28,11 +26,11 @@ def get_member_stats(members: dict, user_id: str, game_type: str) -> tuple:
 
     score = members[user_id][game_type]
     if result == 1:
-        return '当前积分: %d，排名: %d，太强了~' % (score, result)
+        return '当前积分: %d，排名: %d' % (score, result)
 
-    upper_score = members[ranking[result - 1]][game_type]
+    upper_score = members[ranking[result - 2]][game_type]
     distance = upper_score - score
-    return '当前积分: %d，排名: %d，距上一名%d分，冲鸭~' % (score, result, distance)
+    return '当前积分: %d，排名: %d，距上一名%d分' % (score, result, distance)
 
 
 def get_game_rank(members: dict, game_type: str):
