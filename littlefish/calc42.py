@@ -59,9 +59,9 @@ def get_results(universal_id, result: dict) -> str:
 
         # Accumulate score
         time_ratio, solution_ratio = time_elapsed / deadline, (i + 1) / result['total']
-        t_score, n_score = 5 - int(5 * time_ratio), int(10 * (solution_ratio**(2 - time_ratio)))
-        f_bonus, v_bonus = 5 * (i == 0), int(n_score * victory_coeff * (result['current'] == i + 1))
-        scores[player_id] += (t_score + n_score + f_bonus + v_bonus)
+        t_score, n_score = 5 * (1 - time_ratio), 10 * (solution_ratio**(2 - time_ratio))
+        f_bonus, v_bonus = 5 * (i == 0), n_score * victory_coeff * (result['current'] == i + 1)
+        scores[player_id] += t_score + n_score + f_bonus + v_bonus
 
     if players:
         achievements[players[0][0]] += 'F'
@@ -81,10 +81,11 @@ def get_results(universal_id, result: dict) -> str:
     for player in ordered:
         members = load(universal_id, 'members')
         name = get_member_name(members, player)
-        result_message += '%s: %d解/+%d %s\n' % (name, solutions[player], scores[player], achievements[player])
-        members[player]['42score'] += (scores[player] * result['addscore'])
-        members[player]['42score_daily'] += (scores[player] * result['addscore'])
-        save(universal_id, 'members', members)
+        result_message += '%s: %d解/+%d %s\n' % (name, solutions[player], int(scores[player]), achievements[player])
+        members[player]['42score'] += int(scores[player] * result['addscore'])
+        members[player]['42score_daily'] += int(scores[player] * result['addscore'])
+
+    save(universal_id, 'members', members)
 
     return result_message.strip()
 
