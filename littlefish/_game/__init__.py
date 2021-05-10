@@ -26,11 +26,11 @@ def get_member_stats(members: dict, user_id: str, game_type: str) -> tuple:
 
     score = members[user_id][game_type]
     if result == 1:
-        return '当前积分: %d，排名: %d' % (score, result)
+        return '积分: %d\n排名: %d' % (score, result)
 
     upper_score = members[ranking[result - 2]][game_type]
     distance = upper_score - score
-    return '当前积分: %d(+%d)，排名: %d' % (score, distance, result)
+    return '积分: %d(+%d)\n排名: %d' % (score, distance, result)
 
 
 def get_game_rank(members: dict, game_type: str):
