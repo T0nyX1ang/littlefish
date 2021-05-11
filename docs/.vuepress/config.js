@@ -22,7 +22,7 @@ module.exports = {
         text: '了解更多',
         items: [
           { text: '更新日志', link: '/misc/changelog' },
-          { text: '参与开发', link: '/misc/contribution'}
+          { text: '参与贡献', link: '/misc/contribution'}
         ]
       }
     ],
