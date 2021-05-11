@@ -34,27 +34,30 @@ async def update_group_members(bot: Bot, group_id: str):
     """Update group members' information and store it to the database."""
     logger.info('Updating group [%s] members ...' % group_id)
     universal_id = str(bot.self_id) + str(group_id)
+
+    # load the original information from the database
+    members = load(universal_id, 'members')
+    if not members:
+        members = {}
+
     group_members_list = await bot.get_group_member_list(group_id=group_id)
-    for m in group_members_list:
-        group_member_info = await bot.get_group_member_info(group_id=group_id, user_id=m['user_id'])
+    for member in group_members_list:
+        group_member_info = await bot.get_group_member_info(group_id=group_id, user_id=member['user_id'])
 
         user_id = str(group_member_info['user_id'])
 
-        # load the original information from the database
-        members = load(universal_id, 'members')
-        if not members:
-            members = {}
-
-        if user_id not in members:
+        if user_id not in members:  # update the user information from the remote server
             members[user_id] = {}
         members[user_id]['id'] = group_member_info['title']
         members[user_id]['nickname'] = group_member_info['nickname']
         members[user_id]['card'] = group_member_info['card']
+
+    for user_id in members:  # generate locally stored information
         members[user_id].setdefault('42score', 0)
         members[user_id].setdefault('42score_daily', 0)
 
-        # save the updated information to the database
-        save(universal_id, 'members', members)
+    # save the updated information to the database
+    save(universal_id, 'members', members)
 
 
 user_validator = on_request(priority=10, block=True, rule=check('group', GroupRequestEvent) & check('info', GroupRequestEvent))
