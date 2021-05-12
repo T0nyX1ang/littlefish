@@ -42,7 +42,7 @@ async def update_group_members(bot: Bot, group_id: str):
 
     group_members_list = await bot.get_group_member_list(group_id=group_id)
     for member in group_members_list:
-        group_member_info = await bot.get_group_member_info(group_id=group_id, user_id=member['user_id'])
+        group_member_info = await bot.get_group_member_info(group_id=group_id, user_id=member['user_id'], no_cache=True)
 
         user_id = str(group_member_info['user_id'])
 
