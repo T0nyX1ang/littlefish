@@ -32,6 +32,7 @@ class AccountConfig(BaseSettings):
 
     class Config:
         """Deal with extra configurations."""
+
         extra = "ignore"
 
 
@@ -42,4 +43,5 @@ class PVPConfig(BaseSettings):
 
     class Config:
         """Deal with extra configurations."""
+
         extra = "ignore"

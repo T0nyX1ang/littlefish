@@ -86,37 +86,36 @@ for _type in resource_database:
     resource_database[_type]['data'].sort(key=lambda x: x[1])
 
 
-def _get_msg_from_database(_type: str, _image: bool = False):
+def _get_msg_from_database(_type: str, _image: bool = False) -> str:
     """Get message from the resource database."""
     try:
         selection = resource_database[_type]
     except Exception:
         logger.warning('Unable to find the item in the resource database.')
-        return None
+        return ''
     key = random.randint(1, selection['total_weight'] - (not _image) * selection['total_image_weight'])
     for v in selection['data']:
         key -= v[2]
         if key <= 0:
             return v
-    return None
+    return ''
 
 
-def exclaim_msg(person: str, _type: str, include_image: bool, max_repeat: int = 3):
+def exclaim_msg(person: str, _type: str, include_image: bool, max_repeat: int = 3) -> Message:
     """
     Get exclaiming message from the database.
 
     The exclaiming message will be made up of 3 basic parts: person,
     body and ending (with a maximum repetition). If the include_image
-    parameter is set to True, an image will be sent. Please note that
-    the resource should be specified explicitly, and the message won't
-    be sent successfully if the resource file is empty.
+    parameter is set to True, an image will be included in the selection.
+    Please note that the resource should be specified explicitly, and
+    the message won't be sent successfully if the resource file is empty.
     """
-
     msg_body_selection = _get_msg_from_database(_type=_type, _image=include_image)
     msg_ending_selection = _get_msg_from_database(_type=f'-{_type}')
 
     if not (msg_body_selection and msg_ending_selection):  # indicates the search fails
-        return '小鱼词穷了QAQ~'
+        return Message('小鱼词穷了QAQ~')
 
     if msg_body_selection[1]:  # indicates an image
         image_data = msg_body_selection[0]
@@ -133,7 +132,7 @@ def exclaim_msg(person: str, _type: str, include_image: bool, max_repeat: int = 
     return Message(person + ' ' * (person[-1].isascii() and msg_body[0].isascii()) + msg_body + msg_ending)
 
 
-def slim_msg(message: str):
+def slim_msg(message: str) -> Message:
     """Slim a message."""
     for seg in Message(message):
         if seg.type == 'image' and 'url' in seg.data:
@@ -141,7 +140,7 @@ def slim_msg(message: str):
     return Message(message)
 
 
-def replace_redbag_msg(message: str):
+def replace_redbag_msg(message: str) -> Message:
     """Replace the red bag message as the bot can not send red bags."""
     msg = Message(message)
     if len(msg) != 1:
@@ -157,7 +156,7 @@ def replace_redbag_msg(message: str):
     return msg
 
 
-def mutate_msg(message: str, mutate: bool = False):
+def mutate_msg(message: str, mutate: bool = False) -> Message:
     """Mutate a message."""
     msg = replace_redbag_msg(message)
     if not mutate:

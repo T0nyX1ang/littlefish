@@ -18,4 +18,5 @@ class DatabaseConfig(BaseSettings):
 
     class Config:
         """Deal with extra configurations."""
+
         extra = "ignore"
