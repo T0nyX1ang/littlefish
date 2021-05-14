@@ -71,6 +71,6 @@ async def fetch(page: str, query: str = ''):
     validate_hash = hashlib.md5(data.encode()).hexdigest() if data else ''
     url = 'http://' + mswar_host + page
     async with httpx.AsyncClient() as client:  # using httpx instead
-        r = await client.post(url=url, data=data, headers=_generate_headers(validate_hash))
+        r = await client.post(url=url, data=data, headers=_generate_headers(validate_hash), timeout=10.0)
     result = json.loads(_aes_decrypt(bytes.fromhex(r.text[32:])))
     return result  # a dictionary will be generated
