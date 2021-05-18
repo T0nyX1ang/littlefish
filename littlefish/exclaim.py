@@ -147,7 +147,7 @@ async def show_greet(bot: Bot, event: Event, state: dict):
     current_time = datetime.datetime.now()
     current_hour = current_time.hour
     if current_hour not in [0, 23]:  # offset
-        current_hour += random.choice([-1, 0, 0, 0, 1])  # add randomness
+        current_hour += random.choice([-1, 0, 0, 0, 0, 0, 0, 0, 0, 1])  # add randomness
     time_tag = [10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 14, 15, 15, 15, 16, 16, 16, 17, 17, 17, 18, 18, 19,
                 19]  # a tag for time
     await bot.send(event=event, message=exclaim_msg('', str(time_tag[current_hour]), False, 1))
@@ -155,9 +155,28 @@ async def show_greet(bot: Bot, event: Event, state: dict):
 
 @poke_greet.handle()
 async def show_poke_greet(bot: Bot, event: Event, state: dict):
-    """Greet the person when the bot is poked."""
-    if event.target_id == event.self_id:  # ensure poking target
+    """Greet the person when the bot is poked, and repeat the poke action."""
+    if event.target_id == event.self_id and event.sender_id != event.self_id:  # ensure poking target
         await show_greet(bot, event, state)
+
+    universal_id = str(event.self_id) + str(event.group_id)
+    poke_combo = load(universal_id, 'current_poke_combo')
+    if not poke_combo:
+        poke_combo = 0  # initialization for current poke combo
+
+    poke_target = load(universal_id, 'current_poke_target')
+    if not poke_target:
+        poke_target = -1
+
+    poke_combo = poke_combo + 1 - poke_combo * (poke_target != event.target_id)
+
+    if poke_combo == 5:
+        poke_combo += 1
+        await bot.send(event=event, message=slim_msg('[CQ:poke,qq=%d]' % poke_target))
+
+    save(universal_id, 'current_poke_combo', poke_combo)
+    save(universal_id, 'current_poke_target', event.target_id)
+
 
 @repeater.handle()
 async def repeat(bot: Bot, event: Event, state: dict):
