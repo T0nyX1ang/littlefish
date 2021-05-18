@@ -25,17 +25,17 @@ mswar_encryptor = AES.new(plugin_config.mswar_encryption_key.encode(), AES.MODE_
 mswar_decryptor = AES.new(plugin_config.mswar_decryption_key.encode(), AES.MODE_ECB)
 
 
-def _aes_encrypt(message: bytes):
+def _aes_encrypt(message: bytes) -> bytes:
     """Perform encryption on data."""
     return mswar_encryptor.encrypt(pad(message, AES.block_size)).hex().upper()
 
 
-def _aes_decrypt(message: bytes):
+def _aes_decrypt(message: bytes) -> bytes:
     """Perform decryption on data."""
     return unpad(mswar_decryptor.decrypt(message), AES.block_size)
 
 
-def _generate_headers(validate_hash: str):
+def _generate_headers(validate_hash: str) -> dict:
     """Generate valid headers based on data."""
     timestamp = str(int(time.time() * 1000))
     api_key_r = mswar_uid + mswar_token + timestamp + validate_hash + 'api'
@@ -58,7 +58,7 @@ def _generate_headers(validate_hash: str):
     return headers
 
 
-async def fetch(page: str, query: str = ''):
+async def fetch(page: str, query: str = '') -> dict:
     """
     General module for fetching data from remote server.
 
