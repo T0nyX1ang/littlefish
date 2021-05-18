@@ -30,7 +30,7 @@ def get_member_stats(members: dict, user_id: str, game_type: str) -> tuple:
 
     upper_score = members[ranking[result - 2]][game_type]
     distance = upper_score - score
-    return '排名: %d\n积分: %d(+%d)' % (result, score, distance)
+    return '排名: %d\n积分: %d\n距上一名: %d' % (result, score, distance)
 
 
 def get_game_rank(members: dict, game_type: str):
