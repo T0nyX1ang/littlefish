@@ -27,13 +27,13 @@ def format_user_info(user_info: dict) -> str:
 
     if user_info['level'] != 0:
         line += [
-            '初级: %.3f(%s) | %.3f(%s)' % user_info['record_beg'],
+            '初级: %.3f | %.3f' % user_info['record_beg'],
             '局数: %.1fw (%.1f%%)' % user_info['stat_beg'],
-            '中级: %.3f(%s) | %.3f(%s)' % user_info['record_int'],
+            '中级: %.3f | %.3f' % user_info['record_int'],
             '局数: %.1fw (%.1f%%)' % user_info['stat_int'],
-            '高级: %.3f(%s) | %.3f(%s)' % user_info['record_exp'],
+            '高级: %.3f | %.3f' % user_info['record_exp'],
             '局数: %.1fw (%.1f%%)' % user_info['stat_exp'],
-            '总计: %.3f(%s) | %.3f(%s)' % user_info['record_total'],
+            '总计: %.3f | %.3f' % user_info['record_total'],
             '评价: %s 级, 排位第 %d 名' % (level_ref[user_info['level']], user_info['rank'])
         ]
     else:
