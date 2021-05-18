@@ -118,25 +118,22 @@ async def get_user_info(uid: int, simple: bool = False) -> dict:
     if user_info['level'] == 0 or simple:
         return user_info
 
-    # career info
-    career_result = await fetch(page='/MineSweepingWar/minesweeper/timing/career', query='uid=%s' % uid)
-
-    for v in ['beg', 'int', 'exp', 'total']:  # fetch rank information
-        user_info[f'record_{v}'] = (
-            career_result['data'][f'{v}TimeRank']['time'] / 1000,
-            career_result['data'][f'{v}TimeRank']['rank'],
-            career_result['data'][f'{v}BvsRank']['bvs'],
-            career_result['data'][f'{v}BvsRank']['rank'],
-        )
-
+    # user statistics
+    statistics_result = await fetch(page='/MineSweepingWar/minesweeper/timing/statistics', query='uid=%s' % uid)
     for v in ['beg', 'int', 'exp']:  # fetch statistics information
-        success = career_result['data']['statistics'][f'{v}Sum']
-        fail = career_result['data']['statistics'][f'{v}Fail']
+        success = statistics_result['data'][f'{v}Sum']
+        fail = statistics_result['data'][f'{v}Fail']
         total = success + fail + (success == 0)  # make the result divisible
         user_info[f'stat_{v}'] = (
             total / 10000,  # set the unit to 10000
             success / total * 100,
         )
+        user_info[f'record_{v}'] = (
+            statistics_result['data'][f'{v}BestTime'] / 1000,  # set the unit to seconds
+            statistics_result['data'][f'{v}BestBvs']
+        )
+    user_info['record_total'] = (user_info['record_beg'][0] + user_info['record_int'][0] + user_info['record_exp'][0],
+                                 user_info['record_beg'][1] + user_info['record_int'][1] + user_info['record_exp'][1])
 
     return user_info
 
