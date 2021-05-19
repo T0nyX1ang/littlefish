@@ -50,4 +50,7 @@ def get_game_rank(universal_id: str, game_type: str):
         rank_message += '%d: %s - %d\n' % (i + 1, get_member_name(universal_id, ranking[i]), members[ranking[i]][game_type])
         i += 1
 
+    if i == 0:
+        return '当前暂无该项排名~'
+
     return rank_message.strip()
