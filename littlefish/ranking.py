@@ -28,7 +28,7 @@ def format_ranking_info(ranking_info: list) -> str:
     if not result_message:
         # deal with empty query
         result_message = '未查询到符合条件的排名~'
-    return result_message
+    return result_message.strip()
 
 
 ranking = on_command(cmd='rank ', aliases={'排名 '}, rule=check('ranking'))
