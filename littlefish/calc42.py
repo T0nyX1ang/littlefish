@@ -179,6 +179,8 @@ score_viewer = on_simple_command(cmd='score42', aliases={'42点得分', '42点�
 
 rank_viewer = on_simple_command(cmd='rank42', aliases={'42点排名', '42点排行'}, rule=check('calc42'))
 
+daily_rank_viewer = on_simple_command(cmd='dailyrank42', aliases={'42点今日排名', '42点今日排行'}, rule=check('calc42'))
+
 
 @problem_solver.handle()
 async def solve_problem(bot: Bot, event: Event, state: dict):
@@ -231,16 +233,21 @@ async def view_score(bot: Bot, event: Event, state: dict):
     """Handle the score42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
     user_id = f'{event.user_id}'
-    members = load(universal_id, 'members')
-    await bot.send(event=event, message=get_member_stats(members, user_id, '42score'))
+    await bot.send(event=event, message=get_member_stats(universal_id, user_id, '42score'))
 
 
 @rank_viewer.handle()
 async def view_rank(bot: Bot, event: Event, state: dict):
     """Handle the rank42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
-    members = load(universal_id, 'members')
-    await bot.send(event=event, message=get_game_rank(members, '42score'))
+    await bot.send(event=event, message=get_game_rank(universal_id, '42score'))
+
+
+@daily_rank_viewer.handle()
+async def view_daily_rank(bot: Bot, event: Event, state: dict):
+    """Handle the dailyrank42 command."""
+    universal_id = str(event.self_id) + str(event.group_id)
+    await bot.send(event=event, message=get_game_rank(universal_id, '42score_daily'))
 
 
 @broadcast('calc42')
@@ -259,12 +266,9 @@ async def calc42_broadcast(bot_id: str, group_id: str):
 @broadcast('calc42', identifier='@daily')
 async def scheduled_calc42_daily_rank(bot_id: str, group_id: str):
     """Boardcast the ranks of daily calc42 scores."""
-    bot = nonebot.get_bots()[bot_id]
     universal_id = str(bot_id) + str(group_id)
     members = load(universal_id, 'members')
     try:
-        daily_rank_message = '42点昨日成绩:\n' + get_game_rank(members, '42score_daily')
-        await bot.send_group_msg(group_id=int(group_id), message=daily_rank_message)
         for user_id in members:
             members[user_id]['42score_daily'] = 0  # reset the score counter every day
     except Exception:
