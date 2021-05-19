@@ -19,7 +19,7 @@ def on_raw_keyword(keyword: str, rule: Rule = None, **kwargs) -> Matcher:
         """Ensure the raw message contains the target keyword."""
 
         async def _raw_keyword(bot: Bot, event: Event, state: dict) -> bool:
-            """A rule wrapper for each command."""
+            """Rule wrapper for raw_keyword."""
             return keyword in str(event.message)
 
         return Rule(_raw_keyword)
@@ -35,7 +35,7 @@ def on_simple_command(cmd: str, aliases: set = None, rule: Rule = None, **kwargs
         commands = set([cmd]) | (aliases or set())  # generate the commands
 
         async def _simple_command(bot: Bot, event: Event, state: dict) -> bool:
-            """A rule wrapper for each command."""
+            """Rule wrapper for simple_command."""
             return str(event.message).strip() in commands
 
         return Rule(_simple_command)

@@ -80,7 +80,7 @@ except Exception:
 
 
 def valid(command_name: str) -> list:
-    """Get all valid (bot_id, group_id) tuple for policy control."""
+    """Get all valid [bot_id, group_id] tuple for policy control."""
     return [(bid, gid)
             for bid in policy_config.keys()
             for gid in policy_config[bid].keys()
@@ -92,7 +92,7 @@ def check(command_name: str, event_type: Event = GroupMessageEvent) -> Rule:
     _name = command_name
 
     async def _check(bot: Bot, event: Event, state: dict) -> bool:
-        """A rule wrapper for each command."""
+        """Rule wrapper for "check" item in the policy control."""
         logger.debug('Checking command: [%s].' % _name)
         if not isinstance(event, event_type):
             return False
@@ -120,7 +120,7 @@ def broadcast(command_name: str, identifier: str = '@') -> bool:
     _name, _idt = command_name, identifier
 
     def _broadcast(func):
-        """Check the policy of the broadcast."""
+        """Rule wrapper for "broadcast" item in the policy control."""
         logger.debug('Checking broadcast: [%s].' % _name)
         for bid, gid in valid(_name):
             try:
