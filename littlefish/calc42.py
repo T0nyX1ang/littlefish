@@ -14,10 +14,11 @@ from nonebot.log import logger
 from littlefish._policy.rule import check, broadcast, create, revoke
 from littlefish._policy.plugin import on_simple_command
 from littlefish._db import load, save
-from littlefish._game import get_member_name, get_member_stats, get_game_rank
+from littlefish._game import get_member_name, get_member_stats, get_game_rank, start_game_schedulers, stop_game_schedulers
 from littlefish._game.ftpts import init, start, solve, stop, status
 
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
+hint_timeout = 60
 
 
 def print_current_problem(info: dict) -> str:
@@ -78,9 +79,10 @@ def get_results(universal_id, result: dict) -> str:
     result_message += '求解完成度: %d/%d\n' % (result['current'], result['total'])
     result_message += '积分倍率: %d\n' % result['addscore']
 
+    members = load(universal_id, 'members')
+
     for player in ordered:
-        members = load(universal_id, 'members')
-        name = get_member_name(members, player)
+        name = get_member_name(universal_id, player)
         result_message += '%s: %d解/+%d %s\n' % (name, solutions[player], int(scores[player]), achievements[player])
         members[player]['42score'] += int(scores[player] * result['addscore'])
         members[player]['42score_daily'] += int(scores[player] * result['addscore'])
@@ -97,42 +99,25 @@ async def start_game(bot: Bot, universal_id: str, addscore: bool = True, enforce
     result = start(universal_id, addscore, enforce_random)
     message = print_current_problem(result)
     deadline = get_deadline(result['total'])
-    hint_time_left = 60
-    scheduler.add_job(
-        func=finish_game,
-        trigger='interval',
-        seconds=deadline,
-        args=(bot, universal_id),
-        misfire_grace_time=30,
-        id='calc42_process_%s' % universal_id,
-        replace_existing=True,
-    )
-    scheduler.add_job(
-        func=timeout_reminder,
-        trigger='interval',
-        seconds=deadline - hint_time_left,
-        args=(bot, universal_id, hint_time_left),
-        misfire_grace_time=30,
-        id='calc42_timeout_reminder_%s' % universal_id,
-        replace_existing=True,
-    )
+    process_scheduler = finish_game, deadline  # the process scheduler parameters
+    reminder_scheduler = timeout_reminder, deadline - hint_timeout  # the timeout reminder scheduler parameters
+    start_game_schedulers(bot, universal_id, 'calc42', process=process_scheduler, reminder=reminder_scheduler)
 
     try:
         await bot.send_group_msg(group_id=group_id, message=message)
     except Exception:
         logger.error(traceback.format_exc())
-        scheduler.remove_job('calc42_timeout_reminder_%s' % universal_id)
-        scheduler.remove_job('calc42_process_%s' % universal_id)
+        stop_game_schedulers(universal_id, 'calc42')
         revoke('calc42_temp', str(bot.self_id), str(group_id))
         stop(universal_id)  # stop the app instantly
 
 
-async def timeout_reminder(bot: Bot, universal_id: str, time_left: int):
+async def timeout_reminder(bot: Bot, universal_id: str):
     """Reminder of the calc42 game."""
     group_id = int(universal_id[len(str(bot.self_id)):])
     if status(universal_id):
         try:
-            message = '距离本局游戏结束还有%d秒，冲鸭~' % time_left
+            message = '距离本局42点游戏结束还有%s秒，冲鸭~' % hint_timeout
             await bot.send_group_msg(group_id=group_id, message=message)
         except Exception:
             logger.error(traceback.format_exc())
@@ -140,8 +125,7 @@ async def timeout_reminder(bot: Bot, universal_id: str, time_left: int):
 
 async def finish_game(bot: Bot, universal_id: str):
     """Finish the calc42 game."""
-    scheduler.remove_job('calc42_timeout_reminder_%s' % universal_id)
-    scheduler.remove_job('calc42_process_%s' % universal_id)
+    stop_game_schedulers(universal_id, 'calc42')
     group_id = int(universal_id[len(str(bot.self_id)):])
     revoke('calc42_temp', str(bot.self_id), str(group_id))
     if status(universal_id):
@@ -186,7 +170,6 @@ daily_rank_viewer = on_simple_command(cmd='dailyrank42', aliases={'42点今日�
 async def solve_problem(bot: Bot, event: Event, state: dict):
     """Handle the calc42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
-    members = load(universal_id, 'members')
     if not status(universal_id):
         return
 
@@ -201,7 +184,7 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
         elapsed = int(result['elapsed'])
         left = get_deadline(result['total']) - elapsed
         message = '恭喜[%s]完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒~' % (get_member_name(
-            members, user_id), result['current'], result['total'], result['interval'], left)
+            universal_id, user_id), result['current'], result['total'], result['interval'], left)
 
     is_finished = (result['current'] == result['total'])
     message += (not is_finished) * ('\n%s' % print_current_problem(result))
