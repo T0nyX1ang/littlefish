@@ -103,6 +103,9 @@ async def start_game(bot: Bot, universal_id: str, addscore: bool = True, enforce
     reminder_scheduler = timeout_reminder, deadline - hint_timeout  # the timeout reminder scheduler parameters
     start_game_schedulers(bot, universal_id, 'calc42', process=process_scheduler, reminder=reminder_scheduler)
 
+    if status(universal_id):
+        return  # stop the process if the game has started
+
     try:
         await bot.send_group_msg(group_id=group_id, message=message)
     except Exception:

@@ -34,9 +34,6 @@ def init(universal_id: str):
         pool[universal_id] = {}
         pool[universal_id]['app'] = FTPtsGame()
 
-    if pool[universal_id]['app'].is_playing():
-        raise PermissionError('Game has started.')
-
 
 def current(universal_id: str) -> dict:
     """Get the problem's information."""
