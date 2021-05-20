@@ -14,11 +14,12 @@ from nonebot.log import logger
 from littlefish._policy.rule import check, broadcast, create, revoke
 from littlefish._policy.plugin import on_simple_command
 from littlefish._db import load, save
-from littlefish._game import get_member_name, get_member_stats, get_game_rank, start_game_schedulers, stop_game_schedulers
+from littlefish._game import get_member_name, get_member_stats, get_game_rank, GameManager
 from littlefish._game.ftpts import init, start, solve, stop, status
 
-scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 hint_timeout = 60
+scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
+manager = GameManager(game_type='calc42')
 
 
 def print_current_problem(info: dict) -> str:
@@ -96,21 +97,21 @@ async def start_game(bot: Bot, universal_id: str, addscore: bool = True, enforce
     """Start the calc42 game."""
     group_id = int(universal_id[len(str(bot.self_id)):])
     init(universal_id)
-    result = start(universal_id, addscore, enforce_random)
-    message = print_current_problem(result)
-    deadline = get_deadline(result['total'])
-    process_scheduler = finish_game, deadline  # the process scheduler parameters
-    reminder_scheduler = timeout_reminder, deadline - hint_timeout  # the timeout reminder scheduler parameters
-    start_game_schedulers(bot, universal_id, 'calc42', process=process_scheduler, reminder=reminder_scheduler)
 
     if status(universal_id):
         return  # stop the process if the game has started
 
+    problem = start(universal_id, addscore, enforce_random)
+    message = print_current_problem(problem)
+    deadline = get_deadline(problem['total'])
+
     try:
+        manager.add_scheduler(bot, universal_id, finish_game, deadline)
+        manager.add_scheduler(bot, universal_id, timeout_reminder, deadline - hint_timeout)
         await bot.send_group_msg(group_id=group_id, message=message)
     except Exception:
         logger.error(traceback.format_exc())
-        stop_game_schedulers(universal_id, 'calc42')
+        manager.stop_schedulers(universal_id)
         revoke('calc42_temp', str(bot.self_id), str(group_id))
         stop(universal_id)  # stop the app instantly
 
@@ -128,7 +129,7 @@ async def timeout_reminder(bot: Bot, universal_id: str):
 
 async def finish_game(bot: Bot, universal_id: str):
     """Finish the calc42 game."""
-    stop_game_schedulers(universal_id, 'calc42')
+    manager.stop_schedulers(universal_id)
     group_id = int(universal_id[len(str(bot.self_id)):])
     revoke('calc42_temp', str(bot.self_id), str(group_id))
     if status(universal_id):
