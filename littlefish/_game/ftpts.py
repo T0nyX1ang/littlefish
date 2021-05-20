@@ -25,30 +25,30 @@ target = plugin_config.ftpts_target
 random_threshold = plugin_config.ftpts_random_threshold
 problem_database = list(itertools.combinations_with_replacement(range(0, max_number + 1), 5))
 
-app_pool = {}  # a pool for all ftpts apps
-addscore_pool = {}  # a pool for all addscore parameters
+pool = {}  # a pool for all ftpts apps, addscore option and game invoker
 
 
 def init(universal_id: str):
     """Initialize the ftpts app."""
-    if universal_id not in app_pool:
-        app_pool[universal_id] = FTPtsGame()
+    if universal_id not in pool:
+        pool[universal_id] = {}
+        pool[universal_id]['app'] = FTPtsGame()
 
-    if app_pool[universal_id].is_playing():
+    if pool[universal_id]['app'].is_playing():
         raise PermissionError('Game has started.')
 
 
 def current(universal_id: str) -> dict:
     """Get the problem's information."""
-    elapsed = app_pool[universal_id].get_elapsed_time()
+    elapsed = pool[universal_id]['app'].get_elapsed_time()
     elapsed_time = elapsed.seconds + elapsed.microseconds / 1000000
     info = {
-        'problem': app_pool[universal_id].get_current_problem(),
-        'target': app_pool[universal_id].get_current_target(),
-        'total': app_pool[universal_id].get_total_solution_number(),
-        'current': app_pool[universal_id].get_current_solution_number(),
-        'solutions': app_pool[universal_id].get_current_solutions(),
-        'stats': app_pool[universal_id].get_current_player_statistics(),
+        'problem': pool[universal_id]['app'].get_current_problem(),
+        'target': pool[universal_id]['app'].get_current_target(),
+        'total': pool[universal_id]['app'].get_total_solution_number(),
+        'current': pool[universal_id]['app'].get_current_solution_number(),
+        'solutions': pool[universal_id]['app'].get_current_solutions(),
+        'stats': pool[universal_id]['app'].get_current_player_statistics(),
         'remaining': [],
         'elapsed': elapsed_time,
     }
@@ -63,21 +63,21 @@ def start(universal_id: str, addscore: bool = True, enforce_random: bool = False
     while not found:
         problem = random.choice(problem_database)
         try:
-            app_pool[universal_id].generate_problem(problem, real)
+            pool[universal_id]['app'].generate_problem(problem, real)
             found = True
         except Exception:
             found = False
-    app_pool[universal_id].start()
-    addscore_pool[universal_id] = addscore
+    pool[universal_id]['app'].start()
+    pool[universal_id]['addscore'] = addscore
     return current(universal_id)
 
 
 def stop(universal_id: str) -> dict:
     """Stop the game."""
     info = current(universal_id)
-    info['remaining'] = app_pool[universal_id].get_remaining_solutions()
-    info['addscore'] = addscore_pool[universal_id]
-    app_pool[universal_id].stop()
+    info['remaining'] = pool[universal_id]['app'].get_remaining_solutions()
+    info['addscore'] = pool[universal_id]['addscore']
+    pool[universal_id]['app'].stop()
     return info
 
 
@@ -86,7 +86,7 @@ def solve(universal_id: str, expr: str, player_id: str, _id: int) -> dict:
     hint = ''
     solution_time = 0
     try:
-        elapsed = app_pool[universal_id].solve(expr, player_id)
+        elapsed = pool[universal_id]['app'].solve(expr, player_id)
         solution_time = elapsed.seconds + elapsed.microseconds / 1000000
     except (OverflowError, SyntaxError, ValueError):
         hint = '输入错误'
@@ -106,7 +106,7 @@ def solve(universal_id: str, expr: str, player_id: str, _id: int) -> dict:
 
 def status(universal_id: str) -> bool:
     """Get the status of the current game."""
-    if universal_id in app_pool:
-        return app_pool[universal_id].is_playing()
+    if universal_id in pool:
+        return pool[universal_id]['app'].is_playing()
     else:
         return False
