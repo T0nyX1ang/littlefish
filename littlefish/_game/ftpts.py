@@ -81,7 +81,7 @@ def stop(universal_id: str) -> dict:
     return info
 
 
-def solve(universal_id: str, expr: str, player_id: str, _id: int) -> dict:
+def solve(universal_id: str, expr: str, player_id: str) -> dict:
     """Put forward a solution during the game."""
     hint = ''
     solution_time = 0

@@ -177,7 +177,7 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
     expr = str(event.message).strip()
     message = ''
 
-    result = solve(universal_id, expr, user_id, event.message_id)
+    result = solve(universal_id, expr, user_id)
     if result['hint']:
         message = result['hint']
     else:
