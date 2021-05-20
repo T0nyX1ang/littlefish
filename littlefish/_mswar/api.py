@@ -130,8 +130,7 @@ async def get_user_info(uid: int, simple: bool = False) -> dict:
         )
         user_info[f'record_{v}'] = (
             statistics_result['data'][f'{v}BestTime'] / 1000,  # set the unit to seconds
-            statistics_result['data'][f'{v}BestBvs']
-        )
+            statistics_result['data'][f'{v}BestBvs'])
     user_info['record_total'] = (user_info['record_beg'][0] + user_info['record_int'][0] + user_info['record_exp'][0],
                                  user_info['record_beg'][1] + user_info['record_int'][1] + user_info['record_exp'][1])
 
