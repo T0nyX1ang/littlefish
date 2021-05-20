@@ -11,7 +11,7 @@ import nonebot
 from nonebot import on_command
 from nonebot.adapters.cqhttp import Bot, Event, Message
 from nonebot.log import logger
-from littlefish._policy.rule import check, broadcast, create, revoke
+from littlefish._policy.rule import check, broadcast
 from littlefish._policy.plugin import on_simple_command
 from littlefish._db import load, save
 from littlefish._game import get_member_name, get_member_stats, get_game_rank, GameManager
@@ -111,8 +111,8 @@ async def start_game(bot: Bot, universal_id: str, addscore: bool = True, enforce
         await bot.send_group_msg(group_id=group_id, message=message)
     except Exception:
         logger.error(traceback.format_exc())
-        manager.stop_schedulers(universal_id)
-        revoke('calc42_temp', str(bot.self_id), str(group_id))
+        manager.remove_schedulers(universal_id)
+        manager.reset_invoker()
         stop(universal_id)  # stop the app instantly
 
 
@@ -129,9 +129,9 @@ async def timeout_reminder(bot: Bot, universal_id: str):
 
 async def finish_game(bot: Bot, universal_id: str):
     """Finish the calc42 game."""
-    manager.stop_schedulers(universal_id)
+    manager.remove_schedulers(universal_id)
     group_id = int(universal_id[len(str(bot.self_id)):])
-    revoke('calc42_temp', str(bot.self_id), str(group_id))
+    manager.reset_invoker(universal_id)
     if status(universal_id):
         result = stop(universal_id)
         game_results = get_results(universal_id, result)
@@ -161,7 +161,7 @@ async def show_solutions(bot: Bot, universal_id: str, result: dict):
 
 problem_solver = on_command(cmd='calc42 ', aliases={'42点 '}, rule=check('calc42'))
 
-manual_player = on_command(cmd='manual42 ', aliases={'手动42点 '}, rule=check('calc42') & check('calc42_temp'))
+manual_player = on_command(cmd='manual42 ', aliases={'手动42点 '}, rule=check('calc42'))
 
 score_viewer = on_simple_command(cmd='score42', aliases={'42点得分', '42点积分'}, rule=check('calc42'))
 
@@ -203,14 +203,18 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
 async def manual_calc42(bot: Bot, event: Event, state: dict):
     """Control the calc42 game manually."""
     universal_id = str(event.self_id) + str(event.group_id)
+    if status(universal_id) and event.user_id != manager.get_invoker(universal_id):
+        # stop the manual command if the invokers are not matched, only check when the game is started
+        return
+
     option = str(event.message).strip()
 
     if option == '++':
         await start_game(bot, universal_id, False, True)
-        create('calc42_temp', str(event.self_id), str(event.group_id), {'+': [event.user_id]})
+        manager.set_invoker(universal_id, event.user_id)
     elif option == '+':
         await start_game(bot, universal_id, False)
-        create('calc42_temp', str(event.self_id), str(event.group_id), {'+': [event.user_id]})
+        manager.set_invoker(universal_id, event.user_id)
     elif option == '-':
         await finish_game(bot, universal_id)
 
@@ -242,10 +246,14 @@ async def calc42_broadcast(bot_id: str, group_id: str):
     """Boardcast a calc42 game."""
     bot = nonebot.get_bots()[bot_id]
     universal_id = str(bot_id) + str(group_id)
+    if status(universal_id) and manager.get_invoker(universal_id) != -1:
+        # forcibly stop the game when the routined game is started
+        await finish_game(bot, universal_id)
+
     try:
         # this means no one can terminate the routined calc42 game
         await start_game(bot, universal_id)
-        create('calc42_temp', str(bot.self_id), str(group_id), {'+': []})
+        manager.set_invoker(universal_id)
     except Exception:
         logger.error(traceback.format_exc())
 
