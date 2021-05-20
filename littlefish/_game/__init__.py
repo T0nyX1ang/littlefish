@@ -66,6 +66,7 @@ class GameManager(object):
         """Initialize the manager."""
         self.scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
         self.game_type = game_type
+        self.invoker = {}
 
     def add_scheduler(self, bot: Bot, universal_id: str, scheduler_func: callable, scheduler_interval: int):
         """Initialize the scheduler for a certain game."""
@@ -79,8 +80,23 @@ class GameManager(object):
             replace_existing=True,
         )
 
-    def stop_schedulers(self, universal_id: str):
-        """Initialize the scheduler for a certain game."""
+    def remove_schedulers(self, universal_id: str):
+        """Remove all schedulers of a certain game."""
         for job in self.scheduler.get_jobs():
             if self.game_type in job.id and universal_id in job.id:
                 job.remove()  # remove the job
+
+    def set_invoker(self, universal_id: str, invoker: int = -1):
+        """Set the invoker for a certain game."""
+        self.invoker[universal_id] = invoker
+
+    def reset_invoker(self, universal_id: str):
+        """Clear the invoker for a certain game."""
+        self.invoker[universal_id] = -1
+
+    def get_invoker(self, universal_id: str) -> int:
+        """Get the invoker for a certain game."""
+        try:
+            return self.invoker[universal_id]
+        except Exception:
+            return -1
