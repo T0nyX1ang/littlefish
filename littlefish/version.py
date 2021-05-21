@@ -5,7 +5,6 @@ Support version check, version display on first connection.
 """
 
 import os
-import json
 import traceback
 import httpx
 import nonebot
