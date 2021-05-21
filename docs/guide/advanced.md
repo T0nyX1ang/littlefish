@@ -1,5 +1,5 @@
 # 配置与部署
-如果你也想自己折腾一只小鱼，那么以下的内容可能会适合你；不过如果你不爱折腾，这些内容可能会让你比较痛苦。
+如果你也想自己折腾一只小鱼，那么以下的内容可能会适合你，否则请直接忽略这一部分的内容。
 
 ## 前提条件
 +   **必须**有一个持续开机的电脑或买一台服务器。
@@ -11,106 +11,133 @@
 +   安装`go-cqhttp`。
 +   安装`Python 3.7.3+`。
 +   安装依赖项:
-```bash
-    pip3 install -r requirements.txt # on *nix
-    pip install -r requirements.txt # on Windows
-```
+
+    === "Windows"
+        ```bash
+        pip install -r requirements.txt
+        ```
+
+    === "*nix"
+        ```bash
+        pip3 install -r requirements.txt
+        ```
+
 +   根据[go-cqhttp](https://docs.go-cqhttp.org/)和[nonebot2](https://v2.nonebot.dev/)文档修改相关配置。
 +   运行配置程序:
-```bash
-	python3 wizard.py # on *nix
-    py -3 wizard.py # on Windows
-```
+
+    === "Windows"
+        ```bash
+        py -3 wizard.py
+        ```
+
+    === "*nix"
+        ```bash
+        python3 wizard.py
+        ```
+
 +   运行小鱼:
-```bash
-    python3 bot.py # on *nix
-    py -3 bot.py # on Windows
-```
 
-### 测试小鱼
+    === "Windows"
+        ```bash
+        py -3 bot.py
+        ```
+
+    === "*nix"
+        ```bash
+        python3 bot.py
+        ```
+
+## 测试小鱼
 +   启用开发模式:
-```bash
-    python3 bot.py -d / python3 bot.py --dev # on *nix
-    py -3 bot.py -d / py -3 bot.py --dev # on Windows
-```
 
-开发模式是一种本地测试小鱼运行是否符合输出的方法，开发模式与普通运行模式的区别如下:
-+   开发模式不启用日志存档，且输出日志等级为`DEBUG`，而普通运行模式的输出日志等级`INFO`，且存档日志等级为`ERROR`。
-+   开发模式启用热重载，即检测到`littlefish`文件夹内文件发生变化时，小鱼会自动重启。
-+   开发模式启用`nonebot`提供的默认插件，即支持`/echo`和`/say`指令。
-+   开发模式启用`nonebot-plugin-test`插件，可以在`host:port/test`中访问本地测试器，能够测试小鱼的绝大部分功能。
+    === "Windows"
+        ```bash
+        py -3 bot.py -d
+        ```
+
+    === "*nix"
+        ```bash
+        python3 bot.py -d
+        ```
+
++   开发模式是一种本地测试小鱼运行是否符合输出的方法，开发模式与普通运行模式的区别如下:
+    +   开发模式不启用日志存档，且输出日志等级为`DEBUG`，而普通运行模式的输出日志等级`INFO`，且存档日志等级为`ERROR`。
+    +   开发模式启用热重载，即检测到`littlefish`文件夹内文件发生变化时，小鱼会自动重启。
+    +   开发模式启用`nonebot-plugin-test`插件，可以在`host:port/test`中访问本地测试器，能够测试小鱼的绝大部分功能。
 
 ## 环境变量的进一步配置
-+   所有环境变量均写入`.env`文件，通过`wizard.py`可以对以下环境变量进行配置:
-```tex
-    host # 监听IP
-    port # 监听端口
-    debug # 调试模式
-    superusers # 超级用户
-    command_start # 命令识别前缀
-    mswar_uid # 联萌关联账号
-    autopvp_uid # 联萌autopvp账号
-    mswar_token # 联萌关联账号登录token
-    mswar_host # 联萌服务器地址与端口
-    mswar_version # 联萌版本
-    mswar_encryption_key # 联萌加密密钥
-    mswar_decryption_key # 联萌解密密钥
-    database_location # 本地数据库地址(建议以.gz结尾)
-    policy_config_location # 本地配置文件地址(建议以.json结尾)
-    resource_location # 本地资源索引文件地址(建议以.csv结尾)
-```
++   Nonebot相关环境变量:
+    +   `host`: 监听IP :material-checkbox-marked-circle:
+    +   `port`: 监听端口 :material-checkbox-marked-circle:
+    +   `superusers`: 超级用户 :material-checkbox-marked-circle:
+    +   `access_token`: API上报密钥
 
-除此以外，如果希望丰富小鱼的功能，还可以对其它环境变量进行手动配置:
-```tex
-	access_token # API上报密钥
-	frequent_face_id # 常用QQ表情ID(用于变形复读时表情替换)
-    resource_separator # 资源文件分隔符(默认为|)
-	database_compress_level # 数据库压缩程度(0-9, 默认为9)
-    database_backup_max_storage # 数据库最大备份数目(正整数, 小于等于0时不限制备份数, 默认为0)
-	ftpts_max_number # 42点最大可选择数字
-	ftpts_target # 42点目标数字
-    ftpts_random_threshold # 42点目标阈值(该值越高, 目标不为42点可能性越大)
-```
++   联萌相关环境变量:
+    +   `mswar_uid`: 联萌关联账号 :material-checkbox-marked-circle:
+    +   `autopvp_uid`: 联萌autopvp账号 :material-checkbox-marked-circle:
+    +   `superusers`: 联萌关联账号登录token :material-checkbox-marked-circle:
+    +   `mswar_host`: 联萌服务器地址与端口 :material-checkbox-marked-circle:
+    +   `mswar_version`: 联萌版本 :material-checkbox-marked-circle:
+    +   `mswar_encryption_key`: 联萌加密密钥 :material-checkbox-marked-circle:
+    +   `mswar_decryption_key`: 联萌解密密钥 :material-checkbox-marked-circle: 
 
-::: danger
++   本地数据库环境变量:
+    +   `database_location`: 本地数据库地址(建议以`.gz`结尾) :material-checkbox-marked-circle:
+	+   `database_compress_level`: 数据库压缩程度(0-9, 默认为`9`)
+    +   `database_backup_max_storage`: 数据库最大备份数目(正整数, 小于等于0时不限制备份数, 默认为`0`)
 
-请务必注意，环境变量中的数据**相当敏感**，**一定不要泄露给他人**！
++   本地资源库环境变量:
+    +   `resource_location`: 本地资源索引文件地址(建议以`.csv`结尾) :material-checkbox-marked-circle:
+    +   `resource_separator`: 资源文件分隔符(默认为`|`)
+    +   `frequent_face_id`: 常用QQ表情ID，用于变形复读时表情替换(默认为`[146]`)
 
-:::
++   权限配置环境变量:
+    +   `policy_config_location`: 本地配置文件地址(建议以`.json`结尾) :material-checkbox-marked-circle:
+
++   42点小游戏环境变量:
+	+   `ftpts_max_number`: 42点最大可选择数字(默认为`13`)
+	+   `ftpts_target`: 42点目标数字(默认为`42`)
+    +   `ftpts_random_threshold`: 42点目标阈值，该值越高, 目标不为42点可能性越大(默认为`0.0025`)
+
+!!! tip
+    以上环境变量中，末尾含有:material-checkbox-marked-circle:的环境变量可以使用`wizard.py`进行配置，其余环境变量必须手动配置。
+
+!!! danger
+    请务必注意，环境变量中的数据**相当敏感**，**一定不要泄露给他人**！
 
 ## 更精细的权限控制
 +   为了使小鱼在不同的群内使用不同的功能，需要新建一个权限控制文件`policy.json`，内部的结构需要写成这样:
 ```json
-	{
-        "bot_id": {
-            "group_id": {
-                "command_name": {
-                    "+": [1, 2, 3],
-                    "-": [3, 4, 5],
-                    "@": {
-                        "day_of_week": "*",
-                        "hour": 10,
-                        "minute": 20,
-                        "second": 30
-                    },
-                    "@.another": {
-                        "hour": 20,
-                        "minute": 30,
-                        "second": 40
-                    }
+{
+    "bot_id": {
+        "group_id": {
+            "command_name": {
+                "+": [1, 2, 3],
+                "-": [3, 4, 5],
+                "@": {
+                    "day_of_week": "*",
+                    "hour": 10,
+                    "minute": 20,
+                    "second": 30
                 },
-                "another_command_name": {
-                    // write another configuration for a command
+                "@.another": {
+                    "hour": 20,
+                    "minute": 30,
+                    "second": 40
                 }
             },
-            "another_group_id": {
-                // write another configuration for a group
+            "another_command_name": {
+                // write another configuration for a command
             }
         },
-        "another_bot_id": {
-            // write another configuration for a bot
+        "another_group_id": {
+            // write another configuration for a group
         }
-	}
+    },
+    "another_bot_id": {
+        // write another configuration for a bot
+    }
+}
 ```
 
 +   以下对上述配置文件的结构进行一些解释:
@@ -120,19 +147,15 @@
     +   对于广播时间控制，只有当前时间在控制时间范围内(误差为30秒)，小鱼才会广播相应的命令或执行相应操作。对于以上的例子，具有`bot_id`的小鱼会在每天的`10:20:30`和`20:30:40`，在`group_id`这个群中执行`command_name`相关的两个不同任务。
     +   此外，小鱼还提供了**简单识别配置**的功能，小鱼会获取`bot_id`，`group_id`和`command_name`非空的所有值，并将`bot_id`和`group_id`装配成一个元组，并将所有符合条件的元组构成一个列表。该功能目前只在`version`指令中使用到。
 
-::: warning
+!!! warning
+    权限配置较为复杂，而且向着越来越复杂的方向发展，仅建议在小范围(如`supercmd`等权限)内使用，项目本身不提供配置文件，通过`wizard.py`可以配置一些**广播时间控制**的默认值，其余部分仍需要自行编写。**强烈建议先通过`wizard.py`进行配置，这将对权限配置的格式有所帮助。**
 
-权限配置较为复杂，而且向着越来越复杂的方向发展，仅建议在小范围(如`supercmd`等权限)内使用，项目本身不提供配置文件，通过`wizard.py`可以配置一些**广播时间控制**的默认值，其余部分仍需要自行编写。**强烈建议先通过`wizard.py`进行配置，这将对权限配置的格式有所帮助。**
+    此外，权限控制中存在所谓**临时权限**的规则，临时权限需要手动生成和手动清除，只在小鱼本次运行过程中保留，终止运行后就会自动清空。
 
-此外，权限控制中存在所谓**临时权限**的规则，临时权限需要手动生成和手动清除，只在小鱼本次运行过程中保留，终止运行后就会自动清空。
-
-请务必注意，权限配置文件中的数据**比较敏感**，**建议不要泄露给他人**！
-
-:::
+    请务必注意，权限配置文件中的数据**比较敏感**，**建议不要泄露给他人**！
 
 ## 资源文件
 +   为了使小鱼表达能力更强，需要新建一个资源文件`policy.json`，每个资源条目由`资源内容`，`资源分类`，`资源是否为图片` 和 `加载权重`四个部分构成。示例资源文件如下：
-
 ```csv
 太强了|1|0|2
 tql|1|0|2
@@ -153,33 +176,34 @@ resource/exclaim/1.gif|1|1|1
     +   `加载权重`为正整数，决定资源被发送的概率，权重越大，被发送的概率越大。
     +   在不发送图片时，基于资源文件的消息由三部分组成: `作用对象称谓`，`消息体`和`消息尾`。目前设计分类时，`消息体`和`消息尾`需要保持相同的分类号，且`消息尾`的分类号前面需要加入`-`进行标识，具体操作已经在示例资源文件中指出，此处不再赘述。
 
-::: tip
-
-由于CQ码中含有逗号，资源文件中的默认分隔符为`|`，可以通过`resource_separator`这一配置项进行修改。
-
-:::
+!!! tip
+    由于CQ码中含有逗号，资源文件中的默认分隔符为`|`，可以通过`resource_separator`这一配置项进行修改。
 
 ## 数据库相关
 +   数据库采用`gzip`压缩的`JSON`格式，将所有数据存放在一起。索引使用`universal_id`，当数据为共用的全局数据时，`universal_id = 0`，当数据为群组相关的局部数据时，`universal_id = 小鱼QQ号拼接群号`。
 +   每次写入数据库时，小鱼会对当前数据进行全量备份，可以通过设置`database_backup_max_storage`限制最大备份数目。
 
-::: danger
-
-由于作者能力有限，数据库的形式可能会不断变化，甚至出现版本间不兼容的情况，请谨慎开启数据库功能。
-
-:::
+!!! danger
+    由于作者能力有限，数据库的形式可能会不断变化，甚至出现版本间不兼容的情况，请谨慎开启数据库功能。
 
 ## B站直播推送相关
 +   直播推送采用了双队列模式，即**群组内部的订阅队列**和**全局的订阅队列**。群组内部队列只负责从全局队列中取数据，而全局队列需要负责从B站获得用户的直播状态。
 +   为了减少被风控的风险，本推送功能完全采用了线性的查询方式，对于全局队列而言，每20秒只对一个UID发送查询请求，并更新其状态。
 +   为了减少查询流量，除队列元素更新以外，内部队列不进行任何网络访问。同时，小鱼采用了活跃度机制，每次全局队列的UID更新状态时，会检查其活跃度，当活跃度小于或等于0时，小鱼会将该UID移除全局队列；更新状态完成后，小鱼将降低`1点`该UID活跃度；而内部队列查询全局队列中的UID信息时，将恢复该UID的活跃度至`5点`。所以在权限控制中设置群组内部查询频率时，需要保证查询间隔小于`2分钟`。当然，建议将权限控制写为如下形式:
-
-```json
-    "bilipush": {
-        "@": {
-            "hour": "8-23",
-            "minute": "*",
-            "second": "*/20"
+```json hl_lines="5-11"
+{
+    "bot_id": {
+        "group_id": {
+            // other command plugins
+            "bilipush": {
+                "@": {
+                    "hour": "8-23",
+                    "minute": "*",
+                    "second": "*/20"
+                }
+            },
+            // other command plugins
         }
     }
+}
 ```

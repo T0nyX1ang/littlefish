@@ -1,0 +1,55 @@
+site_name: littlefish
+nav:
+  - '小鱼': README.md
+  - '指南':
+    - '功能与指令': guide/normal.md
+    - '配置与部署': guide/advanced.md
+  - '了解更多':
+    - '更新日志': misc/changelog.md
+    - '参与贡献': misc/contribution.md
+    - '': misc/easter.md
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/weather-sunny
+        name: Dark
+    - scheme: slate
+      primary: orange
+      accent: orange
+      toggle:
+        icon: material/weather-night
+        name: Light
+  language: zh
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.instant
+    - navigation.top
+copyright: littlefish 🐟 ~ Copyright &copy; 2020-2021 Tony Xiang ~ Licensed under AGPL
+repo_url: https://github.com/T0nyX1ang/littlefish
+repo_name: T0nyX1ang/littlefish
+markdown_extensions:
+  - admonition
+  - attr_list
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+extra_javascript:
+  - javascripts/config.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+extra_css:
+  - stylesheets/extra.css
