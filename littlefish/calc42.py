@@ -13,8 +13,7 @@ from nonebot.adapters.cqhttp import Bot, Event, Message
 from nonebot.log import logger
 from littlefish._policy.rule import check, broadcast
 from littlefish._policy.plugin import on_simple_command
-from littlefish._db import load, save
-from littlefish._game import get_member_name, get_member_stats, get_game_rank, GameManager
+from littlefish._game import MemberManager, GameManager
 from littlefish._game.ftpts import init, start, solve, stop, status
 
 hint_timeout = 60
@@ -80,15 +79,13 @@ def get_results(universal_id, result: dict) -> str:
     result_message += '求解完成度: %d/%d\n' % (result['current'], result['total'])
     result_message += '积分倍率: %d\n' % result['addscore']
 
-    members = load(universal_id, 'members')
+    member_manager = MemberManager(universal_id)
 
     for player in ordered:
-        name = get_member_name(universal_id, player)
+        name = member_manager.get_member_name(player)
         result_message += '%s: %d解/+%d %s\n' % (name, solutions[player], int(scores[player]), achievements[player])
-        members[player]['42score'] += int(scores[player] * result['addscore'])
-        members[player]['42score_daily'] += int(scores[player] * result['addscore'])
-
-    save(universal_id, 'members', members)
+        member_manager.change_game_score(player, '42score', int(scores[player] * result['addscore']))
+        member_manager.change_game_score(player, '42score_daily', int(scores[player] * result['addscore']))
 
     return result_message.strip()
 
@@ -112,7 +109,7 @@ async def start_game(bot: Bot, universal_id: str, addscore: bool = True, enforce
     except Exception:
         logger.error(traceback.format_exc())
         manager.remove_schedulers(universal_id)
-        manager.reset_invoker()
+        manager.reset_invoker(universal_id)
         stop(universal_id)  # stop the app instantly
 
 
@@ -145,10 +142,12 @@ async def finish_game(bot: Bot, universal_id: str):
 async def show_solutions(bot: Bot, universal_id: str, result: dict):
     """Generate a message node from all solutions."""
     group_id = int(universal_id[len(str(bot.self_id)):])
+    member_manager = MemberManager(universal_id)
+
     message = []
     for i in range(result['current']):
         user_id = result['stats'][i][0]
-        name = get_member_name(universal_id, user_id)
+        name = member_manager.get_member_name(user_id)
         message.append({'type': 'node', 'data': {'name': name, 'uin': user_id, 'content': result['solutions'][i]}})
 
     for remaining in result['remaining']:
@@ -173,6 +172,7 @@ daily_rank_viewer = on_simple_command(cmd='dailyrank42', aliases={'42点今日�
 async def solve_problem(bot: Bot, event: Event, state: dict):
     """Handle the calc42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
+    member_manager = MemberManager(universal_id)
     if not status(universal_id):
         return
 
@@ -186,8 +186,8 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
     else:
         elapsed = int(result['elapsed'])
         left = get_deadline(result['total']) - elapsed
-        message = '恭喜[%s]完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒~' % (get_member_name(
-            universal_id, user_id), result['current'], result['total'], result['interval'], left)
+        message = '恭喜[%s]完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒~' % (member_manager.get_member_name(user_id), result['current'],
+                                                               result['total'], result['interval'], left)
 
     is_finished = (result['current'] == result['total'])
     message += (not is_finished) * ('\n%s' % print_current_problem(result))
@@ -223,21 +223,24 @@ async def view_score(bot: Bot, event: Event, state: dict):
     """Handle the score42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
     user_id = f'{event.user_id}'
-    await bot.send(event=event, message=get_member_stats(universal_id, user_id, '42score'))
+    member_manager = MemberManager(universal_id)
+    await bot.send(event=event, message=member_manager.get_member_stats(user_id, '42score'))
 
 
 @rank_viewer.handle()
 async def view_rank(bot: Bot, event: Event, state: dict):
     """Handle the rank42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
-    await bot.send(event=event, message=get_game_rank(universal_id, '42score'))
+    member_manager = MemberManager(universal_id)
+    await bot.send(event=event, message=member_manager.get_game_rank('42score'))
 
 
 @daily_rank_viewer.handle()
 async def view_daily_rank(bot: Bot, event: Event, state: dict):
     """Handle the dailyrank42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
-    await bot.send(event=event, message=get_game_rank(universal_id, '42score_daily'))
+    member_manager = MemberManager(universal_id)
+    await bot.send(event=event, message=member_manager.get_game_rank('42score_daily'))
 
 
 @broadcast('calc42')
@@ -261,9 +264,5 @@ async def calc42_broadcast(bot_id: str, group_id: str):
 async def scheduled_calc42_daily_rank(bot_id: str, group_id: str):
     """Boardcast the ranks of daily calc42 scores."""
     universal_id = str(bot_id) + str(group_id)
-    members = load(universal_id, 'members')
-    try:
-        for user_id in members:
-            members[user_id]['42score_daily'] = 0  # reset the score counter every day
-    except Exception:
-        logger.error(traceback.format_exc())
+    member_manager = MemberManager(universal_id)
+    member_manager.reset_game_score('42score_daily')

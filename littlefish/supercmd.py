@@ -11,6 +11,7 @@ from nonebot.log import logger
 from littlefish._db import commit, load, save
 from littlefish._policy.rule import check
 from littlefish._policy.plugin import on_simple_command
+from littlefish._game import MemberManager
 
 save_to_disk = on_simple_command(cmd='save', aliases={'存档'}, rule=check('supercmd'))
 
@@ -103,15 +104,13 @@ async def update_repeater_param(bot: Bot, event: Event, state: dict):
 async def update_calc42_score(bot: Bot, event: Event, state: dict):
     """Change the calc42 game's score of a person manually."""
     universal_id = str(event.self_id) + str(event.group_id)
+    member_manager = MemberManager(universal_id)
     args = str(event.message).split()
-    members = load(universal_id, 'members')
     multiplier = {'+': 1, '-': -1}
     try:
         user_id = str(int(args[0]))
         score = int(args[2])
-        original = members[user_id]['42score']
-        members[user_id]['42score'] = max(0, original + score * multiplier[args[1]])
-        message = '42点得分修改成功(%d -> %d)' % (original, members[user_id]['42score'])
+        message = '42点得分修改成功(%d -> %d)' % member_manager.change_game_score(user_id, '42score', score * multiplier[args[1]])
         await bot.send(event=event, message=message)
     except Exception:
         await bot.send(event=event, message='42点得分修改失败，请重试')
