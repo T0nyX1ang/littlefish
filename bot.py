@@ -35,7 +35,6 @@ nonebot.load_plugins('littlefish')
 
 if args.dev:
     app = nonebot.get_asgi()  # load the ASGI app
-    nonebot.load_builtin_plugins()  # load the builtin plugins as well
     nonebot.load_plugin('nonebot_plugin_test')  # enable the test frontend in developing mode
 
 if __name__ == '__main__':
