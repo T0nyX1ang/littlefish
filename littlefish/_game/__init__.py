@@ -11,52 +11,72 @@ The plugin requires the database plugin (littlefish._db) to work normally.
 
 import nonebot
 from nonebot.adapters.cqhttp import Bot
-from littlefish._db import load
+from littlefish._db import load, save
 
 
-def get_member_name(universal_id: str, user_id: str) -> str:
-    """Get member name in a certain group with a certain bot."""
-    try:
-        members = load(universal_id, 'members')
-        return members[user_id]['card'] if members[user_id]['card'] else members[user_id]['nickname']
-    except Exception:
-        return '匿名大佬'
+class MemberManager(object):
+    """A manager for all members."""
 
+    def __init__(self, universal_id: str):
+        """Initialize the member database in a certain group with a certain bot."""
+        self.universal_id = universal_id
+        self.members = load(self.universal_id, 'members')
 
-def get_member_stats(universal_id: str, user_id: str, rank_item: str) -> tuple:
-    """Get a member's score and rank of a certain game in a certain group with a certain bot."""
-    members = load(universal_id, 'members')
-    ranking = sorted(members, key=lambda x: (members[x][rank_item], x), reverse=True)
-    result = 0
-    for user in ranking:
-        result += 1
-        if user_id == user:
-            break
+    def _commit_to_database(self):
+        """Commit the changed data to the database."""
+        save(self.universal_id, 'members', self.members)
 
-    score = members[user_id][rank_item]
-    if result == 1:
-        return '排名: %d\n积分: %d' % (result, score)
+    def get_member_name(self, user_id: str) -> str:
+        """Get member name in a certain group with a certain bot."""
+        try:
+            return self.members[user_id]['card'] if self.members[user_id]['card'] else self.members[user_id]['nickname']
+        except Exception:
+            return '匿名大佬'
 
-    upper_score = members[ranking[result - 2]][rank_item]
-    distance = upper_score - score
-    return '排名: %d\n积分: %d\n距上一名: %d' % (result, score, distance)
+    def get_member_stats(self, user_id: str, rank_item: str) -> tuple:
+        """Get a member's score and rank of a certain game in a certain group with a certain bot."""
+        ranking = sorted(self.members, key=lambda x: (self.members[x][rank_item], x), reverse=True)
+        result = 0
+        for user in ranking:
+            result += 1
+            if user_id == user:
+                break
 
+        score = self.members[user_id][rank_item]
+        if result == 1:
+            return '排名: %d\n积分: %d' % (result, score)
 
-def get_game_rank(universal_id: str, rank_item: str) -> str:
-    """Get a member's rank of a certain game in a certain group with a certain bot."""
-    members = load(universal_id, 'members')
-    ranking = sorted(members, key=lambda x: (members[x][rank_item], x), reverse=True)
-    rank_message = ''
+        upper_score = self.members[ranking[result - 2]][rank_item]
+        distance = upper_score - score
+        return '排名: %d\n积分: %d\n距上一名: %d' % (result, score, distance)
 
-    i = 0
-    while i < min(10, len(ranking)) and members[ranking[i]][rank_item] > 0:
-        rank_message += '%d: %s - %d\n' % (i + 1, get_member_name(universal_id, ranking[i]), members[ranking[i]][rank_item])
-        i += 1
+    def get_game_rank(self, rank_item: str) -> str:
+        """Get a member's rank of a certain game in a certain group with a certain bot."""
+        ranking = sorted(self.members, key=lambda x: (self.members[x][rank_item], x), reverse=True)
+        rank_message = ''
 
-    if i == 0:
-        return '当前暂无该项排名~'
+        i = 0
+        while i < min(10, len(ranking)) and self.members[ranking[i]][rank_item] > 0:
+            rank_message += '%d: %s - %d\n' % (i + 1, self.get_member_name(ranking[i]), self.members[ranking[i]][rank_item])
+            i += 1
 
-    return rank_message.strip()
+        if i == 0:
+            return '当前暂无该项排名~'
+
+        return rank_message.strip()
+
+    def change_game_score(self, user_id: str, rank_item: str, change: int) -> tuple:
+        """Change the score of a certain user in a certain game."""
+        original = self.members[user_id][rank_item]
+        self.members[user_id][rank_item] = max(0, original + change)  # make sure the score is positive
+        self._commit_to_database()
+        return original, self.members[user_id][rank_item]
+
+    def reset_game_score(self, rank_item: str):
+        """Reset a certain game's scores."""
+        for user_id in self.members:
+            self.members[user_id][rank_item] = 0  # reset the score counter every day
+        self._commit_to_database()
 
 
 class GameManager(object):
