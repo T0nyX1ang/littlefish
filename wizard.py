@@ -113,9 +113,7 @@ exit_when_file_exist('.env')
 config = {
     'host': '127.0.0.1',
     'port': '27182',
-    'debug': 'true',
     'superusers': '',
-    'command_start': '["", "/"]',
     'mswar_uid': '',
     'autopvp_uid': '',
     'mswar_token': '',
