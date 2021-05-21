@@ -17,7 +17,7 @@ from littlefish._policy.rule import valid
 version_directory = os.path.join(os.getcwd(), 'VERSION')
 
 with open(version_directory, 'r', encoding='utf-8') as f:
-    version = f.read()
+    version = str(f.read()).strip()
 
 
 async def get_server_version():
