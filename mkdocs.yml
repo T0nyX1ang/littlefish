@@ -35,8 +35,8 @@ repo_name: T0nyX1ang/littlefish
 plugins:
   - search
   - git-revision-date-localized:
-      type: datetime
-      timezone: Asia/Shanghai
+      type: timeago
+      locale: zh_CN
       fallback_to_build_date: true
   - macros
 markdown_extensions:
