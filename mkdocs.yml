@@ -29,9 +29,16 @@ theme:
   features:
     - navigation.instant
     - navigation.top
-copyright: littlefish 🐟 ~ Copyright &copy; 2020-2021 Tony Xiang ~ Licensed under AGPL
+copyright: littlefish 🐟 ~ Copyright &copy; 2020-2021 Tony Xiang <br> Licensed under AGPL
 repo_url: https://github.com/T0nyX1ang/littlefish
 repo_name: T0nyX1ang/littlefish
+plugins:
+  - search
+  - git-revision-date-localized:
+      type: datetime
+      timezone: Asia/Shanghai
+      fallback_to_build_date: true
+  - macros
 markdown_extensions:
   - admonition
   - attr_list
@@ -47,6 +54,8 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
+  - toc:
+      slugify: !!python/name:pymdownx.slugs.uslugify_cased
 extra_javascript:
   - javascripts/config.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
