@@ -11,15 +11,17 @@ nav:
 theme:
   name: material
   palette:
-    - scheme: default
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
       primary: blue
-      accent: blue
+      accent: orange
       toggle:
         icon: material/weather-sunny
         name: Dark
-    - scheme: slate
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
       primary: orange
-      accent: orange
+      accent: blue
       toggle:
         icon: material/weather-night
         name: Light
@@ -49,13 +51,12 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.inlinehilite
   - pymdownx.tabbed
-  - pymdownx.tasklist:
-      custom_checkbox: true
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
   - toc:
       slugify: !!python/name:pymdownx.slugs.uslugify_cased
+      permalink: true
 extra_javascript:
   - javascripts/config.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
