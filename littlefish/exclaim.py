@@ -94,9 +94,9 @@ def get_repeated_message(universal_id: str) -> str:
     return mutate_msg(final, mutate=can_mutate)
 
 
-admire = on_command(cmd='admire', aliases={'膜'}, rule=check('exclaim'))
+praise = on_command(cmd='praise', aliases={'膜'}, rule=check('exclaim'))
 
-praise = on_command(cmd='praise', aliases={'狂膜'}, rule=check('exclaim'))
+admire = on_command(cmd='admire', aliases={'狂膜'}, rule=check('exclaim'))
 
 cheer = on_command(cmd='cheer', aliases={'加油 '}, rule=check('exclaim'))
 
@@ -109,16 +109,16 @@ poke_greet = on_notice(priority=10, block=True, rule=check('exclaim', PokeNotify
 repeater = on_endswith(msg='', priority=11, block=True, rule=check('exclaim'))
 
 
-@admire.handle()
-async def show_admire(bot: Bot, event: Event, state: dict):
-    """Admire the person."""
+@praise.handle()
+async def show_praise(bot: Bot, event: Event, state: dict):
+    """Praise the person."""
     person = str(event.message).strip()
     await bot.send(event=event, message=exclaim_msg(person, '1', True))
 
 
-@praise.handle()
-async def show_praise(bot: Bot, event: Event, state: dict):
-    """Praise the person."""
+@admire.handle()
+async def show_admire(bot: Bot, event: Event, state: dict):
+    """Admire(Praise * 2) the person."""
     person = str(event.message).strip()
     message = exclaim_msg(person, '1', False)
     await bot.send(event=event, message=message)
