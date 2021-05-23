@@ -27,11 +27,12 @@ theme:
         name: Light
   language: zh
   icon:
+    logo: material/fish
     repo: fontawesome/brands/github
   features:
     - navigation.instant
     - navigation.top
-copyright: littlefish 🐟 ~ Copyright &copy; 2020-2021 Tony Xiang <br> Licensed under AGPL
+copyright: Copyright &copy; 2020-2021 Tony Xiang <br> Licensed under AGPL
 repo_url: https://github.com/T0nyX1ang/littlefish
 repo_name: T0nyX1ang/littlefish
 plugins:
