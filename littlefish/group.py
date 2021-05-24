@@ -80,7 +80,7 @@ async def validate_user(bot: Bot, event: Event, state: dict):
     try:
         comment = str(event.comment)
         player_id = int(comment[comment.find('答案') + 3:].strip())
-        user_info = await get_user_info(player_id, simple=True)
+        user_info = await get_user_info(player_id)
         message = '%s[%d](%s%d)申请加群了~' % (
             user_info['nickname'],
             user_info['uid'],

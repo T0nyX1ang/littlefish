@@ -91,7 +91,7 @@ async def get_level_list() -> list:
     return user_level_data
 
 
-async def get_user_info(uid: int, simple: bool = False) -> dict:
+async def get_user_info(uid: int) -> dict:
     """
     Gather user information.
 
@@ -113,10 +113,8 @@ async def get_user_info(uid: int, simple: bool = False) -> dict:
     user_info['sex'] = home_info_result['data']['user']['sex']
     user_info['level'] = home_info_result['data']['user']['timingLevel']
     user_info['rank'] = home_info_result['data']['user']['timingRank']
+    user_info['rank_change'] = 0
 
-    # shorten query process if necessary
-    if user_info['level'] == 0 or simple:
-        return user_info
 
     # user statistics
     statistics_result = await fetch(page='/MineSweepingWar/minesweeper/timing/statistics', query='uid=%s' % uid)
