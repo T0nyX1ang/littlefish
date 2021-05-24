@@ -69,7 +69,7 @@ async def get_daily_map() -> dict:
     return daily_map
 
 
-async def get_daily_star():
+async def get_daily_star() -> dict:
     """Get the daily star information from the remote server."""
     daily_star_result = await fetch(page='/MineSweepingWar/minesweeper/record/get/star')
 
@@ -115,6 +115,11 @@ async def get_user_info(uid: int) -> dict:
     user_info['rank'] = home_info_result['data']['user']['timingRank']
     user_info['rank_change'] = 0
 
+    if user_info['level'] != 0:
+        # update history rank
+        rank_info_result = await fetch(page='/MineSweepingWar/rank/timing/list',
+                                       query='type=0&mode=-1&level=4&page=%d&count=1' % (user_info['rank'] - 1))
+        user_info['rank_change'] = user_info['rank'] - rank_info_result['data'][0]['rankHistory']
 
     # user statistics
     statistics_result = await fetch(page='/MineSweepingWar/minesweeper/timing/statistics', query='uid=%s' % uid)
@@ -126,9 +131,14 @@ async def get_user_info(uid: int) -> dict:
             total / 10000,  # set the unit to 10000
             success / total * 100,
         )
+
+        if statistics_result['data'][f'{v}BestTime'] == 0:  # special judge for case: time == 0
+            statistics_result['data'][f'{v}BestTime'] = math.inf
+
         user_info[f'record_{v}'] = (
             statistics_result['data'][f'{v}BestTime'] / 1000,  # set the unit to seconds
             statistics_result['data'][f'{v}BestBvs'])
+
     user_info['record_total'] = (user_info['record_beg'][0] + user_info['record_int'][0] + user_info['record_exp'][0],
                                  user_info['record_beg'][1] + user_info['record_int'][1] + user_info['record_exp'][1])
 
