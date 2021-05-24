@@ -194,7 +194,7 @@
 !!! tip
     如果使用`search %`命令，将模糊搜索前十玩家. 模糊搜索一次最多查询`10`名玩家。
 
-+   排名比较功能：比较两个ID的排名。 :material-circle:{.green_circle}
++   成绩比较功能：比较两个ID的三个等级的`时间`和`bvs`成绩。 :material-circle:{.green_circle}
 
     === "中文指令"
         ```tex
@@ -398,12 +398,12 @@
             ```
 
     === "英文指令"
-        === "根据录像ID解析"
+        === "膜拜一次"
             ```tex
             praise$name$
             ```
 
-        === "根据发帖ID解析"
+        === "连续膜拜两次"
             ```tex
             admire$name$
             ```
