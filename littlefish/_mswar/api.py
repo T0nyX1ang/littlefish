@@ -180,7 +180,7 @@ async def get_search_info(nickname: str) -> list:
     return search_result
 
 
-async def get_ranking_info(item: int, page: int, extra: dict) -> list:
+async def get_ranking_info(item: int, page: int, count: int = 10, extra: dict = {}) -> list:
     """Get ranking information from the remote server."""
     _ref = [
         ('timing', 'time'),
@@ -197,7 +197,8 @@ async def get_ranking_info(item: int, page: int, extra: dict) -> list:
     for k, v in extra.items():
         _extra += '%s=%s&' % (k, v)
 
-    result = await fetch(page='/MineSweepingWar/rank/%s/list' % _ref[item][0], query='%spage=%d&count=10' % (_extra, page))
+    result = await fetch(page='/MineSweepingWar/rank/%s/list' % _ref[item][0],
+                         query='%spage=%d&count=%d' % (_extra, page, count))
 
     search_result = []
 
