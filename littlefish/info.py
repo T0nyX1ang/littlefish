@@ -21,6 +21,15 @@ from littlefish._mswar.references import sex_ref, level_ref
 from littlefish._db import load, save
 
 
+def format_rank_change(change: int) -> str:
+    """Format rank change."""
+    if change > 0:
+        return '↓%d' % change
+    elif change < 0:
+        return '↑%d' % abs(change)
+    return '-'
+
+
 def format_user_info(user_info: dict) -> str:
     """Format detailed user info."""
     line = ['%s [%d] %s' % (user_info['nickname'], user_info['uid'], sex_ref[user_info['sex']])]
@@ -34,7 +43,8 @@ def format_user_info(user_info: dict) -> str:
             '高级: %.3f | %.3f' % user_info['record_exp'],
             '局数: %.1fw (%.1f%%)' % user_info['stat_exp'],
             '总计: %.3f | %.3f' % user_info['record_total'],
-            '评价: %s 级, 排位第 %d 名' % (level_ref[user_info['level']], user_info['rank'])
+            '评价: %s, %d (%s)' %
+            (level_ref[user_info['level']], user_info['rank'], format_rank_change(user_info['rank_change']))
         ]
     else:
         line.append('未加入排名, 无评价')
@@ -107,24 +117,22 @@ async def show_id_battle(bot: Bot, event: Event, state: dict):
         return
 
     try:
-        uid1_info = await get_user_info(uid1, simple=True)
-        uid2_info = await get_user_info(uid2, simple=True)
+        uid1_info = await get_user_info(uid1)
+        uid2_info = await get_user_info(uid2)
     except Exception:
         logger.error(traceback.format_exc())
         await bot.send(event=event, message='用户信息获取失败~')
         return
 
-    large = 10000000000000  # this should be large enough to distinguish
-    uid1_rank = uid1_info['rank'] + large * (uid1_info['rank'] == 0)
-    uid2_rank = uid2_info['rank'] + large * (uid2_info['rank'] == 0)
-    result = '='
-    if uid1_rank < uid2_rank:
-        result = '>'
-    elif uid1_rank > uid2_rank:
-        result = '<'
+    battle_message = '[%d] vs [%d]\n' % (uid1, uid2)
 
-    message = '对战结果: [%d] %s [%d]' % (uid1, result, uid2)
-    await bot.send(event=event, message=message)
+    for v in ['beg', 'int', 'exp', 'total']:
+        tdiff = uid1_info[f'record_{v}'][0] - uid2_info[f'record_{v}'][0]
+        bdiff = uid1_info[f'record_{v}'][1] - uid2_info[f'record_{v}'][1]
+        result = f'{v}: %+.3f | %+.3f' % (tdiff, bdiff)
+        battle_message += (result + '\n')
+
+    await bot.send(event=event, message=battle_message.strip())
 
 
 @id_me.handle()
