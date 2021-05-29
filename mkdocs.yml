@@ -1,13 +1,13 @@
 site_name: littlefish
 nav:
-  - '小鱼': README.md
-  - '指南':
-    - '功能与指令': guide/normal.md
-    - '配置与部署': guide/advanced.md
-  - '了解更多':
-    - '更新日志': misc/changelog.md
-    - '参与贡献': misc/contribution.md
-    - '': misc/easter.md
+  - "小鱼": README.md
+  - "指南":
+      - "功能与指令": guide/normal.md
+      - "配置与部署": guide/advanced.md
+  - "了解更多":
+      - "更新日志": misc/changelog.md
+      - "参与贡献": misc/contribution.md
+      - "": misc/easter.md
 theme:
   name: material
   palette:
@@ -29,6 +29,7 @@ theme:
   icon:
     logo: material/fish
     repo: fontawesome/brands/github
+  favicon: false
   features:
     - navigation.instant
     - navigation.top
