@@ -135,35 +135,23 @@ def exclaim_msg(person: str, _type: str, include_image: bool, max_repeat: int = 
 def slim_msg(message: str) -> Message:
     """Slim a message."""
     for seg in Message(message):
-        if seg.type == 'image' and 'url' in seg.data:
+        if seg.type in ['image', 'video', 'record']:
+            seg.data['url'] = None
             seg.data.pop('url')  # remove the 'url' key
+        elif seg.type == 'redbag':
+            seg.type = 'text'
+            title = seg.data.pop('title')
+            seg.data['text'] = '我发了一个[%s红包]，请下载最新版扫雷联萌领取~' % title
     return Message(message)
 
 
-def replace_redbag_msg(message: str) -> Message:
-    """Replace the red bag message as the bot can not send red bags."""
-    msg = Message(message)
-    if len(msg) != 1:
-        return msg
-
-    seg = msg[0]
-    if seg.type == 'redbag':
-        # replace redbag with a custom message
-        seg.type = 'text'
-        title = seg.data.pop('title')
-        seg.data['text'] = '我发了一个[%s红包]，请下载最新版扫雷联萌领取~' % title
-    msg[0] = seg
-    return msg
-
-
 def mutate_msg(message: str, mutate: bool = False) -> Message:
-    """Mutate a message."""
-    msg = replace_redbag_msg(message)
+    """Mutate a message, or just wrap the message."""
     if not mutate:
-        return msg  # just wrap the message
+        return Message(message)  # just wrap the message
 
-    place = random.choice(range(0, len(msg)))
-    seg = msg[place]
+    place = random.choice(range(0, len(message)))
+    seg = message[place]
     if seg.type == 'text':
         plain = seg.data['text']
         start, stop = sorted(random.sample(range(0, len(plain)), 2))
@@ -174,6 +162,6 @@ def mutate_msg(message: str, mutate: bool = False) -> Message:
     elif seg.type == 'face':
         # select a different face
         seg.data['id'] = random.choice(frequent_face_id)
-    msg[place] = seg
+    message[place] = seg
 
-    return Message(msg)
+    return Message(message)

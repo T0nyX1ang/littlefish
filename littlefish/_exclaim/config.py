@@ -15,7 +15,7 @@ class ResourceConfig(BaseSettings):
 
     resource_location: str = "resource.csv"
     resource_separator: str = "|"
-    frequent_face_id: list = [146]
+    frequent_face_id: list = list(range(100, 200))
 
     class Config:
         """Deal with extra configurations."""
