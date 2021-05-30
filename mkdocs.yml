@@ -29,7 +29,6 @@ theme:
   icon:
     logo: material/fish
     repo: fontawesome/brands/github
-  favicon: false
   features:
     - navigation.instant
     - navigation.top
