@@ -43,13 +43,6 @@ plugins:
       type: timeago
       locale: zh_CN
       fallback_to_build_date: true
-  - print-site:
-      add_to_navigation: false
-      add_table_of_contents: true
-      toc_title: "目录"
-      toc_depth: 2
-      print_page_title: "打印此文档"
-      print_site_banner_template: "docs/assets/templates/info.tpl"
 markdown_extensions:
   - admonition
   - attr_list
