@@ -1,0 +1,17 @@
+@media print {
+    footer {
+        display: none;
+    }
+
+    .md-top.md-icon {
+        display: none;
+    }
+
+    .md-dialog {
+        display: none;
+    }
+
+    p, pre, blockquote, .tabbed-set {
+        page-break-inside: avoid;
+    }
+}
