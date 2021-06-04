@@ -147,8 +147,9 @@ def slim_msg(message: str) -> Message:
 
 def mutate_msg(message: str, mutate: bool = False) -> Message:
     """Mutate a message, or just wrap the message."""
+    message = Message(message)  # Convert the message at first
     if not mutate:
-        return Message(message)  # just wrap the message
+        return message  # just wrap the message
 
     place = random.choice(range(0, len(message)))
     seg = message[place]
