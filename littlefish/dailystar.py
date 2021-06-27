@@ -79,8 +79,7 @@ async def show_dailystar_count(bot: Bot, event: Event, state: dict):
     try:
         uid = str(int(str(event.message).strip()))
     except Exception:
-        await bot.send(event=event, message=exclaim_msg('', '3', False, 1))
-        return
+        await dailystar_counter.finish(message=exclaim_msg('', '3', False, 1))
 
     dailystar_count = _load_daily_star(uid)
     if len(dailystar_count) > 0:

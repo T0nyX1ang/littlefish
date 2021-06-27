@@ -106,8 +106,8 @@ async def say_hello_on_entering(bot: Bot, event: Event, state: dict):
         return
 
     if join_id in members:  # this means the user has been a group member before
-        await bot.send(event=event, message='欢迎大佬回归，希望大佬天天破pb~')
-        return  # preserve former information
+        # preserve former information
+        await say_hello.finish(message='欢迎大佬回归，希望大佬天天破pb~')
 
     await bot.send(event=event, message='欢迎大佬，希望大佬天天破pb~')
 
@@ -139,8 +139,7 @@ async def enter_black_room(bot: Bot, event: Event, state: dict):
     try:
         duration = int(str(event.message).strip())
     except Exception:
-        await bot.send(event=event, message=exclaim_msg('', '3', False, 1))
-        return
+        await black_room.finish(message=exclaim_msg('', '3', False, 1))
 
     # convert the duration in seconds
     duration = duration * 60 if 1 <= duration <= 43200 else 600

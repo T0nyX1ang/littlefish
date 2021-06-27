@@ -84,15 +84,13 @@ async def show_id_info(bot: Bot, event: Event, state: dict):
     try:
         uid = int(str(event.message).strip())
     except Exception:
-        await bot.send(event=event, message=exclaim_msg('', '3', False, 1))
-        return
+        await id_info.finish(message=exclaim_msg('', '3', False, 1))
 
     universal_id = str(event.self_id) + str(event.group_id)
     colding_time = _validate_id(universal_id, str(uid), gap=3600)
     if colding_time > 0:
         wait_message = '用户[%d]尚在查询冷却期，剩余时间%d秒~' % (uid, colding_time)
-        await bot.send(event=event, message=wait_message)
-        return
+        await id_info.finish(message=wait_message)
 
     try:
         user_info = await get_user_info(uid)
@@ -113,16 +111,14 @@ async def show_id_battle(bot: Bot, event: Event, state: dict):
         uid1 = next(uids)
         uid2 = next(uids)
     except Exception:
-        await bot.send(event=event, message=exclaim_msg('', '3', False, 1))
-        return
+        await id_battle.finish(message=exclaim_msg('', '3', False, 1))
 
     try:
         uid1_info = await get_user_info(uid1)
         uid2_info = await get_user_info(uid2)
     except Exception:
         logger.error(traceback.format_exc())
-        await bot.send(event=event, message='用户信息获取失败~')
-        return
+        await id_battle.finish(message='用户信息获取失败~')
 
     battle_message = '[%d] vs [%d]\n' % (uid1, uid2)
 
@@ -144,21 +140,18 @@ async def show_my_info(bot: Bot, event: Event, state: dict):
         members = load(universal_id, 'members')
         uid = int(members[user_id]['id'])
     except Exception:
-        await bot.send(event=event, message='个人信息获取失败，请检查头衔~')
-        return
+        await id_me.finish(message='个人信息获取失败，请检查头衔~')
 
     colding_time = _validate_id(universal_id, str(uid), gap=3600)
     if colding_time > 0:
         wait_message = '用户ID[%d]尚在查询冷却期，剩余冷却时间%d秒~' % (uid, colding_time)
-        await bot.send(event=event, message=wait_message)
-        return
+        await id_me.finish(message=wait_message)
 
     try:
         user_info = await get_user_info(uid)
     except Exception:
         logger.error(traceback.format_exc())
-        await bot.send(event=event, message='用户信息获取失败~')
-        return
+        await id_me.finish(message='用户信息获取失败~')
 
     user_info_message = format_user_info(user_info)
     await bot.send(event=event, message=user_info_message)
