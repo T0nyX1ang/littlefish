@@ -111,9 +111,6 @@ async def subscriber_update(bot: Bot, event: Event, state: dict):
     arg = str(event.message).strip()
     try:
         operator = arg[0]
-        if operator == 'o':
-            await bot.send(event=event, message='当前订阅用户B站UID名单: %s' % ', '.join(subscribed_list.keys()))
-            return
         operand = str(int(arg[1:].strip()))
         operation[operator](operand)  # add or remove the word
         save(universal_id, 'subscribed_list', subscribed_list)
