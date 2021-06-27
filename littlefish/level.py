@@ -37,9 +37,7 @@ def format_level_list(level_list_data: dict) -> str:
     line = ['等级: 当前 | 合计']
     total, history_total = 0, 0
 
-    level_list_history = load('0', 'level_history')
-    if not level_list_history:
-        level_list_history = []
+    level_list_history = load('0', 'level_history', [])
 
     level_history = _initialize_history()
     for val in level_list_history:

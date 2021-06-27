@@ -37,7 +37,7 @@ def format_daily_star(daily_star_info: dict) -> str:
 
 def _load_daily_star(uid: str) -> list:
     """Load the daily star from database."""
-    star_db = load('0', 'dailystar')
+    star_db = load('0', 'dailystar', {})
     try:
         return star_db[uid]
     except Exception:
@@ -48,9 +48,7 @@ def _save_daily_star(uid: str):
     """Save the daily star into database."""
     today = time.strftime('%Y-%m-%d', time.localtime())
 
-    star_db = load('0', 'dailystar')
-    if not star_db:
-        star_db = {}
+    star_db = load('0', 'dailystar', {})
 
     star_db.setdefault(uid, [])
 

@@ -25,9 +25,7 @@ from littlefish._exclaim import exclaim_msg, slim_msg, mutate_msg
 
 def check_block_wordlist(universal_id: str, message: str) -> bool:
     """Check whether the message contains blocked words."""
-    block_wordlist = load(universal_id, 'block_wordlist')
-    if not block_wordlist:
-        block_wordlist = set()
+    block_wordlist = set(load(universal_id, 'block_wordlist', []))
 
     for w in block_wordlist:
         if w in message:
@@ -70,15 +68,8 @@ def get_repeated_message(universal_id: str) -> str:
     right_increment = load(universal_id, 'current_right_increment')
     combo = load(universal_id, 'current_combo')
 
-    mutate_prob = load(universal_id, 'mutate_probability')
-    if not mutate_prob:
-        mutate_prob = 5
-        save(universal_id, 'mutate_probability', mutate_prob)
-
-    cut_in_prob = load(universal_id, 'cut_in_probability')
-    if not cut_in_prob:
-        cut_in_prob = 5
-        save(universal_id, 'cut_in_probability', cut_in_prob)
+    mutate_prob = load(universal_id, 'mutate_probability', 5)
+    cut_in_prob = load(universal_id, 'cut_in_probability', 5)
 
     if random.randint(1, 100) <= cut_in_prob:
         # reset the combo counter here
@@ -159,13 +150,8 @@ async def show_poke_greet(bot: Bot, event: Event, state: dict):
         await show_greet(bot, event, state)
 
     universal_id = str(event.self_id) + str(event.group_id)
-    poke_combo = load(universal_id, 'current_poke_combo')
-    if not poke_combo:
-        poke_combo = 0  # initialization for current poke combo
-
-    poke_target = load(universal_id, 'current_poke_target')
-    if not poke_target:
-        poke_target = -1
+    poke_combo = load(universal_id, 'current_poke_combo', 0)
+    poke_target = load(universal_id, 'current_poke_target', -1)
 
     poke_combo = poke_combo + 1 - poke_combo * (poke_target != event.target_id)
 
@@ -184,9 +170,7 @@ async def repeat(bot: Bot, event: Event, state: dict):
     universal_id = str(event.self_id) + str(event.group_id)
 
     # get current combo for repetition
-    combo = load(universal_id, 'current_combo')
-    if not combo:
-        combo = 0  # initialization for current combo
+    combo = load(universal_id, 'current_combo', 0)
 
     if check_block_wordlist(universal_id, message):
         return

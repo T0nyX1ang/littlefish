@@ -58,10 +58,7 @@ def format_user_info(user_info: dict) -> str:
 
 def _validate_id(universal_id: str, uid: str, gap: int) -> int:
     """Add id into colding list."""
-    current = load(universal_id, 'id_colding_list')
-    if not current:
-        current = {}
-
+    current = load(universal_id, 'id_colding_list', {})
     current_time = int(time.time())
     if uid not in current or current_time - current[uid] >= gap:
         current[uid] = current_time
@@ -137,7 +134,7 @@ async def show_my_info(bot: Bot, event: Event, state: dict):
     universal_id = str(event.self_id) + str(event.group_id)
     user_id = f'{event.user_id}'
     try:
-        members = load(universal_id, 'members')
+        members = load(universal_id, 'members', {})
         uid = int(members[user_id]['id'])
     except Exception:
         await id_me.finish(message='个人信息获取失败，请检查头衔~')

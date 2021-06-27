@@ -21,10 +21,7 @@ scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 
 def _initialize_subscribed_list(universal_id: str, _type: str):
     """Initialize the subscribed list."""
-    subscribed_list = load(universal_id, _type)
-    if not subscribed_list:
-        subscribed_list = {}
-        save(universal_id, _type, subscribed_list)
+    subscribed_list = load(universal_id, _type, {})
     return subscribed_list
 
 
@@ -98,10 +95,7 @@ subscriber = on_command(cmd='subscribe ', aliases={'订阅用户 '}, rule=check(
 async def subscriber_update(bot: Bot, event: Event, state: dict):
     """Handle the subscribe command."""
     universal_id = str(event.self_id) + str(event.group_id)
-    subscribed_list = load(universal_id, 'subscribed_list')
-    if not subscribed_list:
-        subscribed_list = {}
-        save(universal_id, 'subscribed_list', subscribed_list)
+    subscribed_list = load(universal_id, 'subscribed_list', {})
 
     operation = {
         '+': lambda x: subscribed_list.setdefault(x, False),

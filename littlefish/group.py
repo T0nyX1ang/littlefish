@@ -36,9 +36,7 @@ async def update_group_members(bot: Bot, group_id: str):
     universal_id = str(bot.self_id) + str(group_id)
 
     # load the original information from the database
-    members = load(universal_id, 'members')
-    if not members:
-        members = {}
+    members = load(universal_id, 'members', {})
 
     group_members_list = await bot.get_group_member_list(group_id=group_id)
     for member in group_members_list:
@@ -100,7 +98,7 @@ async def say_hello_on_entering(bot: Bot, event: Event, state: dict):
     """Handle the say_hello command."""
     universal_id = str(event.self_id) + str(event.group_id)
     join_id = f'{event.user_id}'
-    members = load(universal_id, 'members')
+    members = load(universal_id, 'members', {})
 
     if event.user_id == event.self_id:  # the bot can not respond to itself
         return
@@ -123,7 +121,7 @@ async def say_goodbye_on_leaving(bot: Bot, event: Event, state: dict):
     """Handle the say_goodbye command. Admin privilege required."""
     universal_id = str(event.self_id) + str(event.group_id)
     leave_id = f'{event.user_id}'
-    members = load(universal_id, 'members')
+    members = load(universal_id, 'members', {})
 
     uid = members[leave_id]['id'] if leave_id in members and members[leave_id]['id'] else '未知'
 
