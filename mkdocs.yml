@@ -1,4 +1,6 @@
 site_name: littlefish
+site_author: Tony Xiang
+site_description: A bot for minesweeper league.
 nav:
   - "小鱼": README.md
   - "指南":
