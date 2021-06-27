@@ -47,11 +47,11 @@ if not os.path.isdir(database_backup_directory):
     os.mkdir(database_backup_directory)
 
 
-def load(universal_id: str, item_name: str) -> json:
-    """Load database item."""
+def load(universal_id: str, item_name: str, default: json = None) -> json:
+    """Load database item, please ensure the default value is JSON serializable."""
     logger.debug(f'Loading item [{item_name}] from database ...')
     database.setdefault(universal_id, {})
-    database[universal_id].setdefault(item_name, None)
+    database[universal_id].setdefault(item_name, default)
     return database[universal_id][item_name]
 
 
