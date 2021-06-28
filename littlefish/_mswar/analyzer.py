@@ -59,6 +59,10 @@ class Board(object):
         """Judge the current position is not an opening or a mine."""
         return self.board[row][col] not in '09'
 
+    def is_not_marked(self, row: int, col: int) -> bool:
+        """Judge the current block is marked."""
+        return self.marker[row][col] == 0
+
     def get_difficulty(self) -> str:
         """Get the difficulty of a board."""
         size = (self.result['row'], self.result['column'], self.result['mines'])
@@ -68,19 +72,19 @@ class Board(object):
         except Exception:
             return '%dx%d+%d' % size
 
-    def filtered_adjacent(self, row: int, col: int, filters: tuple = (0,)):
+    def filtered_adjacent(self, row: int, col: int, filters: bool):
         """Yield filtered adjacent coordinates."""
         adjacent = [(row - 1, col - 1), (row, col - 1), (row + 1, col - 1), (row - 1, col), (row + 1, col), (row - 1, col + 1),
                     (row, col + 1), (row + 1, col + 1)]
         for r, c in adjacent:
-            if 0 <= r < self.result['row'] and 0 <= c < self.result['column'] and self.marker[r][c] in filters:
+            if 0 <= r < self.result['row'] and 0 <= c < self.result['column'] and filters(r, c):
                 yield r, c
 
     def recur_mark(self, row: int, col: int, condition: bool):
         """Mark an area recursively."""
         self.marker[row][col] = 1
         if condition(row, col):
-            for next_row, next_col in self.filtered_adjacent(row, col):
+            for next_row, next_col in self.filtered_adjacent(row, col, self.is_not_marked):
                 self.marker[next_row][next_col] = 1
                 self.recur_mark(next_row, next_col, condition)
 
@@ -107,7 +111,7 @@ class Record(Board):
         """Initialize the record."""
         super(Record, self).__init__(board)
         self._threshold = 3  # the threshold between press and release
-        self.marker = [[0 for col in range(self.result['column'])] for row in range(self.result['row'])]
+        self.marker = [[0 for _ in range(self.result['column'])] for _ in range(self.result['row'])]
         self.action = action
         for current in range(len(self.action)):
             self.__refine_action(current)
@@ -153,6 +157,24 @@ class Record(Board):
             if found:
                 self.action[final][0] = 4
 
+    def __opening_fully_opened(self, row: int, col: int) -> bool:
+        """Find an opening is fully opened to judge whether a valid op/bv is solved."""
+        opening = [(row, col)]
+
+        def get_current_opening(row: int, col: int, opening: list):
+            """Get current opening based on the location."""
+            for next_row, next_col in self.filtered_adjacent(row, col, self.is_opening):
+                if (next_row, next_col) not in opening:
+                    opening.append((next_row, next_col))
+                    get_current_opening(next_row, next_col, opening)
+
+        get_current_opening(row, col, opening)
+        for cur_row, cur_col in opening:
+            if self.marker[cur_row][cur_col] != 1:
+                return False
+
+        return True
+
     def __deal_with_click(self, row: int, col: int) -> bool:
         """Deal with clicking operation (corresponding to opcode 0)."""
         if self.marker[row][col] != 0:  # the block is opened
@@ -162,13 +184,16 @@ class Record(Board):
         if self.board[row][col] == '9':  # step on a mine, oops
             self.marker[row][col] = -2  # mark the blast with a special number
         elif self.board[row][col] == '0':  # step on an opening, ^wow^
-            self.result['solved_bv'] += 1
-            self.result['solved_op'] += 1
             self.marker[row][col] = 1
-            self.recur_mark(row, col, self.is_opening)  # mark everything is the opening
+            self.recur_mark(row, col, self.is_opening)  # mark everything that is the opening
+            op_fully_opened = self.__opening_fully_opened(row, col)
+            self.result['solved_bv'] += op_fully_opened
+            self.result['solved_op'] += op_fully_opened
         else:  # normal click, nothing happens
             # bv is added when the click is not on the edge of an opening
-            self.result['solved_bv'] += ('0' not in [self.board[r][c] for r, c in self.filtered_adjacent(row, col)])
+            self.result['solved_bv'] += ('0' not in [
+                self.board[r][c] for r, c in self.filtered_adjacent(row, col, self.is_opening)
+            ])
             self.marker[row][col] = 1
 
         return True  # any direct click is effective
@@ -190,8 +215,8 @@ class Record(Board):
 
     def __deal_with_chord(self, row: int, col: int):
         """Deal with chording operation (corresponding to opcode 4)."""
-        adjacent_flagged = list(self.filtered_adjacent(row, col, (-1,)))
-        adjacent_unopened = list(self.filtered_adjacent(row, col))
+        adjacent_flagged = list(self.filtered_adjacent(row, col, self.is_marked_flag))
+        adjacent_unopened = list(self.filtered_adjacent(row, col, self.is_not_marked))
         if len(adjacent_flagged) != int(self.board[row][col]) or len(adjacent_flagged) == 0 or len(adjacent_unopened) == 0:
             # trivial case, the chord operation is ineffective here
             return False
@@ -204,6 +229,10 @@ class Record(Board):
             self.marker[r][c] -= 2 * (self.board[r][c] != '9')
 
         return True
+
+    def is_marked_flag(self, row: int, col: int) -> bool:
+        """Judge the block is marked with flagging tag."""
+        return self.marker[row][col] == -1
 
     def get_action_detail(self):
         """Get total path length (Euclidean), clicks (L, R, D, total), clicks per second (cls), and style from action."""
