@@ -18,6 +18,7 @@ Available information:
 """
 
 import math
+from copy import deepcopy
 
 
 def _divide(a: float, b: float) -> float:
@@ -112,6 +113,7 @@ class Record(Board):
         super(Record, self).__init__(board)
         self._threshold = 3  # the threshold between press and release
         self.marker = [[0 for _ in range(self.result['column'])] for _ in range(self.result['row'])]
+        self.op_marker = deepcopy(self.marker)
         self.action = action
         for current in range(len(self.action)):
             self.__refine_action(current)
@@ -157,23 +159,19 @@ class Record(Board):
             if found:
                 self.action[final][0] = 4
 
-    def __opening_fully_opened(self, row: int, col: int) -> bool:
+    def __is_opening_fully_opened(self, row: int, col: int) -> bool:
         """Find an opening is fully opened to judge whether a valid op/bv is solved."""
-        opening = [(row, col)]
+        self.op_marker[row][col] = 1
+        if self.marker[row][col] != 1:
+            return False
 
-        def get_current_opening(row: int, col: int, opening: list):
-            """Get current opening based on the location."""
-            for next_row, next_col in self.filtered_adjacent(row, col, self.is_opening):
-                if (next_row, next_col) not in opening:
-                    opening.append((next_row, next_col))
-                    get_current_opening(next_row, next_col, opening)
+        state = True
+        for next_row, next_col in self.filtered_adjacent(row, col, self.is_opening):
+            if self.op_marker[next_row][next_col] == 0:
+                self.op_marker[next_row][next_col] == 1  # mark the opening (excluding edges)
+                state = state and self.__is_opening_fully_opened(next_row, next_col)  # truncate if state is False already
 
-        get_current_opening(row, col, opening)
-        for cur_row, cur_col in opening:
-            if self.marker[cur_row][cur_col] != 1:
-                return False
-
-        return True
+        return state
 
     def __deal_with_click(self, row: int, col: int) -> bool:
         """Deal with clicking operation (corresponding to opcode 0)."""
@@ -186,7 +184,7 @@ class Record(Board):
         elif self.board[row][col] == '0':  # step on an opening, ^wow^
             self.marker[row][col] = 1
             self.recur_mark(row, col, self.is_opening)  # mark everything that is the opening
-            op_fully_opened = self.__opening_fully_opened(row, col)
+            op_fully_opened = self.__is_opening_fully_opened(row, col)
             self.result['solved_bv'] += op_fully_opened
             self.result['solved_op'] += op_fully_opened
         else:  # normal click, nothing happens
