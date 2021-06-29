@@ -64,15 +64,15 @@ dailystar_counter = on_command(cmd='dailystarcount ', aliases={'联萌每日一�
 
 
 @dailystar.handle()
-async def show_dailystar(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the dailystar command."""
     daily_star_info = await get_daily_star()
     _save_daily_star(str(daily_star_info['uid']))
-    await bot.send(event=event, message=format_daily_star(daily_star_info))
+    await dailystar.send(message=format_daily_star(daily_star_info))
 
 
 @dailystar_counter.handle()
-async def show_dailystar_count(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the dailystar_count command."""
     try:
         uid = str(int(str(event.message).strip()))
@@ -83,13 +83,13 @@ async def show_dailystar_count(bot: Bot, event: Event, state: dict):
     if len(dailystar_count) > 0:
         message = '用户[%s]在联萌的每日一星次数: %d, 最近%d次获得时间为: %s' % (uid, len(dailystar_count), min(len(dailystar_count), 5), ', '.join(
             dailystar_count[-1:-6:-1]))
-        await bot.send(event=event, message=message)
+        await dailystar_counter.send(message=message)
     else:
-        await bot.send(event=event, message='该用户尚未获得每日一星, 请继续努力~')
+        await dailystar_counter.send(message='该用户尚未获得每日一星, 请继续努力~')
 
 
 @broadcast('dailystar')
-async def dailystar_broadcast(bot_id: str, group_id: str):
+async def _(bot_id: str, group_id: str):
     """Scheduled dailystar broadcast."""
     daily_star = await get_daily_star()
     _save_daily_star(str(daily_star['uid']))

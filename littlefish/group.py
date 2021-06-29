@@ -70,7 +70,7 @@ user_updater = on_simple_command(cmd='updateuser', aliases={'更新群成员'}, 
 
 
 @user_validator.handle()
-async def validate_user(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the validate_user command. Admin privilege required."""
     if event.sub_type != 'add':
         return  # ignore invitations
@@ -87,14 +87,14 @@ async def validate_user(bot: Bot, event: Event, state: dict):
         )
         if 0 <= user_info['rank'] <= 2:
             raise PermissionError('Insufficient level.')
-        await bot.send(event=event, message=message)
+        await user_validator.send(message=message)
     except Exception:
         reason = '该联萌ID不符合要求，请检查输入~'
         await bot.set_group_add_request(flag=event.flag, sub_type='add', approve=False, reason=reason)
 
 
 @say_hello.handle()
-async def say_hello_on_entering(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the say_hello command."""
     universal_id = str(event.self_id) + str(event.group_id)
     join_id = f'{event.user_id}'
@@ -107,7 +107,7 @@ async def say_hello_on_entering(bot: Bot, event: Event, state: dict):
         # preserve former information
         await say_hello.finish(message='欢迎大佬回归，希望大佬天天破pb~')
 
-    await bot.send(event=event, message='欢迎大佬，希望大佬天天破pb~')
+    await say_hello.send(message='欢迎大佬，希望大佬天天破pb~')
 
     # Creating a new user
     try:
@@ -117,7 +117,7 @@ async def say_hello_on_entering(bot: Bot, event: Event, state: dict):
 
 
 @say_goodbye.handle()
-async def say_goodbye_on_leaving(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the say_goodbye command. Admin privilege required."""
     universal_id = str(event.self_id) + str(event.group_id)
     leave_id = f'{event.user_id}'
@@ -126,11 +126,11 @@ async def say_goodbye_on_leaving(bot: Bot, event: Event, state: dict):
     uid = members[leave_id]['id'] if leave_id in members and members[leave_id]['id'] else '未知'
 
     if event.user_id != event.self_id:  # the bot can not respond to itself
-        await bot.send(event=event, message='有群员[Id: %s]跑路了QAQ' % uid)
+        await say_goodbye.send(message='有群员[Id: %s]跑路了QAQ' % uid)
 
 
 @black_room.handle()
-async def enter_black_room(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the blackroom command."""
     group_id = event.group_id
     user_id = event.user_id
@@ -144,17 +144,17 @@ async def enter_black_room(bot: Bot, event: Event, state: dict):
     try:
         await bot.set_group_ban(group_id=group_id, user_id=user_id, duration=duration)
     except Exception:
-        await bot.send(event=event, message='权限不足，无法使用小黑屋~')
+        await black_room.send(message='权限不足，无法使用小黑屋~')
 
 
 @user_updater.handle()
-async def update_user(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the updateuser command."""
     try:
         await update_group_members(bot, event.group_id)
-        await bot.send(event=event, message='群成员信息更新成功~')
+        await user_updater.send(message='群成员信息更新成功~')
     except Exception:
-        await bot.send(event=event, message='群成员信息更新失败，请检查日志文件~')
+        await user_updater.send(message='群成员信息更新失败，请检查日志文件~')
 
 
 @broadcast('group')

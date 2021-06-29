@@ -16,8 +16,6 @@ from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._policy.rule import check
 from littlefish._exclaim import exclaim_msg
 
-randi = on_command(cmd='randi ', aliases={'随机数 '}, rule=check('randi'))
-
 
 def get_randi(begin: int, end: int, count: int, extras: list) -> list:
     """Get random integers from a fixed range."""
@@ -38,9 +36,12 @@ def get_randi(begin: int, end: int, count: int, extras: list) -> list:
     return result
 
 
+randi = on_command(cmd='randi ', aliases={'随机数 '}, rule=check('randi'))
+
+
 @randi.handle()
-async def show_randi(bot: Bot, event: Event, state: dict):
-    """Generate random integers."""
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle the randi command."""
     args = str(event.message).split()
     try:
         begin = int(args[0])
@@ -49,6 +50,6 @@ async def show_randi(bot: Bot, event: Event, state: dict):
         extras = args[3:]
         result = get_randi(begin, end, count, extras)
         message = '随机结果: %s' % ' '.join(map(str, result))
-        await bot.send(event=event, message=message)
+        await randi.send(message=message)
     except Exception:
-        await bot.send(event=event, message=exclaim_msg('', '3', False, 1))
+        await randi.send(message=exclaim_msg('', '3', False, 1))

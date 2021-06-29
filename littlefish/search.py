@@ -27,15 +27,15 @@ searcher = on_command(cmd='search ', aliases={'查询昵称 '}, rule=check('sear
 
 
 @searcher.handle()
-async def search(bot: Bot, event: Event, state: dict):
-    """Analyze the result."""
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle the search command."""
     search_nickname = str(event.message)
 
     try:
         search_result = await get_search_info(search_nickname)
         if len(search_result) == 0:
-            await bot.send(event=event, message='未查询到符合条件的玩家~')
+            await searcher.send(message='未查询到符合条件的玩家~')
         else:
-            await bot.send(event=event, message=format_search(search_result))
+            await searcher.send(message=format_search(search_result))
     except Exception:
-        await bot.send(event=event, message=exclaim_msg('', '3', False, 1))
+        await searcher.send(message=exclaim_msg('', '3', False, 1))

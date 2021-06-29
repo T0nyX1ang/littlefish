@@ -76,7 +76,7 @@ id_me = on_simple_command(cmd='me', aliases={'个人信息'}, rule=check('info')
 
 
 @id_info.handle()
-async def show_id_info(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the id_info command."""
     try:
         uid = int(str(event.message).strip())
@@ -92,16 +92,16 @@ async def show_id_info(bot: Bot, event: Event, state: dict):
     try:
         user_info = await get_user_info(uid)
     except Exception:
-        await bot.send(event=event, message='用户信息获取失败~')
+        await id_info.send(message='用户信息获取失败~')
         logger.error(traceback.format_exc())
         return
 
     user_info_message = format_user_info(user_info)
-    await bot.send(event=event, message=user_info_message)
+    await id_info.send(message=user_info_message)
 
 
 @id_battle.handle()
-async def show_id_battle(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the id_battle command."""
     try:
         uids = map(int, str(event.message).split())
@@ -125,11 +125,11 @@ async def show_id_battle(bot: Bot, event: Event, state: dict):
         result = f'{v}: %+.3f | %+.3f' % (tdiff, bdiff)
         battle_message += (result + '\n')
 
-    await bot.send(event=event, message=battle_message.strip())
+    await id_battle.send(message=battle_message.strip())
 
 
 @id_me.handle()
-async def show_my_info(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the id_me command."""
     universal_id = str(event.self_id) + str(event.group_id)
     user_id = f'{event.user_id}'
@@ -151,4 +151,4 @@ async def show_my_info(bot: Bot, event: Event, state: dict):
         await id_me.finish(message='用户信息获取失败~')
 
     user_info_message = format_user_info(user_info)
-    await bot.send(event=event, message=user_info_message)
+    await id_me.send(message=user_info_message)

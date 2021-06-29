@@ -51,8 +51,8 @@ record_pusher = on_raw_keyword(keyword='http://tapsss.com', rule=check('analyze'
 
 
 @analyzer.handle()
-async def analyze(bot: Bot, event: Event, state: dict):
-    """Analyze the result."""
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle the analyze command."""
     args = str(event.message).split()
     id_type = {'record': False, 'r': False, '录像': False, 'post': True, 'p': True, '帖子': True}
 
@@ -60,18 +60,18 @@ async def analyze(bot: Bot, event: Event, state: dict):
         use_post_id = id_type[args[0]]
         _id = int(args[1])
         record_info = await get_record(_id, use_post_id)
-        await bot.send(event=event, message=format_record(record_info))
+        await analyzer.send(message=format_record(record_info))
     except TypeError:
         # indicates the message can't be found from the remote server
-        await bot.send(event=event, message='无法查询到录像信息')
+        await analyzer.send(message='无法查询到录像信息')
     except Exception:
         logger.error(traceback.format_exc())
-        await bot.send(event=event, message=exclaim_msg('', '3', False, 1))
+        await analyzer.send(message=exclaim_msg('', '3', False, 1))
 
 
 @record_pusher.handle()
-async def push_record(bot: Bot, event: Event, state: dict):
-    """Push the record."""
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle the analyze command by URL shares."""
     msg = str(event.message).strip()
     current = msg.find('post=') + 5
     post_id = '0'
@@ -85,9 +85,8 @@ async def push_record(bot: Bot, event: Event, state: dict):
     while remaining_retries > 0 and post_id > 0:  # ensures query
         try:
             record_info = await get_record(post_id)
-            await bot.send(event=event, message=format_record(record_info))
-            return
-        except Exception:
+            await record_pusher.finish(message=format_record(record_info))
+        except TypeError:
             logger.error(traceback.format_exc())
             remaining_retries -= 1
             time.sleep(1)

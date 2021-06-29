@@ -35,7 +35,7 @@ ranking = on_command(cmd='rank ', aliases={'排名 '}, rule=check('ranking'))
 
 
 @ranking.handle()
-async def show_ranking(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the ranking command."""
     args = str(event.message).split()
 
@@ -49,6 +49,6 @@ async def show_ranking(bot: Bot, event: Event, state: dict):
         if item not in [0, 1]:
             extra = {}
         result = await get_ranking_info(item, page, 10, extra)
-        await bot.send(event=event, message=format_ranking_info(result))
+        await ranking.send(message=format_ranking_info(result))
     except Exception:
-        await bot.send(event=event, message=exclaim_msg('', '3', False, 1))
+        await ranking.send(message=exclaim_msg('', '3', False, 1))

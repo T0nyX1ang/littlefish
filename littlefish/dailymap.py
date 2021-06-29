@@ -31,18 +31,18 @@ def format_daily_map(daily_map: dict) -> str:
     return result_message.strip()
 
 
-dailymap_command = on_simple_command(cmd='dailymap', aliases={'每日一图'}, rule=check('dailymap'))
+dailymap = on_simple_command(cmd='dailymap', aliases={'每日一图'}, rule=check('dailymap'))
 
 
-@dailymap_command.handle()
-async def dailymap(bot: Bot, event: Event, state: dict):
+@dailymap.handle()
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the dailymap command."""
     daily_map_info = await get_daily_map()
-    await bot.send(event=event, message=format_daily_map(daily_map_info))
+    await dailymap.send(message=format_daily_map(daily_map_info))
 
 
 @broadcast('dailymap')
-async def dailymap_broadcast(bot_id: str, group_id: str):
+async def _(bot_id: str, group_id: str):
     """Scheduled dailymap broadcast."""
     daily_map = await get_daily_map()
     message = format_daily_map(daily_map)

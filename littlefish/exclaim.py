@@ -84,6 +84,17 @@ def get_repeated_message(universal_id: str) -> str:
     return mutate_msg(final, mutate=can_mutate)
 
 
+def get_time_tag() -> int:
+    """Get time tag according to current hour and some randomness."""
+    current_time = datetime.datetime.now()
+    current_hour = current_time.hour
+    if current_hour not in [0, 23]:  # offset
+        current_hour += random.choice([-1, 0, 0, 0, 0, 0, 0, 0, 0, 1])  # add randomness
+    time_tag = [10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 14, 15, 15, 15, 16, 16, 16, 17, 17, 17, 18, 18, 19,
+                19]  # a tag for time
+    return time_tag[current_hour]
+
+
 praise = on_command(cmd='praise', aliases={'膜'}, rule=check('exclaim'))
 
 admire = on_command(cmd='admire', aliases={'狂膜'}, rule=check('exclaim'))
@@ -100,54 +111,49 @@ repeater = on_endswith(msg='', priority=11, block=True, rule=check('exclaim'))
 
 
 @praise.handle()
-async def show_praise(bot: Bot, event: Event, state: dict):
-    """Praise the person."""
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle the praise command."""
     person = str(event.message).strip()
-    await bot.send(event=event, message=exclaim_msg(person, '1', True))
+    await praise.send(message=exclaim_msg(person, '1', True))
 
 
 @admire.handle()
-async def show_admire(bot: Bot, event: Event, state: dict):
-    """Admire(Praise * 2) the person."""
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle the admire (praise * 2) command."""
     person = str(event.message).strip()
     message = exclaim_msg(person, '1', False)
-    await bot.send(event=event, message=message)
-    await bot.send(event=event, message=message)
+    await admire.send(message=message)
+    await admire.send(message=message)
 
 
 @cheer.handle()
-async def show_cheer(bot: Bot, event: Event, state: dict):
-    """Cheer the person."""
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle the cheer command."""
     person = str(event.message).strip()
-    await bot.send(event=event, message=exclaim_msg(person, '2', True))
+    await cheer.send(message=exclaim_msg(person, '2', True))
 
 
 @cheer_ending.handle()
-async def show_cheer_ending(bot: Bot, event: Event, state: dict):
-    """Cheer the person with the ending."""
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle the cheer (ending version) command."""
     if str(event.message).strip()[-2:] != '加油':
         return  # recheck the message
     person = str(event.message).strip()[:-2]
-    await bot.send(event=event, message=exclaim_msg(person, '2', True))
+    await cheer_ending.send(message=exclaim_msg(person, '2', True))
 
 
 @greet.handle()
-async def show_greet(bot: Bot, event: Event, state: dict):
-    """Greet the person."""
-    current_time = datetime.datetime.now()
-    current_hour = current_time.hour
-    if current_hour not in [0, 23]:  # offset
-        current_hour += random.choice([-1, 0, 0, 0, 0, 0, 0, 0, 0, 1])  # add randomness
-    time_tag = [10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 14, 15, 15, 15, 16, 16, 16, 17, 17, 17, 18, 18, 19,
-                19]  # a tag for time
-    await bot.send(event=event, message=exclaim_msg('', str(time_tag[current_hour]), False, 1))
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle the greet command."""
+    await greet.send(message=exclaim_msg('', str(get_time_tag()), False, 1))
 
 
 @poke_greet.handle()
-async def show_poke_greet(bot: Bot, event: Event, state: dict):
-    """Greet the person when the bot is poked, and repeat the poke action."""
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle the poke greet command."""
+    # Greet the person when the bot is poked, and repeat the poke action.
     if event.target_id == event.self_id and event.sender_id != event.self_id:  # ensure poking target
-        await show_greet(bot, event, state)
+        await poke_greet.send(message=exclaim_msg('', str(get_time_tag()), False, 1))
 
     universal_id = str(event.self_id) + str(event.group_id)
     poke_combo = load(universal_id, 'current_poke_combo', 0)
@@ -157,14 +163,14 @@ async def show_poke_greet(bot: Bot, event: Event, state: dict):
 
     if poke_combo == 5:
         poke_combo += 1
-        await bot.send(event=event, message=slim_msg('[CQ:poke,qq=%d]' % poke_target))
+        await poke_greet.send(message=slim_msg('[CQ:poke,qq=%d]' % poke_target))
 
     save(universal_id, 'current_poke_combo', poke_combo)
     save(universal_id, 'current_poke_target', event.target_id)
 
 
 @repeater.handle()
-async def repeat(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the repeat command."""
     message = str(slim_msg(event.message)).strip()
     universal_id = str(event.self_id) + str(event.group_id)
@@ -180,4 +186,4 @@ async def repeat(bot: Bot, event: Event, state: dict):
 
     if combo == 5:
         repeated_message = get_repeated_message(universal_id)
-        await bot.send(event=event, message=repeated_message)
+        await repeater.send(message=repeated_message)

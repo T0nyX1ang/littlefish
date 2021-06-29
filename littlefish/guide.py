@@ -25,42 +25,44 @@ guide_42 = on_simple_command(cmd='guide42', aliases={'42点说明'}, rule=check(
 
 
 @guide.handle()
-async def show_guide(bot: Bot, event: Event, state: dict):
-    """Show guide page for littlefish."""
-    guide_message = '[CQ:share,url=%s,title=用户指南]' % 'https://littlefish.vercel.app/guide/normal/'
-    await bot.send(event=event, message=Message(guide_message))
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle guide command."""
+    guide_message = '[CQ:share,url=%s,title=用户指南]' % 'https://littlefish.vercel.app/guide/normal.html'
+    await guide.send(message=Message(guide_message))
 
 
 @source_code.handle()
-async def show_source(bot: Bot, event: Event, state: dict):
-    """Show source code page for littlefish."""
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle source code command."""
     source_code_message = '[CQ:share,url=%s,title=小鱼源码]' % 'https://github.com/T0nyX1ang/littlefish'
-    await bot.send(event=event, message=Message(source_code_message))
+    await source_code.send(message=Message(source_code_message))
 
 
 @get_package.handle()
-async def show_app_link(bot: Bot, event: Event, state: dict):
-    """Show app package package."""
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle get package command."""
     app_link_message = '[CQ:share,url=%s,title=联萌下载地址]' % 'http://tapsss.com'
-    await bot.send(event=event, message=Message(app_link_message))
+    await get_package.send(message=Message(app_link_message))
 
 
 @ms_guide.handle()
-async def show_msguide(bot: Bot, event: Event, state: dict):
-    """Show minesweeping guide."""
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle minesweeping guide command."""
     ms_guide_link_message = '[CQ:share,url=%s,title=扫雷指南]' % 'http://tapsss.com/?post=189646'
-    await bot.send(event=event, message=Message(ms_guide_link_message))
+    await ms_guide.send(message=Message(ms_guide_link_message))
 
 
 @push_line.handle()
-async def show_push_line(bot: Bot, event: Event, state: dict):
-    """Show minesweeping guide."""
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle push line guide command."""
     push_link_message = '[CQ:share,url=%s,title=纪录推送标准]' % 'http://tapsss.com/?post=388962'
-    await bot.send(event=event, message=Message(push_link_message))
+    await push_line.send(message=Message(push_link_message))
 
 
 @guide_42.handle()
-async def show_guide_42(bot: Bot, event: Event, state: dict):
-    """Show minesweeping guide."""
-    gd42_link_message = '[CQ:share,url=%s,title=42点指南]' % 'https://littlefish.vercel.app/guide/normal/#%E7%AE%9742%E7%82%B9'
-    await bot.send(event=event, message=Message(gd42_link_message))
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle calc42 game command."""
+    gd42_link_message = '[CQ:share,url=%s,title=42点指南]' % (
+        'https://littlefish.vercel.app/guide/normal.html#%E7%AE%9742%E7%82%B9'
+    )
+    await guide_42.send(message=Message(gd42_link_message))

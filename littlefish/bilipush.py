@@ -92,7 +92,7 @@ subscriber = on_command(cmd='subscribe ', aliases={'订阅用户 '}, rule=check(
 
 
 @subscriber.handle()
-async def subscriber_update(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the subscribe command."""
     universal_id = str(event.self_id) + str(event.group_id)
     subscribed_list = load(universal_id, 'subscribed_list', {})
@@ -108,14 +108,14 @@ async def subscriber_update(bot: Bot, event: Event, state: dict):
         operand = str(int(arg[1:].strip()))
         operation[operator](operand)  # add or remove the word
         save(universal_id, 'subscribed_list', subscribed_list)
-        await bot.send(event=event, message='订阅用户信息更新成功~')
+        await subscriber.send(message='订阅用户信息更新成功~')
     except Exception:
         logger.error(traceback.format_exc())
-        await bot.send(event=event, message='订阅用户信息更新失败，请检查日志文件~')
+        await subscriber.send(message='订阅用户信息更新失败，请检查日志文件~')
 
 
 @broadcast('bilipush')
-async def bilipush_broadcast(bot_id: str, group_id: str):
+async def _(bot_id: str, group_id: str):
     """Push the live message."""
     bot = nonebot.get_bots()[bot_id]
     universal_id = str(bot_id) + str(group_id)

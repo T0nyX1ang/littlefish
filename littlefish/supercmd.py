@@ -25,17 +25,17 @@ calc42_score_changer = on_command(cmd='changescore42 ', aliases={'改变42点得
 
 
 @save_to_disk.handle()
-async def save_database_to_disk(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Save the database on disk manually."""
     result = await commit()
     if result:
-        await bot.send(event=event, message='存档成功~')
+        await save_to_disk.send(message='存档成功~')
     else:
-        await bot.send(event=event, message='存档失败，请检查日志文件~')
+        await save_to_disk.send(message='存档失败，请检查日志文件~')
 
 
 @repeater_status.handle()
-async def show_repeater_status(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Print the status of the repeater."""
     universal_id = str(event.self_id) + str(event.group_id)
     msg_base = load(universal_id, 'current_msg_base')
@@ -58,11 +58,11 @@ async def show_repeater_status(bot: Bot, event: Event, state: dict):
     message = '复读状态: [%d]-[%s|%s|%s]-[%d%%|%d%%]\n当前屏蔽词: %s' % (combo, left_increment, msg_base, right_increment, mutate_prob,
                                                                 cut_in_prob, block_message)
 
-    await bot.send(event=event, message=message)
+    await repeater_status.send(message=message)
 
 
 @block_word_changer.handle()
-async def update_block_word(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the blockword command."""
     universal_id = str(event.self_id) + str(event.group_id)
     wordlist = load(universal_id, 'block_wordlist')
@@ -78,14 +78,14 @@ async def update_block_word(bot: Bot, event: Event, state: dict):
     try:
         operation[operator](operand)  # add or remove the word
         save(universal_id, 'block_wordlist', list(wordlist))
-        await bot.send(event=event, message='复读屏蔽词更新成功~')
+        await block_word_changer.send(message='复读屏蔽词更新成功~')
     except Exception:
         logger.error(traceback.format_exc())
-        await bot.send(event=event, message='复读屏蔽词更新失败，请检查日志文件~')
+        await block_word_changer.send(message='复读屏蔽词更新失败，请检查日志文件~')
 
 
 @repeater_param_changer.handle()
-async def update_repeater_param(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Set the parameters of the repeater."""
     universal_id = str(event.self_id) + str(event.group_id)
     try:
@@ -95,13 +95,13 @@ async def update_repeater_param(bot: Bot, event: Event, state: dict):
         save(universal_id, 'mutate_probability', mutate_prob)
         save(universal_id, 'cut_in_probability', cut_in_prob)
         message = '复读参数设定成功，当前变形概率为%d%%，打断概率为%d%%' % (mutate_prob, cut_in_prob)
-        await bot.send(event=event, message=message)
+        await repeater_param_changer.send(message=message)
     except Exception:
-        await bot.send(event=event, message='复读参数设定失败，请重试')
+        await repeater_param_changer.send(message='复读参数设定失败，请重试')
 
 
 @calc42_score_changer.handle()
-async def update_calc42_score(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Change the calc42 game's score of a person manually."""
     universal_id = str(event.self_id) + str(event.group_id)
     member_manager = MemberManager(universal_id)
@@ -111,6 +111,6 @@ async def update_calc42_score(bot: Bot, event: Event, state: dict):
         user_id = str(int(args[0]))
         score = int(args[2])
         message = '42点得分修改成功(%d -> %d)' % member_manager.change_game_score(user_id, '42score', score * multiplier[args[1]])
-        await bot.send(event=event, message=message)
+        await calc42_score_changer.send(message=message)
     except Exception:
-        await bot.send(event=event, message='42点得分修改失败，请重试')
+        await calc42_score_changer.send(message='42点得分修改失败，请重试')

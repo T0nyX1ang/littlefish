@@ -169,7 +169,7 @@ daily_rank_viewer = on_simple_command(cmd='dailyrank42', aliases={'42点今日�
 
 
 @problem_solver.handle()
-async def solve_problem(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the calc42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
     member_manager = MemberManager(universal_id)
@@ -192,7 +192,7 @@ async def solve_problem(bot: Bot, event: Event, state: dict):
     is_finished = (result['current'] == result['total'])
     message += (not is_finished) * ('\n%s' % print_current_problem(result))
 
-    await bot.send(event=event, message=message)
+    await problem_solver.send(message=message)
 
     if is_finished:
         await finish_game(bot, universal_id)
@@ -219,33 +219,33 @@ async def manual_calc42(bot: Bot, event: Event, state: dict):
 
 
 @score_viewer.handle()
-async def view_score(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the score42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
     user_id = f'{event.user_id}'
     member_manager = MemberManager(universal_id)
-    await bot.send(event=event, message=member_manager.get_member_stats(user_id, '42score'))
+    await score_viewer.send(message=member_manager.get_member_stats(user_id, '42score'))
 
 
 @rank_viewer.handle()
-async def view_rank(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the rank42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
     member_manager = MemberManager(universal_id)
-    await bot.send(event=event, message=member_manager.get_game_rank('42score'))
+    await rank_viewer.send(message=member_manager.get_game_rank('42score'))
 
 
 @daily_rank_viewer.handle()
-async def view_daily_rank(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the dailyrank42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
     member_manager = MemberManager(universal_id)
-    await bot.send(event=event, message=member_manager.get_game_rank('42score_daily'))
+    await daily_rank_viewer.send(message=member_manager.get_game_rank('42score_daily'))
 
 
 @broadcast('calc42')
-async def calc42_broadcast(bot_id: str, group_id: str):
-    """Boardcast a calc42 game."""
+async def _(bot_id: str, group_id: str):
+    """Scheduled calc42 game broadcast."""
     bot = nonebot.get_bots()[bot_id]
     universal_id = str(bot_id) + str(group_id)
     if status(universal_id) and manager.get_invoker(universal_id) != -1:
@@ -261,8 +261,8 @@ async def calc42_broadcast(bot_id: str, group_id: str):
 
 
 @broadcast('calc42', identifier='@daily')
-async def scheduled_calc42_daily_rank(bot_id: str, group_id: str):
-    """Boardcast the ranks of daily calc42 scores."""
+async def _(bot_id: str, group_id: str):
+    """Scheduled calc42 daily rank broadcast."""
     universal_id = str(bot_id) + str(group_id)
     member_manager = MemberManager(universal_id)
     member_manager.reset_game_score('42score_daily')

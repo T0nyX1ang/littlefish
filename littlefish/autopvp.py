@@ -37,17 +37,17 @@ autopvp = on_simple_command(cmd='autopvp', aliases={'对战机器人'}, rule=che
 
 
 @autopvp.handle()
-async def show_autopvp(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event, state: dict):
     """Handle the autopvp command."""
     autopvp_result = await get_autopvp_info()
-    await bot.send(event=event, message=format_pvp_info(autopvp_result))
+    await autopvp.send(message=format_pvp_info(autopvp_result))
     if autopvp_result['latest_battle_winner'] != 'autopvp':
-        await bot.send(event=event, message=exclaim_msg(autopvp_result['latest_battle_winner'], '1', False))
+        await autopvp.send(message=exclaim_msg(autopvp_result['latest_battle_winner'], '1', False))
 
 
 @broadcast('autopvp')
-async def autopvp_broadcast(bot_id: str, group_id: str):
-    """Scheduled dailymap broadcast."""
+async def _(bot_id: str, group_id: str):
+    """Scheduled autopvp broadcast."""
     autopvp_result = await get_autopvp_info()
     message = [format_pvp_info(autopvp_result)]
     if autopvp_result['latest_battle_winner'] != 'autopvp':

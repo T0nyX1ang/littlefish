@@ -17,6 +17,9 @@ from littlefish._db import load, save
 class MemberManager(object):
     """A manager for all members."""
 
+    # Please note that this part is not properly refactored.
+    # The ranking feature will be available only if the member status has been updated.
+
     def __init__(self, universal_id: str):
         """Initialize the member database in a certain group with a certain bot."""
         self.universal_id = universal_id
