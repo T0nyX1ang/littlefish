@@ -9,7 +9,7 @@ The command requires to be invoked in groups.
 import traceback
 import nonebot
 from nonebot import on_command
-from nonebot.adapters.cqhttp import Bot, Event, Message
+from nonebot.adapters.cqhttp import Bot, Event, Message, GroupMessageEvent
 from nonebot.log import logger
 from littlefish._policy.rule import check, broadcast
 from littlefish._policy.plugin import on_simple_command
@@ -157,15 +157,17 @@ async def show_solutions(bot: Bot, universal_id: str, result: dict):
         await bot.send_group_forward_msg(group_id=group_id, messages=Message(message))
 
 
-problem_solver = on_command(cmd='calc42 ', aliases={'42点 '}, rule=check('calc42'))
+problem_solver = on_command(cmd='calc42 ', aliases={'42点 '}, rule=check('calc42', GroupMessageEvent))
 
-manual_player = on_command(cmd='manual42 ', aliases={'手动42点 '}, rule=check('calc42'))
+manual_player = on_command(cmd='manual42 ', aliases={'手动42点 '}, rule=check('calc42', GroupMessageEvent))
 
-score_viewer = on_simple_command(cmd='score42', aliases={'42点得分', '42点积分'}, rule=check('calc42'))
+score_viewer = on_simple_command(cmd='score42', aliases={'42点得分', '42点积分'}, rule=check('calc42', GroupMessageEvent))
 
-rank_viewer = on_simple_command(cmd='rank42', aliases={'42点排名', '42点排行'}, rule=check('calc42'))
+rank_viewer = on_simple_command(cmd='rank42', aliases={'42点排名', '42点排行'}, rule=check('calc42', GroupMessageEvent))
 
-daily_rank_viewer = on_simple_command(cmd='dailyrank42', aliases={'42点今日排名', '42点今日排行'}, rule=check('calc42'))
+daily_rank_viewer = on_simple_command(cmd='dailyrank42',
+                                      aliases={'42点今日排名', '42点今日排行'},
+                                      rule=check('calc42', GroupMessageEvent))
 
 
 @problem_solver.handle()

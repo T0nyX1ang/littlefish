@@ -16,7 +16,7 @@ The command requires to be invoked in groups.
 import random
 import datetime
 from nonebot import on_command, on_endswith, on_notice
-from nonebot.adapters.cqhttp import Bot, Event, PokeNotifyEvent
+from nonebot.adapters.cqhttp import Bot, Event, PokeNotifyEvent, GroupMessageEvent
 from littlefish._db import load, save
 from littlefish._policy.rule import check
 from littlefish._policy.plugin import on_simple_command
@@ -107,7 +107,7 @@ greet = on_simple_command(cmd='greet', aliases={'小鱼'}, rule=check('exclaim')
 
 poke_greet = on_notice(priority=10, block=True, rule=check('exclaim', PokeNotifyEvent))
 
-repeater = on_endswith(msg='', priority=11, block=True, rule=check('exclaim'))
+repeater = on_endswith(msg='', priority=11, block=True, rule=check('exclaim', GroupMessageEvent))
 
 
 @praise.handle()

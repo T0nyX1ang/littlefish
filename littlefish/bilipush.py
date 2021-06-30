@@ -11,7 +11,7 @@ import traceback
 import httpx
 import nonebot
 from nonebot import on_command
-from nonebot.adapters.cqhttp import Bot, Event
+from nonebot.adapters.cqhttp import Bot, Event, GroupMessageEvent
 from nonebot.log import logger
 from littlefish._policy.rule import check, broadcast
 from littlefish._db import load, save
@@ -88,7 +88,7 @@ async def push_live_message(bot: Bot, universal_id: str):
     save('0', 'global_subscribed_list', global_subscribed_list)
 
 
-subscriber = on_command(cmd='subscribe ', aliases={'订阅用户 '}, rule=check('bilipush'))
+subscriber = on_command(cmd='subscribe ', aliases={'订阅用户 '}, rule=check('bilipush', GroupMessageEvent))
 
 
 @subscriber.handle()

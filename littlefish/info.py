@@ -11,7 +11,7 @@ The command requires to be invoked in groups.
 import time
 import traceback
 from nonebot import on_command
-from nonebot.adapters.cqhttp import Bot, Event
+from nonebot.adapters.cqhttp import Bot, Event, GroupMessageEvent
 from nonebot.log import logger
 from littlefish._exclaim import exclaim_msg
 from littlefish._policy.rule import check
@@ -68,11 +68,11 @@ def _validate_id(universal_id: str, uid: str, gap: int) -> int:
         return gap - current_time + current[uid]
 
 
-id_info = on_command(cmd='id ', aliases={'联萌 '}, rule=check('info'))
+id_info = on_command(cmd='id ', aliases={'联萌 '}, rule=check('info', GroupMessageEvent))
 
-id_battle = on_command(cmd='battle ', aliases={'对战 '}, rule=check('info'))
+id_battle = on_command(cmd='battle ', aliases={'对战 '}, rule=check('info', GroupMessageEvent))
 
-id_me = on_simple_command(cmd='me', aliases={'个人信息'}, rule=check('info'))
+id_me = on_simple_command(cmd='me', aliases={'个人信息'}, rule=check('info', GroupMessageEvent))
 
 
 @id_info.handle()

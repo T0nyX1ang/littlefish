@@ -60,7 +60,7 @@ import json
 import os
 import nonebot
 from nonebot.log import logger
-from nonebot.adapters.cqhttp import Bot, Event, GroupMessageEvent
+from nonebot.adapters.cqhttp import Bot, Event, MessageEvent
 from nonebot.rule import Rule
 from .config import PolicyConfig
 
@@ -87,7 +87,7 @@ def valid(command_name: str) -> list:
             if command_name in policy_config[bid][gid]]
 
 
-def check(command_name: str, event_type: Event = GroupMessageEvent) -> Rule:
+def check(command_name: str, event_type: Event = MessageEvent) -> Rule:
     """Check the policy of each command by name."""
     _name = command_name
 
@@ -97,10 +97,12 @@ def check(command_name: str, event_type: Event = GroupMessageEvent) -> Rule:
         if not isinstance(event, event_type):
             return False
 
-        bid = f'{event.self_id}'
-        gid = f'{event.group_id}'
-        sid = event.user_id
         try:
+            # Fetch information from event
+            bid = f'{event.self_id}'
+            gid = f'{event.group_id}'
+            sid = event.user_id
+
             # Check the whitelist policy by name.
             in_whitelist = ('+' not in policy_config[bid][gid][_name] or sid in policy_config[bid][gid][_name]['+'])
 

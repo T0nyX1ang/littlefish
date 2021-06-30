@@ -20,6 +20,7 @@ from nonebot.adapters.cqhttp import (
     GroupDecreaseNoticeEvent,
     GroupIncreaseNoticeEvent,
     GroupRequestEvent,
+    GroupMessageEvent,
 )
 from nonebot.log import logger
 from littlefish._exclaim import exclaim_msg
@@ -64,9 +65,11 @@ say_hello = on_notice(priority=10, block=True, rule=check('group', GroupIncrease
 
 say_goodbye = on_notice(priority=10, block=True, rule=check('group', GroupDecreaseNoticeEvent))
 
-black_room = on_command(cmd='blackroom ', aliases={'进入小黑屋 '}, rule=check('group'))
+black_room = on_command(cmd='blackroom ', aliases={'进入小黑屋 '}, rule=check('group', GroupMessageEvent))
 
-user_updater = on_simple_command(cmd='updateuser', aliases={'更新群成员'}, rule=check('group') & check('supercmd'))
+user_updater = on_simple_command(cmd='updateuser',
+                                 aliases={'更新群成员'},
+                                 rule=check('group', GroupMessageEvent) & check('supercmd'))
 
 
 @user_validator.handle()

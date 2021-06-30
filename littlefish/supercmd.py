@@ -6,7 +6,7 @@ Please handle these commands with great care.
 
 import traceback
 from nonebot import on_command
-from nonebot.adapters.cqhttp import Bot, Event
+from nonebot.adapters.cqhttp import Bot, Event, GroupMessageEvent
 from nonebot.log import logger
 from littlefish._db import commit, load, save
 from littlefish._policy.rule import check
@@ -15,13 +15,21 @@ from littlefish._game import MemberManager
 
 save_to_disk = on_simple_command(cmd='save', aliases={'存档'}, rule=check('supercmd'))
 
-repeater_status = on_simple_command(cmd='repeaterstatus', aliases={'复读状态'}, rule=check('supercmd') & check('repeat'))
+repeater_status = on_simple_command(cmd='repeaterstatus',
+                                    aliases={'复读状态'},
+                                    rule=check('supercmd') & check('exclaim', GroupMessageEvent))
 
-block_word_changer = on_command(cmd='blockword ', aliases={'复读屏蔽词 '}, rule=check('supercmd') & check('repeat'))
+block_word_changer = on_command(cmd='blockword ',
+                                aliases={'复读屏蔽词 '},
+                                rule=check('supercmd') & check('exclaim', GroupMessageEvent))
 
-repeater_param_changer = on_command(cmd='repeaterparam ', aliases={'复读参数 '}, rule=check('supercmd') & check('repeat'))
+repeater_param_changer = on_command(cmd='repeaterparam ',
+                                    aliases={'复读参数 '},
+                                    rule=check('supercmd') & check('exclaim', GroupMessageEvent))
 
-calc42_score_changer = on_command(cmd='changescore42 ', aliases={'改变42点得分 '}, rule=check('supercmd') & check('calc42'))
+calc42_score_changer = on_command(cmd='changescore42 ',
+                                  aliases={'改变42点得分 '},
+                                  rule=check('supercmd') & check('calc42', GroupMessageEvent))
 
 
 @save_to_disk.handle()
