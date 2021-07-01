@@ -4,6 +4,6 @@
 [![License](https://img.shields.io/github/license/T0nyX1ang/littlefish)](http://www.gnu.org/licenses/agpl-3.0.html)
 [![Maintainability](https://api.codeclimate.com/v1/badges/0599899fd136d4a2eec0/maintainability)](https://codeclimate.com/github/T0nyX1ang/littlefish/maintainability)
 
-A bot for the `Minesweeper League` app. See `\docs` folder or visit [here](https://littlefish.vercel.app) for more details.
+A bot for the `Minesweeper League` app. See `\docs` folder or visit [here](https://littlefish.tonyxiang.site) for more details.
 
 Happy fishing ^\_^

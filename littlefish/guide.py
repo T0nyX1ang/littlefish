@@ -27,7 +27,7 @@ guide_42 = on_simple_command(cmd='guide42', aliases={'42点说明'}, rule=check(
 @guide.handle()
 async def _(bot: Bot, event: Event, state: dict):
     """Handle guide command."""
-    guide_message = '[CQ:share,url=%s,title=用户指南]' % 'https://littlefish.vercel.app/guide/normal.html'
+    guide_message = '[CQ:share,url=%s,title=用户指南]' % 'https://littlefish.tonyxiang.site/guide/normal.html'
     await guide.send(message=Message(guide_message))
 
 
@@ -63,6 +63,5 @@ async def _(bot: Bot, event: Event, state: dict):
 async def _(bot: Bot, event: Event, state: dict):
     """Handle calc42 game command."""
     gd42_link_message = '[CQ:share,url=%s,title=42点指南]' % (
-        'https://littlefish.vercel.app/guide/normal.html#%E7%AE%9742%E7%82%B9'
-    )
+        'https://littlefish.tonyxiang.site/guide/normal.html#%E7%AE%97-42-%E7%82%B9')
     await guide_42.send(message=Message(gd42_link_message))
