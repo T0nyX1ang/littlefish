@@ -194,7 +194,7 @@
 
 ### 用户扫雷数据
 
--   按 ID 查询联萌用户扫雷相关数据：获得用户的`时间记录(含排名)`，`bvs记录(含排名)`，`游戏局数(含开率)`，`当前等级`与`当前排名`。 :material-circle:{.green_circle} :material-account-group:
+-   按 ID 查询联萌用户扫雷相关数据：获得用户的`时间记录(含排名)`，`bvs记录(含排名)`，`游戏局数(含开率)`，`当前等级`与`当前排名`。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -208,7 +208,7 @@
         id $UID$
         ```
 
--   个人信息查询：本功能需要群主给以查询用户 ID 命名的头衔，查询结果与上文一致。 :material-circle:{.green_circle} :material-account-group:
+-   个人信息查询：本功能需要群主给以查询用户 ID 命名的头衔，查询结果与上文一致。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -244,7 +244,7 @@
 
     如果使用`search %`命令，将模糊搜索前十玩家. 模糊搜索一次最多查询`10`名玩家。
 
--   成绩比较功能：比较两个 ID 的三个等级的`时间`和`bvs`成绩。 :material-circle:{.green_circle} :material-account-group:
+-   成绩比较功能：比较两个 ID 的三个等级的`时间`和`bvs`成绩。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -539,7 +539,7 @@
 
     加油指令的参数可为空，此时会默认用`大佬`作为参数。
 
--   复读功能：如果群内有五条呈**等差数列**的消息(不包含小鱼在内)，小鱼会复读等差数列的下一项，相同的消息**只会**复读一次。 :material-circle:{.green_circle} :material-account-group:
+-   复读功能：如果群内有五条呈**等差数列**的消息(不包含小鱼在内)，小鱼会复读等差数列的下一项，相同的消息**只会**复读一次。 :material-account-group: :material-circle:{.green_circle}
 
 !!! tip
 
@@ -747,7 +747,7 @@
 
 ### 相关指令
 
--   回答 42 点题目。 :material-circle:{.green_circle} :material-account-group:
+-   回答 42 点题目。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -761,7 +761,7 @@
         calc42 $expr$
         ```
 
--   显示 42 点规则(即此节内容)。 :material-circle:{.green_circle} :material-account-group:
+-   显示 42 点规则(即此节内容)。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -775,7 +775,7 @@
         guide42
         ```
 
--   显示 42 点游戏得分。 :material-circle:{.green_circle} :material-account-group:
+-   显示 42 点游戏得分。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令 1"
 
@@ -795,7 +795,7 @@
         score42
         ```
 
--   显示 42 点游戏排行。 :material-circle:{.green_circle} :material-account-group:
+-   显示 42 点游戏排行。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令 1"
 
@@ -815,7 +815,7 @@
         rank42
         ```
 
--   显示 42 点游戏今日得分排行。 :material-circle:{.green_circle} :material-account-group:
+-   显示 42 点游戏今日得分排行。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令 1"
 
@@ -835,7 +835,7 @@
         dailyrank42
         ```
 
--   手动生成/取消 42 点(或随机生成 24-60 之间的其它点数)题目。 :material-circle:{.green_circle} :material-account-group:
+-   手动生成/取消 42 点(或随机生成 24-60 之间的其它点数)题目。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -883,7 +883,7 @@
 
 ## 其它功能
 
--   B 站直播订阅/取消订阅/查看订阅。 :material-circle:{.green_circle} :material-account-group:
+-   B 站直播订阅/取消订阅/查看订阅。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
