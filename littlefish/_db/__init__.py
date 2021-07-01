@@ -52,6 +52,8 @@ def load(universal_id: str, item_name: str, default: json = None) -> json:
     logger.debug(f'Loading item [{item_name}] from database ...')
     database.setdefault(universal_id, {})
     database[universal_id].setdefault(item_name, default)
+    if database[universal_id][item_name] is None:
+        database[universal_id][item_name] = default  # compatible with former versions
     return database[universal_id][item_name]
 
 
