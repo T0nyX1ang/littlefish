@@ -18,6 +18,7 @@ import argparse
 import nonebot
 from nonebot.log import logger, default_format
 from nonebot.adapters.cqhttp import Bot
+from fastapi.staticfiles import StaticFiles
 
 parser = argparse.ArgumentParser(description='A bot for minesweeper league.')
 parser.add_argument('-d', '--dev', action='store_true', default=False, help='Enable the developing mode')
@@ -36,6 +37,10 @@ nonebot.load_plugins('littlefish')
 if args.dev:
     app = nonebot.get_asgi()  # load the ASGI app
     nonebot.load_plugin('nonebot_plugin_test')  # enable the test frontend in developing mode
+
+# mount local docs, a document build is needed
+server = driver.server_app
+server.mount("/littlefish/docs", StaticFiles(directory='site', html=True), name="littlefish-docs")
 
 if __name__ == '__main__':
     nonebot.run(app='bot:app' * args.dev)
