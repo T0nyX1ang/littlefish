@@ -14,7 +14,7 @@ from nonebot.log import logger
 from littlefish._policy.rule import check, broadcast
 from littlefish._policy.plugin import on_simple_command
 from littlefish._game import MemberManager, GameManager
-from littlefish._game.ftpts import init, start, solve, stop, status
+from littlefish._game.ftpts import init, start, solve, stop, status, current
 
 hint_timeout = 60
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
@@ -117,8 +117,9 @@ async def timeout_reminder(bot: Bot, universal_id: str):
     """Reminder of the calc42 game."""
     group_id = int(universal_id[len(str(bot.self_id)):])
     if status(universal_id):
+        info = current(universal_id)
         try:
-            message = '距离本局42点游戏结束还有%s秒，冲鸭~' % hint_timeout
+            message = '距离本局%d点游戏结束还有%s秒，冲鸭~' % (info['target'], hint_timeout)
             await bot.send_group_msg(group_id=group_id, message=message)
         except Exception:
             logger.error(traceback.format_exc())
