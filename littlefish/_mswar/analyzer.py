@@ -111,7 +111,7 @@ class Record(Board):
     def __init__(self, board: list, action: list, initial: list = None):
         """Initialize the record."""
         super(Record, self).__init__(board)
-        self._threshold = 3  # the threshold between press and release
+        self._threshold = 10  # the threshold between press and release
         self.marker = [[0 for _ in range(self.result['column'])] for _ in range(self.result['row'])]
         self.op_marker = deepcopy(self.marker)
         self.action = action
