@@ -18,7 +18,7 @@
 
 -   雷网 [17373](https://github.com/hxtscjk17373) 的小爆，分担了雷网查询的任务。
 -   雷网 [13688](https://github.com/darknessgod) 的[小喵](https://github.com/darknessgod/littlemeow/wiki/%E5%B0%8F%E5%96%B5%E4%BD%BF%E7%94%A8%E5%B8%AE%E5%8A%A9%EF%BC%88%E6%9C%80%E5%90%8E%E6%9B%B4%E6%96%B0%E4%BA%8E2020%E5%B9%B44%E6%9C%886%E6%97%A5%EF%BC%89)——本项目的灵感来源。
--   雷网 [14491](https://github.com/teleportor) 对于 42 点等价解提供的技术支持。
+-   雷网 [14491](https://github.com/teleportor) 对于 42 点等价解提供的技术支持以及对联萌大表的开发工作。
 -   扫雷联萌萌主(开发者)夜夜通宵对项目的包容。
 -   [CryptoFucker](https://github.com/P4nda0s/CryptoFucker)：一款可以 hook 安卓应用加密方式和密码的 Xposed 插件。
 -   [Fiddler](https://www.telerik.com/fiddler) + [HTTPCanary](https://github.com/MegatronKing/HttpCanary)：用于网络抓包的软件。

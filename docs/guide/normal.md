@@ -85,6 +85,20 @@
         msguide
         ```
 
+-   显示联萌大表。 :material-account: :material-account-group: :material-circle:{.green_circle}
+
+    === "中文指令"
+
+        ```tex
+        联萌大表
+        ```
+
+    === "英文指令"
+
+        ```tex
+        msbigtable
+        ```
+
 -   显示联萌推送线。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
