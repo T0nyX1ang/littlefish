@@ -23,6 +23,8 @@ push_line = on_simple_command(cmd='pushline', aliases={'推送线'}, rule=check(
 
 guide_42 = on_simple_command(cmd='guide42', aliases={'42点说明'}, rule=check('guide') & check('calc42'))
 
+bigtable = on_simple_command(cmd='msbigtable', aliases={'联萌大表'}, rule=check('guide'))
+
 
 @guide.handle()
 async def _(bot: Bot, event: Event, state: dict):
@@ -65,3 +67,10 @@ async def _(bot: Bot, event: Event, state: dict):
     gd42_link_message = '[CQ:share,url=%s,title=42点指南]' % (
         'https://littlefish.tonyxiang.site/guide/normal.html#%E7%AE%97-42-%E7%82%B9')
     await guide_42.send(message=Message(gd42_link_message))
+
+
+@bigtable.handle()
+async def _(bot: Bot, event: Event, state: dict):
+    """Handle bigtable command."""
+    bigtable_link_message = '[CQ:share,url=%s,title=联萌大表]' % 'http://39.96.36.29:8000/bigtable/'
+    await bigtable.send(message=Message(bigtable_link_message))
