@@ -15,14 +15,13 @@ import random
 import traceback
 import nonebot
 from ftptsgame import FTPtsGame
-from fractions import Fraction
 from nonebot.log import logger
 from .config import FTPtsConfig
 
 global_config = nonebot.get_driver().config
 plugin_config = FTPtsConfig(**global_config.dict())
 max_number = plugin_config.ftpts_max_number
-target = Fraction(*plugin_config.ftpts_target)
+target = plugin_config.ftpts_target
 random_threshold = plugin_config.ftpts_random_threshold
 problem_database = list(itertools.combinations_with_replacement(range(0, max_number + 1), 5))
 

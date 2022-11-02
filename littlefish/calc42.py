@@ -24,7 +24,7 @@ manager = GameManager(game_type='calc42')
 def print_current_problem(info: dict) -> str:
     """Print the current problem."""
     a, b, c, d, e = info['problem']
-    return '本次%s点的题目为: %d %d %d %d %d' % (info['target'], a, b, c, d, e)
+    return '本次%d点的题目为: %d %d %d %d %d' % (info['target'], a, b, c, d, e)
 
 
 def get_deadline(total_number: int) -> int:

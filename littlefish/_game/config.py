@@ -15,7 +15,7 @@ from pydantic import BaseSettings
 class FTPtsConfig(BaseSettings):
     """Configurations for FTPtsGame."""
 
-    ftpts_target: list = [42, 1]
+    ftpts_target: int = 42
     ftpts_max_number: int = 13
     ftpts_random_threshold: float = 0.0
 
