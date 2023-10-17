@@ -12,7 +12,7 @@ The command requires to be invoked in groups.
 
 import random
 from nonebot import on_command
-from nonebot.adapters.cqhttp import Bot, Event
+from nonebot.adapters import Event
 from littlefish._policy.rule import check
 from littlefish._exclaim import exclaim_msg
 
@@ -36,18 +36,18 @@ def get_randi(begin: int, end: int, count: int, extras: list) -> list:
     return result
 
 
-randi = on_command(cmd='randi ', aliases={'随机数 '}, rule=check('randi'))
+randi = on_command(cmd='randi', aliases={'随机数'}, force_whitespace=True, rule=check('randi'))
 
 
 @randi.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the randi command."""
     args = str(event.message).split()
     try:
-        begin = int(args[0])
-        end = int(args[1])
-        count = int(args[2])
-        extras = args[3:]
+        begin = int(args[1])
+        end = int(args[2])
+        count = int(args[3])
+        extras = args[4:]
         result = get_randi(begin, end, count, extras)
         message = '随机结果: %s' % ' '.join(map(str, result))
         await randi.send(message=message)
