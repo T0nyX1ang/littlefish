@@ -7,13 +7,12 @@ Available information:
 
 import time
 import traceback
-from nonebot import on_command
-from nonebot.adapters.cqhttp import Bot, Event
+from nonebot import on_command, on_keyword
+from nonebot.adapters import Event
 from nonebot.log import logger
 from littlefish._mswar.api import get_record
 from littlefish._mswar.references import level_ref
 from littlefish._policy.rule import check
-from littlefish._policy.plugin import on_raw_keyword
 from littlefish._exclaim import exclaim_msg
 
 
@@ -46,19 +45,19 @@ def format_record(record: dict) -> str:
     return result_message.strip()
 
 
-analyzer = on_command(cmd='analyze ', aliases={'分析 '}, rule=check('analyze'))
-record_pusher = on_raw_keyword(keyword='http://tapsss.com', rule=check('analyze'), priority=10, block=True)
+analyzer = on_command(cmd='analyze', aliases={'分析'}, force_whitespace=True, rule=check('analyze'))
+record_pusher = on_keyword(keywords={'http://tapsss.com'}, rule=check('analyze'), priority=10, block=True)
 
 
 @analyzer.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the analyze command."""
     args = str(event.message).split()
     id_type = {'record': False, 'r': False, '录像': False, 'post': True, 'p': True, '帖子': True}
 
     try:
-        use_post_id = id_type[args[0]]
-        _id = int(args[1])
+        use_post_id = id_type[args[1]]
+        _id = int(args[2])
         record_info = await get_record(_id, use_post_id)
         await analyzer.send(message=format_record(record_info))
     except TypeError:
@@ -70,7 +69,7 @@ async def _(bot: Bot, event: Event, state: dict):
 
 
 @record_pusher.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the analyze command by URL shares."""
     msg = str(event.message).strip()
     current = msg.find('post=') + 5
