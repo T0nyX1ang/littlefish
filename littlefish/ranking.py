@@ -8,8 +8,6 @@ Invoke this command by: [item] [page] [extra: mode] [extra: level]
 Available items: time, bvs, endless, nonguessing, coins, chaos, advance and popularity.
 The page should be an integer, 10 users will be shown on each page.
 The [mode] and [level] command is only available in [time] and [bvs] item.
-
-The command requires to be invoked in groups.
 """
 
 from nonebot import on_command

@@ -10,7 +10,7 @@ The bot will repeat the words in groups after the word has been
 repeated for a certain time. Sometimes the bot will repeat the
 word abnormal for fun.
 
-The command requires to be invoked in groups.
+Some commands require to be invoked in groups.
 """
 
 import random

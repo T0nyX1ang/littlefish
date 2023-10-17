@@ -4,8 +4,6 @@ Fetch the infomation of the level status.
 The information includes:
 The number of people in each rank.
 The level information is automatically fetched at 00:00:10 +- 30s weekly.
-
-The command requires to be invoked in groups.
 """
 
 import traceback
