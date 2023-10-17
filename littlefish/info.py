@@ -11,10 +11,10 @@ The command requires to be invoked in groups.
 import time
 import traceback
 from nonebot import on_command
-from nonebot.adapters.cqhttp import Bot, Event, GroupMessageEvent
+from nonebot.adapters import Event
 from nonebot.log import logger
 from littlefish._exclaim import exclaim_msg
-from littlefish._policy.rule import check
+from littlefish._policy.rule import check, is_in_group
 from littlefish._policy.plugin import on_simple_command
 from littlefish._mswar.api import get_user_info
 from littlefish._mswar.references import sex_ref, level_ref
@@ -68,18 +68,18 @@ def _validate_id(universal_id: str, uid: str, gap: int) -> int:
         return gap - current_time + current[uid]
 
 
-id_info = on_command(cmd='id ', aliases={'联萌 '}, rule=check('info', GroupMessageEvent))
+id_info = on_command(cmd='id', aliases={'联萌'}, force_whitespace=True, rule=check('info') & is_in_group)
 
-id_battle = on_command(cmd='battle ', aliases={'对战 '}, rule=check('info', GroupMessageEvent))
+id_battle = on_command(cmd='battle', aliases={'对战'}, force_whitespace=True, rule=check('info') & is_in_group)
 
-id_me = on_simple_command(cmd='me', aliases={'个人信息'}, rule=check('info', GroupMessageEvent))
+id_me = on_simple_command(cmd='me', aliases={'个人信息'}, rule=check('info') & is_in_group)
 
 
 @id_info.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the id_info command."""
     try:
-        uid = int(str(event.message).strip())
+        uid = int(str(event.message).split()[1])
     except Exception:
         await id_info.finish(message=exclaim_msg('', '3', False, 1))
 
@@ -101,12 +101,11 @@ async def _(bot: Bot, event: Event, state: dict):
 
 
 @id_battle.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the id_battle command."""
     try:
-        uids = map(int, str(event.message).split())
-        uid1 = next(uids)
-        uid2 = next(uids)
+        args = str(event.message).split()
+        uid1, uid2 = int(args[1]), int(args[2])
     except Exception:
         await id_battle.finish(message=exclaim_msg('', '3', False, 1))
 
@@ -129,7 +128,7 @@ async def _(bot: Bot, event: Event, state: dict):
 
 
 @id_me.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the id_me command."""
     universal_id = str(event.self_id) + str(event.group_id)
     user_id = f'{event.user_id}'
