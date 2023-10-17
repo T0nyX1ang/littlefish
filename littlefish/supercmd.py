@@ -6,34 +6,34 @@ Please handle these commands with great care.
 
 import traceback
 from nonebot import on_command
-from nonebot.adapters.cqhttp import Bot, Event, GroupMessageEvent
+from nonebot.adapters import Event
 from nonebot.log import logger
 from littlefish._db import commit, load, save
-from littlefish._policy.rule import check
-from littlefish._policy.plugin import on_simple_command
+from littlefish._policy.rule import check, is_in_group
 from littlefish._game import MemberManager
 
-save_to_disk = on_simple_command(cmd='save', aliases={'存档'}, rule=check('supercmd'))
+save_to_disk = on_command(cmd='save', aliases={'存档'}, rule=check('supercmd'))
 
-repeater_status = on_simple_command(cmd='repeaterstatus',
-                                    aliases={'复读状态'},
-                                    rule=check('supercmd') & check('exclaim', GroupMessageEvent))
+repeater_status = on_command(cmd='repeaterstatus', aliases={'复读状态'}, rule=check('supercmd') & check('exclaim') & is_in_group)
 
-block_word_changer = on_command(cmd='blockword ',
-                                aliases={'复读屏蔽词 '},
-                                rule=check('supercmd') & check('exclaim', GroupMessageEvent))
+block_word_changer = on_command(cmd='blockword',
+                                aliases={'复读屏蔽词'},
+                                force_whitespace=True,
+                                rule=check('supercmd') & check('exclaim') & is_in_group)
 
-repeater_param_changer = on_command(cmd='repeaterparam ',
-                                    aliases={'复读参数 '},
-                                    rule=check('supercmd') & check('exclaim', GroupMessageEvent))
+repeater_param_changer = on_command(cmd='repeaterparam',
+                                    aliases={'复读参数'},
+                                    force_whitespace=True,
+                                    rule=check('supercmd') & check('exclaim') & is_in_group)
 
-calc42_score_changer = on_command(cmd='changescore42 ',
-                                  aliases={'改变42点得分 '},
-                                  rule=check('supercmd') & check('calc42', GroupMessageEvent))
+calc42_score_changer = on_command(cmd='changescore42',
+                                  aliases={'改变42点得分'},
+                                  force_whitespace=True,
+                                  rule=check('supercmd') & check('calc42') & is_in_group)
 
 
 @save_to_disk.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _():
     """Save the database on disk manually."""
     result = await commit()
     if result:
@@ -43,7 +43,7 @@ async def _(bot: Bot, event: Event, state: dict):
 
 
 @repeater_status.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Print the status of the repeater."""
     universal_id = str(event.self_id) + str(event.group_id)
     msg_base = load(universal_id, 'current_msg_base')
@@ -70,7 +70,7 @@ async def _(bot: Bot, event: Event, state: dict):
 
 
 @block_word_changer.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the blockword command."""
     universal_id = str(event.self_id) + str(event.group_id)
     wordlist = load(universal_id, 'block_wordlist')
@@ -93,7 +93,7 @@ async def _(bot: Bot, event: Event, state: dict):
 
 
 @repeater_param_changer.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Set the parameters of the repeater."""
     universal_id = str(event.self_id) + str(event.group_id)
     try:
@@ -109,7 +109,7 @@ async def _(bot: Bot, event: Event, state: dict):
 
 
 @calc42_score_changer.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Change the calc42 game's score of a person manually."""
     universal_id = str(event.self_id) + str(event.group_id)
     member_manager = MemberManager(universal_id)
