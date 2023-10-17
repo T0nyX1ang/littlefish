@@ -5,7 +5,7 @@ The result will contain the exact nickname and ID of top-10 found users.
 """
 
 from nonebot import on_command
-from nonebot.adapters.cqhttp import Bot, Event
+from nonebot.adapters import Event
 from littlefish._mswar.api import get_search_info
 from littlefish._policy.rule import check
 from littlefish._exclaim import exclaim_msg
@@ -23,13 +23,13 @@ def format_search(search_result: list) -> str:
     return result_message.strip()
 
 
-searcher = on_command(cmd='search ', aliases={'查询昵称 '}, rule=check('search'))
+searcher = on_command(cmd='search', aliases={'查询昵称'}, force_whitespace=True, rule=check('search'))
 
 
 @searcher.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the search command."""
-    search_nickname = str(event.message)
+    search_nickname = str(event.message).split()[1]
 
     try:
         search_result = await get_search_info(search_nickname)
