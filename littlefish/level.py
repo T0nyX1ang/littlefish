@@ -10,17 +10,16 @@ The command requires to be invoked in groups.
 
 import traceback
 import nonebot
+from nonebot import on_command
 from nonebot.log import logger
-from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._policy.rule import check, broadcast
-from littlefish._policy.plugin import on_simple_command
 from littlefish._mswar.api import get_level_list
 from littlefish._mswar.references import level_ref
 from littlefish._db import load, save
 
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 min_level, max_level = 1, max(level_ref)
-level = on_simple_command(cmd='level', aliases={'用户等级'}, rule=check('level'))
+level = on_command(cmd='level', aliases={'用户等级'}, rule=check('level'))
 
 
 def _initialize_history() -> dict:
@@ -55,7 +54,7 @@ def format_level_list(level_list_data: dict) -> str:
 
 
 @level.handle()
-async def show_level(bot: Bot, event: Event, state: dict):
+async def show_level():
     """Handle the level command."""
     level_list_data = await get_level_list()
     await level.send(message=format_level_list(level_list_data))
@@ -67,8 +66,8 @@ async def _(bot_id: str, group_id: str):
     level_list_data = await get_level_list()
     message = format_level_list(level_list_data)
 
-    bot = nonebot.get_bots()[bot_id]
     try:
+        bot = nonebot.get_bots()[bot_id]
         await bot.send_group_msg(group_id=int(group_id), message=message)
     except Exception:
         logger.error(traceback.format_exc())
