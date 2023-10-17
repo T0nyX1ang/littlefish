@@ -10,12 +10,11 @@ The command requires to be invoked in groups.
 
 import time
 import traceback
-from nonebot import on_command
+from nonebot import on_command, on_fullmatch
 from nonebot.adapters import Event
 from nonebot.log import logger
 from littlefish._exclaim import exclaim_msg
 from littlefish._policy.rule import check, is_in_group
-from littlefish._policy.plugin import on_simple_command
 from littlefish._mswar.api import get_user_info
 from littlefish._mswar.references import sex_ref, level_ref
 from littlefish._db import load, save
@@ -72,7 +71,7 @@ id_info = on_command(cmd='id', aliases={'联萌'}, force_whitespace=True, rule=c
 
 id_battle = on_command(cmd='battle', aliases={'对战'}, force_whitespace=True, rule=check('info') & is_in_group)
 
-id_me = on_simple_command(cmd='me', aliases={'个人信息'}, rule=check('info') & is_in_group)
+id_me = on_fullmatch(msg=('me', '个人信息'), rule=check('info') & is_in_group)
 
 
 @id_info.handle()

@@ -5,22 +5,22 @@ A guide, a backup guide, an app package link and a minesweeping guide link
 is included here.
 """
 
-from nonebot import on_command
+from nonebot import on_fullmatch
 from littlefish._policy.rule import check
 
-guide = on_command(cmd='guide', aliases={'指南'}, rule=check('guide'))
+guide = on_fullmatch(msg=('guide', '指南'), rule=check('guide'))
 
-source_code = on_command(cmd='source', aliases={'源码'}, rule=check('guide'))
+source_code = on_fullmatch(msg=('source', '源码'), rule=check('guide'))
 
-get_package = on_command(cmd='getpackage', aliases={'安装包', '安装链接'}, rule=check('guide'))
+get_package = on_fullmatch(msg=('getpackage', '安装包', '安装链接'), rule=check('guide'))
 
-ms_guide = on_command(cmd='msguide', aliases={'扫雷指南'}, rule=check('guide'))
+ms_guide = on_fullmatch(msg=('msguide', '扫雷指南'), rule=check('guide'))
 
-push_line = on_command(cmd='pushline', aliases={'推送线'}, rule=check('guide'))
+push_line = on_fullmatch(msg=('pushline', '推送线'), rule=check('guide'))
 
-guide_42 = on_command(cmd='guide42', aliases={'42点说明'}, rule=check('guide') & check('calc42'))
+guide_42 = on_fullmatch(msg=('guide42', '42点说明'), rule=check('guide') & check('calc42'))
 
-bigtable = on_command(cmd='msbigtable', aliases={'联萌大表'}, rule=check('guide'))
+bigtable = on_fullmatch(msg=('msbigtable', '联萌大表'), rule=check('guide'))
 
 
 @guide.handle()

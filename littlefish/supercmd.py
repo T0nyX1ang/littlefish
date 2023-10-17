@@ -5,16 +5,16 @@ Please handle these commands with great care.
 """
 
 import traceback
-from nonebot import on_command
+from nonebot import on_command, on_fullmatch
 from nonebot.adapters import Event
 from nonebot.log import logger
 from littlefish._db import commit, load, save
 from littlefish._policy.rule import check, is_in_group
 from littlefish._game import MemberManager
 
-save_to_disk = on_command(cmd='save', aliases={'存档'}, rule=check('supercmd'))
+save_to_disk = on_fullmatch(msg=('save', '存档'), rule=check('supercmd'))
 
-repeater_status = on_command(cmd='repeaterstatus', aliases={'复读状态'}, rule=check('supercmd') & check('exclaim') & is_in_group)
+repeater_status = on_fullmatch(msg=('repeaterstatus', '复读状态'), rule=check('supercmd') & check('exclaim') & is_in_group)
 
 block_word_changer = on_command(cmd='blockword',
                                 aliases={'复读屏蔽词'},

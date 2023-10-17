@@ -3,13 +3,11 @@ Fetch the infomation of the autopvp bot.
 
 The information includes:
 Bot: rank, level (including progress), wins / loses, latest winner.
-
-The command requires to be invoked in groups.
 """
 
 import traceback
 import nonebot
-from nonebot import on_command
+from nonebot import on_fullmatch
 from nonebot.log import logger
 from littlefish._mswar.api import get_autopvp_info
 from littlefish._policy.rule import check, broadcast
@@ -32,7 +30,7 @@ def format_pvp_info(autopvp_info: dict) -> str:
     return result_message.strip()
 
 
-autopvp = on_command(cmd='autopvp', aliases={'对战机器人'}, rule=check('autopvp'))
+autopvp = on_fullmatch(msg=('autopvp', '对战机器人'), rule=check('autopvp'))
 
 
 @autopvp.handle()

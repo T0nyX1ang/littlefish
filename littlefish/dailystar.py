@@ -4,14 +4,12 @@ Fetch the information of the daily star.
 The information includes:
 The user information of the daily star.
 The dailystar information is automatically fetched on every trigger.
-
-The command requires to be invoked in groups.
 """
 
 import time
 import traceback
 import nonebot
-from nonebot import on_command
+from nonebot import on_command, on_fullmatch
 from nonebot.log import logger
 from nonebot.adapters import Event
 from littlefish._exclaim import exclaim_msg
@@ -57,9 +55,9 @@ def _save_daily_star(uid: str):
     save('0', 'dailystar', star_db)
 
 
-dailystar = on_command(cmd='dailystar', aliases={'联萌每日一星'}, force_whitespace=True, rule=check('dailystar'))
+dailystar = on_fullmatch(msg=('dailystar', '联萌每日一星'), rule=check('dailystar'))
 
-dailystar_counter = on_command(cmd='dailystarcount ', aliases={'联萌每日一星次数 '}, rule=check('dailystar'))
+dailystar_counter = on_command(cmd='dailystarcount', aliases={'联萌每日一星次数'}, force_whitespace=True, rule=check('dailystar'))
 
 
 @dailystar.handle()
