@@ -8,26 +8,18 @@ Available features:
 * update group members' information (invoked every 4 hours automatically)
 * set block wordlist when repeating
 
-The command requires to be invoked in groups.
+The command must be invoked in groups.
 """
 
 import traceback
 import nonebot
-from nonebot import on_command, on_notice, on_request
-from nonebot.adapters.cqhttp import (
-    Bot,
-    Event,
-    GroupDecreaseNoticeEvent,
-    GroupIncreaseNoticeEvent,
-    GroupRequestEvent,
-    GroupMessageEvent,
-)
+from nonebot import on_command, on_notice, on_request, on_fullmatch
+from nonebot.adapters import Bot, Event
 from nonebot.log import logger
 from littlefish._exclaim import exclaim_msg
 from littlefish._mswar.api import get_user_info
 from littlefish._mswar.references import level_ref
-from littlefish._policy.rule import check, broadcast
-from littlefish._policy.plugin import on_simple_command
+from littlefish._policy.rule import check, broadcast, is_in_group
 from littlefish._db import save, load
 
 
@@ -59,21 +51,19 @@ async def update_group_members(bot: Bot, group_id: str):
     save(universal_id, 'members', members)
 
 
-user_validator = on_request(priority=10, block=True, rule=check('group', GroupRequestEvent) & check('info', GroupRequestEvent))
+user_validator = on_request(priority=10, block=True, rule=check('group') & check('info') & is_in_group)
 
-say_hello = on_notice(priority=10, block=True, rule=check('group', GroupIncreaseNoticeEvent))
+say_hello = on_notice(priority=10, block=True, rule=check('group') & is_in_group)
 
-say_goodbye = on_notice(priority=10, block=True, rule=check('group', GroupDecreaseNoticeEvent))
+say_goodbye = on_notice(priority=10, block=True, rule=check('group') & is_in_group)
 
-black_room = on_command(cmd='blackroom ', aliases={'进入小黑屋 '}, rule=check('group', GroupMessageEvent))
+black_room = on_command(cmd='blackroom', aliases={'进入小黑屋'}, force_whitespace=True, rule=check('group') & is_in_group)
 
-user_updater = on_simple_command(cmd='updateuser',
-                                 aliases={'更新群成员'},
-                                 rule=check('group', GroupMessageEvent) & check('supercmd'))
+user_updater = on_fullmatch(msg=('updateuser', '更新群成员'), rule=check('group') & check('supercmd') & is_in_group)
 
 
 @user_validator.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event):
     """Handle the validate_user command. Admin privilege required."""
     if event.sub_type != 'add':
         return  # ignore invitations
@@ -97,8 +87,11 @@ async def _(bot: Bot, event: Event, state: dict):
 
 
 @say_hello.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event):
     """Handle the say_hello command."""
+    if 'increase' in event.notice_type:
+        return  # ignore group member increases
+
     universal_id = str(event.self_id) + str(event.group_id)
     join_id = f'{event.user_id}'
     members = load(universal_id, 'members', {})
@@ -120,8 +113,10 @@ async def _(bot: Bot, event: Event, state: dict):
 
 
 @say_goodbye.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the say_goodbye command. Admin privilege required."""
+    if 'decrease' in event.notice_type:
+        return  # ignore group member increases
     universal_id = str(event.self_id) + str(event.group_id)
     leave_id = f'{event.user_id}'
     members = load(universal_id, 'members', {})
@@ -133,7 +128,7 @@ async def _(bot: Bot, event: Event, state: dict):
 
 
 @black_room.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event):
     """Handle the blackroom command."""
     group_id = event.group_id
     user_id = event.user_id
@@ -151,7 +146,7 @@ async def _(bot: Bot, event: Event, state: dict):
 
 
 @user_updater.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event):
     """Handle the updateuser command."""
     try:
         await update_group_members(bot, event.group_id)
