@@ -26,7 +26,7 @@ nb-cli = "^1.2.5"
 optional = true
 
 [tool.poetry.group.docs.dependencies]
-mkdocs-material = "^7.1.5"
+mkdocs-material = "^9.4.3"
 mkdocs-git-revision-date-localized-plugin = "^1.2.1"
 
 [tool.nonebot]

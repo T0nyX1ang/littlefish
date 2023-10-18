@@ -1,8 +1,9 @@
 """
 This is the initialization file.
 
-You don't have to execute this file manually. Instead, you should
-execute `nb run` command instead.
+Please run this file by typing: py -3 bot.py on Windows,
+and python3 bot.py on *nix. Make sure you have installed
+all the dependencies required before you run this program.
 """
 
 import nonebot
