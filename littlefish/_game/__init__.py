@@ -10,7 +10,7 @@ The plugin requires the database plugin (littlefish._db) to work normally.
 """
 
 import nonebot
-from nonebot.adapters.cqhttp import Bot
+from nonebot.adapters import Bot
 from littlefish._db import load, save
 
 

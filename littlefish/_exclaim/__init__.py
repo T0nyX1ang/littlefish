@@ -51,7 +51,7 @@ import os
 import random
 import nonebot
 from nonebot.log import logger
-from nonebot.adapters.cqhttp import Message
+from nonebot.adapters import Message
 from .config import ResourceConfig
 
 global_config = nonebot.get_driver().config
