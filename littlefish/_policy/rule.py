@@ -14,7 +14,7 @@ contain any annotations.
             "command": {
                 "+": [1, 2, 3], // this should be the whitelist
                 "-": [4, 5, 6], // this should be the blacklist
-                "@": true // this should be the broadcast option
+                "@": { *APScheduler-like config* } // this should be the broadcast option
             }
             // config for another command
         }
@@ -45,7 +45,7 @@ is disabled by default. About the empty feature, you can enforce 0
 arguments in a command.
 
 How to use?
-The checker is wrapped as a nonebot.rule.Rule, you can use it in any
+The checker is a nonebot.internal.rule.Rule class, you can use it in any
 commands containing the keyword argument 'rule'. The policy config will
 be reloaded on every startup of the bot itself. The broadcast is wrapped
 as a normal decorator, you need to decorate the function only.
@@ -54,13 +54,14 @@ Additional features:
 * Get validated (bot_id, group_id) tuples.
 * Create/Revoke a temporary policy: this will create/revoke a temporary
 policy into the memory, but not saved into the policy file on disk.
+* Check if the command is invoked in a group.
 """
 
 import json
 import os
 import nonebot
 from nonebot.log import logger
-from nonebot.adapters.cqhttp import Bot, Event, MessageEvent
+from nonebot.adapters import Event
 from nonebot.rule import Rule
 from .config import PolicyConfig
 
@@ -87,34 +88,42 @@ def valid(command_name: str) -> list:
             if command_name in policy_config[bid][gid]]
 
 
-def check(command_name: str, event_type: Event = MessageEvent) -> Rule:
+class PolicyRule:
     """Check the policy of each command by name."""
-    _name = command_name
 
-    async def _check(bot: Bot, event: Event, state: dict) -> bool:
+    __slots__ = ('command_name')
+
+    def __init__(self, command_name: str):
+        """Initialize the rule."""
+        self.command_name = command_name
+
+    async def __call__(self, event: Event) -> bool:
         """Rule wrapper for "check" item in the policy control."""
-        logger.debug('Checking command: [%s].' % _name)
-        if not isinstance(event, event_type):
-            return False
+        logger.debug('Checking command: [%s].' % self.command_name)
 
         try:
             # Fetch information from event
             bid = f'{event.self_id}'
+            sid = f'{event.get_user_id()}'
             gid = f'{event.group_id}'
-            sid = event.user_id
 
             # Check the whitelist policy by name.
-            in_whitelist = ('+' not in policy_config[bid][gid][_name] or sid in policy_config[bid][gid][_name]['+'])
+            in_whitelist = ('+' not in policy_config[bid][gid][self.command_name] or
+                            sid in policy_config[bid][gid][self.command_name]['+'])
 
             # Check the blacklist policy by name.
-            not_in_blacklist = ('-' not in policy_config[bid][gid][_name] or sid not in policy_config[bid][gid][_name]['-'])
+            not_in_blacklist = ('-' not in policy_config[bid][gid][self.command_name] or
+                                sid not in policy_config[bid][gid][self.command_name]['-'])
 
             # Combine the whitelist and blacklist together
             return in_whitelist and not_in_blacklist
         except Exception:
             return True
 
-    return Rule(_check)
+
+def check(command_name: str) -> Rule:
+    """Check the policy of each command by name."""
+    return Rule(PolicyRule(command_name))
 
 
 def broadcast(command_name: str, identifier: str = '@') -> bool:
@@ -133,7 +142,12 @@ def broadcast(command_name: str, identifier: str = '@') -> bool:
                                   misfire_grace_time=30,
                                   replace_existing=True,
                                   **policy_config[bid][gid][_name][_idt])
+                logger.debug('Created broadcast [%s] with bot [%s] in group [%s].' % (_name, bid, gid))
             except Exception:
-                logger.debug('Skipped broadcast: [%s].' % _name)
-
+                logger.debug('Skipped broadcast [%s] with bot [%s] in group [%s].' % (_name, bid, gid))
     return _broadcast
+
+
+async def is_in_group(event: Event) -> bool:
+    """Check if the command is invoked in a group."""
+    return hasattr(event, 'group_id')
