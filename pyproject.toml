@@ -12,7 +12,6 @@ nonebot2 = {version = "^2.0.1", extras = ["fastapi"]}
 nonebot-adapter-console = "^0.4.0"
 nonebot-adapter-onebot = "^2.2.4"
 nonebot-plugin-apscheduler = "^0.3.0"
-semver = "^2.13.0"
 pycryptodome = "^3.9.6"
 42points = "^1.2.7"
 
