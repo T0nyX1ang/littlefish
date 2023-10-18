@@ -1,0 +1,14 @@
+[project]
+name = "littlefish"
+version = "1.0.5"
+description = "A bot for the `Minesweeper League` app."
+readme = "README.md"
+requires-python = ">=3.8, <4.0"
+
+[tool.nonebot]
+adapters = [
+    { name = "Console", module_name = "nonebot.adapters.console" },
+    { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" }
+]
+plugins = ["nonebot_plugin_apscheduler"]
+plugin_dirs = ["littlefish"]
