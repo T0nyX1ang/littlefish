@@ -10,16 +10,15 @@ The bot will repeat the words in groups after the word has been
 repeated for a certain time. Sometimes the bot will repeat the
 word abnormal for fun.
 
-The command requires to be invoked in groups.
+Some commands require to be invoked in groups.
 """
 
 import random
 import datetime
-from nonebot import on_command, on_endswith, on_notice
-from nonebot.adapters.cqhttp import Bot, Event, PokeNotifyEvent, GroupMessageEvent
+from nonebot import on_fullmatch, on_startswith, on_endswith
+from nonebot.adapters import Event
 from littlefish._db import load, save
-from littlefish._policy.rule import check
-from littlefish._policy.plugin import on_simple_command
+from littlefish._policy.rule import check, is_in_group
 from littlefish._exclaim import exclaim_msg, slim_msg, mutate_msg
 
 
@@ -95,82 +94,54 @@ def get_time_tag() -> int:
     return time_tag[current_hour]
 
 
-praise = on_command(cmd='praise', aliases={'膜'}, rule=check('exclaim'))
+praise = on_startswith(msg='膜', rule=check('exclaim'))
 
-admire = on_command(cmd='admire', aliases={'狂膜'}, rule=check('exclaim'))
+admire = on_startswith(msg='狂膜', rule=check('exclaim'))
 
-cheer = on_command(cmd='cheer', aliases={'加油 '}, rule=check('exclaim'))
+cheer = on_endswith(msg='加油', rule=check('exclaim'))
 
-cheer_ending = on_endswith(msg='加油', priority=10, rule=check('exclaim'))
+greet = on_fullmatch(msg=('greet', '小鱼'), rule=check('exclaim'))
 
-greet = on_simple_command(cmd='greet', aliases={'小鱼'}, rule=check('exclaim'))
-
-poke_greet = on_notice(priority=10, block=True, rule=check('exclaim', PokeNotifyEvent))
-
-repeater = on_endswith(msg='', priority=11, block=True, rule=check('exclaim', GroupMessageEvent))
+repeater = on_endswith(msg='', priority=11, block=True, rule=check('exclaim') & is_in_group)
 
 
 @praise.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the praise command."""
-    person = str(event.message).strip()
+    if str(event.message).strip()[:1] != '膜':
+        return  # recheck the message
+    person = str(event.message).strip()[1:]
     await praise.send(message=exclaim_msg(person, '1', True))
 
 
 @admire.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the admire (praise * 2) command."""
-    person = str(event.message).strip()
+    if str(event.message).strip()[:2] != '狂膜':
+        return  # recheck the message
+    person = str(event.message).strip()[2:]
     message = exclaim_msg(person, '1', False)
     await admire.send(message=message)
     await admire.send(message=message)
 
 
 @cheer.handle()
-async def _(bot: Bot, event: Event, state: dict):
-    """Handle the cheer command."""
-    person = str(event.message).strip()
-    await cheer.send(message=exclaim_msg(person, '2', True))
-
-
-@cheer_ending.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the cheer (ending version) command."""
     if str(event.message).strip()[-2:] != '加油':
         return  # recheck the message
     person = str(event.message).strip()[:-2]
-    await cheer_ending.send(message=exclaim_msg(person, '2', True))
+    await cheer.send(message=exclaim_msg(person, '2', True))
 
 
 @greet.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _():
     """Handle the greet command."""
     await greet.send(message=exclaim_msg('', str(get_time_tag()), False, 1))
 
 
-@poke_greet.handle()
-async def _(bot: Bot, event: Event, state: dict):
-    """Handle the poke greet command."""
-    # Greet the person when the bot is poked, and repeat the poke action.
-    if event.target_id == event.self_id and event.sender_id != event.self_id:  # ensure poking target
-        await poke_greet.send(message=exclaim_msg('', str(get_time_tag()), False, 1))
-
-    universal_id = str(event.self_id) + str(event.group_id)
-    poke_combo = load(universal_id, 'current_poke_combo', 0)
-    poke_target = load(universal_id, 'current_poke_target', -1)
-
-    poke_combo = poke_combo + 1 - poke_combo * (poke_target != event.target_id)
-
-    if poke_combo == 5:
-        poke_combo += 1
-        await poke_greet.send(message=slim_msg('[CQ:poke,qq=%d]' % poke_target))
-
-    save(universal_id, 'current_poke_combo', poke_combo)
-    save(universal_id, 'current_poke_target', event.target_id)
-
-
 @repeater.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the repeat command."""
     message = str(slim_msg(event.message)).strip()
     universal_id = str(event.self_id) + str(event.group_id)

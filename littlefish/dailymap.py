@@ -4,17 +4,14 @@ Fetch the information of the daily map.
 The information includes:
 Map: lines, columns, mines, bv, openings, islands.
 User: best_time (math.inf) as default.
-
-The command requires to be invoked in groups.
 """
 
 import traceback
 import nonebot
+from nonebot import on_fullmatch
 from nonebot.log import logger
-from nonebot.adapters.cqhttp import Bot, Event
 from littlefish._mswar.api import get_daily_map
 from littlefish._policy.rule import check, broadcast
-from littlefish._policy.plugin import on_simple_command
 
 
 def format_daily_map(daily_map: dict) -> str:
@@ -31,11 +28,11 @@ def format_daily_map(daily_map: dict) -> str:
     return result_message.strip()
 
 
-dailymap = on_simple_command(cmd='dailymap', aliases={'每日一图'}, rule=check('dailymap'))
+dailymap = on_fullmatch(msg=('dailymap', '每日一图'), rule=check('dailymap'))
 
 
 @dailymap.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _():
     """Handle the dailymap command."""
     daily_map_info = await get_daily_map()
     await dailymap.send(message=format_daily_map(daily_map_info))

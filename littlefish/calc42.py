@@ -2,17 +2,14 @@
 A game to calculate 42 with 5 numbers between 0 and 13.
 
 The rules can be found by invoking 'guide42' in groups.
-
-The command requires to be invoked in groups.
 """
 
 import traceback
 import nonebot
-from nonebot import on_command
-from nonebot.adapters.cqhttp import Bot, Event, Message, GroupMessageEvent
+from nonebot import on_command, on_fullmatch
+from nonebot.adapters import Bot, Event, Message
 from nonebot.log import logger
-from littlefish._policy.rule import check, broadcast
-from littlefish._policy.plugin import on_simple_command
+from littlefish._policy.rule import check, broadcast, is_in_group
 from littlefish._game import MemberManager, GameManager
 from littlefish._game.ftpts import init, start, solve, stop, status, current
 
@@ -92,7 +89,7 @@ def get_results(universal_id, result: dict) -> str:
 
 async def start_game(bot: Bot, universal_id: str, addscore: bool = True, enforce_random: bool = False):
     """Start the calc42 game."""
-    group_id = int(universal_id[len(str(bot.self_id)):])
+    group_id = universal_id[len(str(bot.self_id)):]
     init(universal_id)
 
     if status(universal_id):
@@ -105,7 +102,7 @@ async def start_game(bot: Bot, universal_id: str, addscore: bool = True, enforce
     try:
         manager.add_scheduler(bot, universal_id, finish_game, deadline)
         manager.add_scheduler(bot, universal_id, timeout_reminder, deadline - hint_timeout)
-        await bot.send_group_msg(group_id=group_id, message=message)
+        await bot.send_group_msg(group_id=int(group_id), message=message)
     except Exception:
         logger.error(traceback.format_exc())
         manager.remove_schedulers(universal_id)
@@ -155,31 +152,33 @@ async def show_solutions(bot: Bot, universal_id: str, result: dict):
         message.append({'type': 'node', 'data': {'name': '小鱼', 'uin': bot.self_id, 'content': remaining}})
 
     if message:
+        # warning: this code is only for Onebot protocol
         await bot.send_group_forward_msg(group_id=group_id, messages=Message(message))
 
 
-problem_solver = on_command(cmd='calc42 ', aliases={'42点 '}, rule=check('calc42', GroupMessageEvent))
+problem_solver = on_command(cmd='calc42', aliases={'42点'}, force_whitespace=True, rule=check('calc42') & is_in_group)
 
-manual_player = on_command(cmd='manual42 ', aliases={'手动42点 '}, rule=check('calc42', GroupMessageEvent))
+manual_player = on_command(cmd='manual42', aliases={'手动42点'}, force_whitespace=True, rule=check('calc42') & is_in_group)
 
-score_viewer = on_simple_command(cmd='score42', aliases={'42点得分', '42点积分'}, rule=check('calc42', GroupMessageEvent))
+score_viewer = on_fullmatch(msg=('score42', '42点得分', '42点积分'), rule=check('calc42') & is_in_group)
 
-rank_viewer = on_simple_command(cmd='rank42', aliases={'42点排名', '42点排行'}, rule=check('calc42', GroupMessageEvent))
+rank_viewer = on_fullmatch(msg=('rank42', '42点排名', '42点排行'), rule=check('calc42') & is_in_group)
 
-daily_rank_viewer = on_simple_command(cmd='dailyrank42',
-                                      aliases={'42点今日排名', '42点今日排行'},
-                                      rule=check('calc42', GroupMessageEvent))
+daily_rank_viewer = on_fullmatch(msg=('dailyrank42', '42点今日排名', '42点今日排行'), rule=check('calc42') & is_in_group)
 
 
 @problem_solver.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event):
     """Handle the calc42 command."""
-    universal_id = str(event.self_id) + str(event.group_id)
+    if hasattr(event, 'group_id'):
+        universal_id = str(event.self_id) + str(event.group_id)
+    else:
+        universal_id = str(event.self_id) + str(event.get_user_id())
     member_manager = MemberManager(universal_id)
     if not status(universal_id):
         return
 
-    user_id = f'{event.user_id}'
+    user_id = f'{event.get_user_id()}'
     expr = str(event.message).strip()
     message = ''
 
@@ -202,36 +201,40 @@ async def _(bot: Bot, event: Event, state: dict):
 
 
 @manual_player.handle()
-async def manual_calc42(bot: Bot, event: Event, state: dict):
+async def manual_calc42(bot: Bot, event: Event):
     """Control the calc42 game manually."""
-    universal_id = str(event.self_id) + str(event.group_id)
-    if status(universal_id) and event.user_id != manager.get_invoker(universal_id):
+    if hasattr(event, 'group_id'):
+        universal_id = str(event.self_id) + str(event.group_id)
+    else:
+        universal_id = str(event.self_id) + str(event.get_user_id())
+
+    if status(universal_id) and event.get_user_id() != manager.get_invoker(universal_id):
         # stop the manual command if the invokers are not matched, only check when the game is started
         return
 
-    option = str(event.message).strip()
+    option = str(event.message).split()[1]
 
     if option == '++':
         await start_game(bot, universal_id, False, True)
-        manager.set_invoker(universal_id, event.user_id)
+        manager.set_invoker(universal_id, event.get_user_id())
     elif option == '+':
         await start_game(bot, universal_id, False)
-        manager.set_invoker(universal_id, event.user_id)
+        manager.set_invoker(universal_id, event.get_user_id())
     elif option == '-':
         await finish_game(bot, universal_id)
 
 
 @score_viewer.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the score42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
-    user_id = f'{event.user_id}'
+    user_id = f'{event.get_user_id()}'
     member_manager = MemberManager(universal_id)
     await score_viewer.send(message=member_manager.get_member_stats(user_id, '42score'))
 
 
 @rank_viewer.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the rank42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
     member_manager = MemberManager(universal_id)
@@ -239,7 +242,7 @@ async def _(bot: Bot, event: Event, state: dict):
 
 
 @daily_rank_viewer.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the dailyrank42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
     member_manager = MemberManager(universal_id)

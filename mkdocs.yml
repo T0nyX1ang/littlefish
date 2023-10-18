@@ -34,16 +34,22 @@ theme:
     repo: fontawesome/brands/github
   favicon: ./icons/material/fish.svg
   features:
+    - content.code.copy
+    - navigation.footer
     - navigation.instant
+    - navigation.instant.progress
     - navigation.top
-copyright: Copyright &copy; 2020-2021 Tony Xiang <br> Licensed under AGPL
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+copyright: Copyright &copy; 2020-2023 Tony Xiang <br> Licensed under AGPL 3.0
 repo_url: https://github.com/T0nyX1ang/littlefish
 repo_name: T0nyX1ang/littlefish
 plugins:
   - search
   - git-revision-date-localized:
       type: timeago
-      locale: zh_CN
+      locale: zh
       fallback_to_build_date: true
 markdown_extensions:
   - admonition
@@ -51,21 +57,24 @@ markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.details
-  - pymdownx.highlight
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
   - pymdownx.superfences
   - pymdownx.inlinehilite
-  - pymdownx.tabbed
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tilde
   - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - toc:
-      slugify: !!python/name:pymdownx.slugs.uslugify_cased
-      permalink: true
-extra:
-  version:
-    provider: mike
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
 extra_javascript:
-  - javascripts/config.js
+  - javascripts/mathjax.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 extra_css:

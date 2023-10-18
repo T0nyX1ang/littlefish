@@ -6,16 +6,16 @@
 
 小鱼的指令支持群聊或者私聊，其支持的类型会以如下形式表现：
 
--   支持私聊的指令 :material-account:
--   支持群聊的指令 :material-account-group:
--   同时支持私聊与群聊的指令 :material-account: :material-account-group:
+- 支持私聊的指令 :material-account:
+- 支持群聊的指令 :material-account-group:
+- 同时支持私聊与群聊的指令 :material-account: :material-account-group:
 
 为尽可能防止功能滥用，小鱼针对**在群聊中触发的**每个指令有相应的触发权限，这些权限会以如下形式表现:
 
--   普通用户(小鱼无需权限)即可触发的权限 :material-circle:{.green_circle}
--   小鱼为管理员或特殊用户才能触发的权限 :material-circle:{.yellow_circle}
--   超级用户才可触发的权限 :material-circle:{.red_circle}
--   广播权限 :material-fish:{.blue_fish}
+- 普通用户(小鱼无需权限)即可触发的权限 :material-circle:{.green_circle}
+- 小鱼为管理员或特殊用户才能触发的权限 :material-circle:{.yellow_circle}
+- 超级用户才可触发的权限 :material-circle:{.red_circle}
+- 广播权限 :material-fish:{.blue_fish}
 
 !!! warning
 
@@ -23,7 +23,7 @@
 
 ## 指南功能
 
--   显示此指南网址。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 显示此指南网址。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -37,7 +37,7 @@
         guide
         ```
 
--   显示项目源代码地址。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 显示项目源代码地址。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -51,7 +51,7 @@
         source
         ```
 
--   显示联萌安装包下载地址。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 显示联萌安装包下载地址。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令 1"
 
@@ -71,7 +71,7 @@
         getpackage
         ```
 
--   显示扫雷指南。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 显示扫雷指南。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -85,7 +85,7 @@
         msguide
         ```
 
--   显示联萌大表。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 显示联萌大表。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -99,7 +99,7 @@
         msbigtable
         ```
 
--   显示联萌推送线。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 显示联萌推送线。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -125,10 +125,10 @@
 
 ## 群组管理功能
 
--   解析加群申请：将加群用户联萌 ID 信息公开，并**自动拒绝**不符合加群条件的用户。 :material-account-group: :material-circle:{.yellow_circle}
--   欢迎新人。 :material-account-group: :material-circle:{.yellow_circle}
--   退群告别。 :material-account-group: :material-circle:{.yellow_circle}
--   更新群成员信息。 :material-account-group: :material-circle:{.red_circle}
+- 解析加群申请：将加群用户联萌 ID 信息公开，并**自动拒绝**不符合加群条件的用户。 :material-account-group: :material-circle:{.yellow_circle}
+- 欢迎新人。 :material-account-group: :material-circle:{.yellow_circle}
+- 退群告别。 :material-account-group: :material-circle:{.yellow_circle}
+- 更新群成员信息。 :material-account-group: :material-circle:{.red_circle}
 
     === "中文指令"
 
@@ -142,7 +142,7 @@
         updateuser
         ```
 
--   自动更新群成员信息: 小鱼在每天 03:00:00 每隔 4 小时自动获取一次群员信息，误差为 30 秒。 :material-account-group: :material-fish:{.blue_fish}
+- 自动更新群成员信息: 小鱼在每天 03:00:00 每隔 4 小时自动获取一次群员信息，误差为 30 秒。 :material-account-group: :material-fish:{.blue_fish}
 
 !!! tip
 
@@ -154,7 +154,7 @@
 
 ### 今日之星
 
--   主动查询联萌每日一星。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 主动查询联萌每日一星。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -168,7 +168,7 @@
         dailystar
         ```
 
--   主动查询联萌每日一星次数。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 主动查询联萌每日一星次数。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -182,11 +182,11 @@
         dailystarcount $UID$
         ```
 
--   自动推送联萌每日一星：于每天 00:01:30 进行推送，误差为 30 秒。 :material-account-group: :material-fish:{.blue_fish}
+- 自动推送联萌每日一星：于每天 00:01:30 进行推送，误差为 30 秒。 :material-account-group: :material-fish:{.blue_fish}
 
 ### 每日一图
 
--   主动查询每日一图：图的`大小`，`bv`，`op`，`is`与`第一名成绩`。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 主动查询每日一图：图的`大小`，`bv`，`op`，`is`与`第一名成绩`。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -200,7 +200,7 @@
         dailymap
         ```
 
--   自动推送每日一图：每天 00:03:00 进行推送，误差为 30 秒。 :material-account-group: :material-fish:{.blue_fish}
+- 自动推送每日一图：每天 00:03:00 进行推送，误差为 30 秒。 :material-account-group: :material-fish:{.blue_fish}
 
 !!! tip
 
@@ -208,7 +208,7 @@
 
 ### 用户扫雷数据
 
--   按 ID 查询联萌用户扫雷相关数据：获得用户的`时间记录(含排名)`，`bvs记录(含排名)`，`游戏局数(含开率)`，`当前等级`与`当前排名`。 :material-account-group: :material-circle:{.green_circle}
+- 按 ID 查询联萌用户扫雷相关数据：获得用户的`时间记录(含排名)`，`bvs记录(含排名)`，`游戏局数(含开率)`，`当前等级`与`当前排名`。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -222,7 +222,7 @@
         id $UID$
         ```
 
--   个人信息查询：本功能需要群主给以查询用户 ID 命名的头衔，查询结果与上文一致。 :material-account-group: :material-circle:{.green_circle}
+- 个人信息查询：本功能需要群主给以查询用户 ID 命名的头衔，查询结果与上文一致。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -240,7 +240,7 @@
 
     由于该功能容易刷屏，每个联萌 ID**一个小时以内**仅能查询一次，多次查询时小鱼不会回应。
 
--   按昵称模糊搜索联萌用户：获得用户的`昵称`与`ID`。 :material-circle:{.green_circle}
+- 按昵称模糊搜索联萌用户：获得用户的`昵称`与`ID`。 :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -258,7 +258,7 @@
 
     如果使用`search %`命令，将模糊搜索前十玩家. 模糊搜索一次最多查询`10`名玩家。
 
--   成绩比较功能：比较两个 ID 的三个等级的`时间`和`bvs`成绩。 :material-account-group: :material-circle:{.green_circle}
+- 成绩比较功能：比较两个 ID 的三个等级的`时间`和`bvs`成绩。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -274,7 +274,7 @@
 
 ### 排行榜
 
--   主动获取联萌每个等级的人数与总计人数, 并比较与上周的人数变化。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 主动获取联萌每个等级的人数与总计人数, 并比较与上周的人数变化。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -288,8 +288,8 @@
         level
         ```
 
--   自动推送联萌每个等级的人数与总计人数：每周一 00:00:00 进行推送，误差为 30 秒。 :material-account-group: :material-fish:{.blue_fish}
--   经典模式排行榜查询：包含用户的`排名`，`昵称`，`ID`与`成绩`。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 自动推送联萌每个等级的人数与总计人数：每周一 00:00:00 进行推送，误差为 30 秒。 :material-account-group: :material-fish:{.blue_fish}
+- 经典模式排行榜查询：包含用户的`排名`，`昵称`，`ID`与`成绩`。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -401,7 +401,7 @@
 
 ### 录像解析
 
--   录像数据解析功能：包含扫雷局面的信息以及用户的操作信息，基本与电脑端`arbiter`的计数器的统计信息保持一致。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 录像数据解析功能：包含扫雷局面的信息以及用户的操作信息，基本与电脑端`arbiter`的计数器的统计信息保持一致。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -439,7 +439,7 @@
 
     详细的统计信息包含：ID/level/rank，mode，time/est，solved_bv/bv/bvs，ce/ces，cl/cls，l/fl/r/d，path，op/is，ioe/iome，qg/rqp，corr/thrp，stnb。
 
--   分享录像链接自动解析功能：该功能在提取到`http://tapsss.com`与`post=`关键词后自动触发。 :material-circle:{.green_circle}
+- 分享录像链接自动解析功能：该功能在提取到`http://tapsss.com`与`post=`关键词后自动触发。 :material-circle:{.green_circle}
 
 !!! warning
 
@@ -447,7 +447,7 @@
 
 ### 对战机器人
 
--   查询对战机器人状态：包含信息为`对战等级(含当前等级完成度)`，`胜负场数(含胜率)`，与`最近一盘战况`。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 查询对战机器人状态：包含信息为`对战等级(含当前等级完成度)`，`胜负场数(含胜率)`，与`最近一盘战况`。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -461,7 +461,7 @@
         autopvp
         ```
 
--   自动推送对战机器人状态：每天 00:00:00 进行推送，误差为 30 秒。 :material-account-group: :material-fish:{.blue_fish}
+- 自动推送对战机器人状态：每天 00:00:00 进行推送，误差为 30 秒。 :material-account-group: :material-fish:{.blue_fish}
 
 !!! tip
 
@@ -473,7 +473,7 @@
 
 ## 娱乐功能
 
--   打招呼功能: 根据当前的时间，小鱼会给出不同的问候语句。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 打招呼功能: 根据当前的时间，小鱼会给出不同的问候语句。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -491,7 +491,7 @@
 
     戳一戳小鱼，也会给出与打招呼相同的反馈。
 
--   膜佬功能：包含了多样的膜佬形式(包括动图)和随机的膜佬语句。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 膜佬功能：包含了多样的膜佬形式(包括动图)和随机的膜佬语句。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -527,7 +527,7 @@
 
     用于复读的膜佬语句**不会**出现动图。
 
--   加油功能：包含了少量的加油形式(包括动图)和随机的加油语句。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 加油功能：包含了少量的加油形式(包括动图)和随机的加油语句。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -553,7 +553,7 @@
 
     加油指令的参数可为空，此时会默认用`大佬`作为参数。
 
--   复读功能：如果群内有五条呈**等差数列**的消息(不包含小鱼在内)，小鱼会复读等差数列的下一项，相同的消息**只会**复读一次。 :material-account-group: :material-circle:{.green_circle}
+- 复读功能：如果群内有五条呈**等差数列**的消息(不包含小鱼在内)，小鱼会复读等差数列的下一项，相同的消息**只会**复读一次。 :material-account-group: :material-circle:{.green_circle}
 
 !!! tip
 
@@ -573,7 +573,7 @@
 
     变形复读中出现的三种形式是互斥的。
 
--   设置复读屏蔽词：小鱼不会复读在屏蔽列表中的词汇。 :material-account-group: :material-circle:{.red_circle}
+- 设置复读屏蔽词：小鱼不会复读在屏蔽列表中的词汇。 :material-account-group: :material-circle:{.red_circle}
 
     === "中文指令"
 
@@ -607,7 +607,7 @@
 
     不推荐设置过多的屏蔽词，可能会导致性能问题。
 
--   设置复读参数：设置复读的`变形概率`(0-100 整数)与`打断概率`(0-100 整数)。 :material-account-group: :material-circle:{.red_circle}
+- 设置复读参数：设置复读的`变形概率`(0-100 整数)与`打断概率`(0-100 整数)。 :material-account-group: :material-circle:{.red_circle}
 
     === "中文指令"
 
@@ -621,7 +621,7 @@
         repeaterparam $mutate-prob$ $cut-in-prob$
         ```
 
--   查看复读状态：显示当前的`变形概率`与`打断概率`。 :material-account-group: :material-circle:{.red_circle}
+- 查看复读状态：显示当前的`变形概率`与`打断概率`。 :material-account-group: :material-circle:{.red_circle}
 
     === "中文指令"
 
@@ -635,7 +635,7 @@
         repeaterstatus
         ```
 
--   小黑屋功能：在小鱼为管理员时，禁言进入小黑屋的用户一段时间(以分钟为单位)。 :material-account-group: :material-circle:{.yellow_circle}
+- 小黑屋功能：在小鱼为管理员时，禁言进入小黑屋的用户一段时间(以分钟为单位)。 :material-account-group: :material-circle:{.yellow_circle}
 
     === "中文指令"
 
@@ -653,7 +653,7 @@
 
     允许设定的时间范围是 1 分钟至 43200 分钟(即 1 个月)，如果设定时间不在此范围内，禁言时间将会自动调整为 10 分钟。
 
--   随机数功能: 生成`m`与`n`之间`c`个随机整数。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 随机数功能: 生成`m`与`n`之间`c`个随机整数。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -721,39 +721,39 @@
 
 ### 规则及说明
 
--   算 42 点小游戏：每日 8-23 点 42:42 自动触发。 :material-fish:{.blue_fish}
+- 算 42 点小游戏：每日 8-23 点 42:42 自动触发。 :material-fish:{.blue_fish}
 
--   42 点游戏规则(暂定):
+- 42 点游戏规则(暂定):
 
-    -   每日 8-23 时的 42 分 42 秒, 会给出 5 个位于 0 至 13 之间的整数，玩家需要将这五个整数(可以调换顺序)通过四则运算与括号相连，使得结果等于 42(有`0.25%`的概率随机为`24-60`中的某个数);
-    -   回答时以"calc42"或"42 点"开头，加入空格，并给出算式;
-    -   将根据每个问题解的个数决定结算时间，5 个解对应 3 分钟的结算时间，15 分钟封顶;
-    -   在游戏结束前 1 分钟，小鱼会进行提醒，并发送当前问题的求解结果;
-    -   示例：(问题) 1 3 3 8 2，(正确的回答) calc42/42 点 (1 + 3 + 3) \* (8 - 2)，(错误的回答) calc422^8!3&3=1。
+  - 每日 8-23 时的 42 分 42 秒, 会给出 5 个位于 0 至 13 之间的整数，玩家需要将这五个整数(可以调换顺序)通过四则运算与括号相连，使得结果等于 42(有`0.25%`的概率随机为`24-60`中的某个数);
+  - 回答时以"calc42"或"42 点"开头，加入空格，并给出算式;
+  - 将根据每个问题解的个数决定结算时间，5 个解对应 3 分钟的结算时间，15 分钟封顶;
+  - 在游戏结束前 1 分钟，小鱼会进行提醒，并发送当前问题的求解结果;
+  - 示例：(问题) 1 3 3 8 2，(正确的回答) calc42/42 点 (1 + 3 + 3) \* (8 - 2)，(错误的回答) calc422^8!3&3=1。
 
--   关于等价解的说明:
+- 关于等价解的说明:
 
-    -   四则运算的性质得出的等价是等价解，即满足交换律，结合律与分配律;
-    -   中间结果出现 0，可以利用加减移动到式子的任何地方，即 $(a + 0) \times b = a \times (b + 0) = a \times b + 0$;
-    -   中间结果出现 1，可以利用乘除移动到式子的任何地方，即 $(a + b) \times 1 = a \times 1 + b = a + b \times 1$;
-    -   $a + b = c$ 时，$(a + b) / c$，$c / (a + b)$，$(c - b) / a$，$a / (c - b)$，$(c - a) / b$，$b / (c - a)$ 等价;
-    -   等值子式的交换等价;
-    -   $2 \times 2$ 与 $2 + 2$ 等价，$4 / 2$ 与 $4 - 2$ 等价。
+  - 四则运算的性质得出的等价是等价解，即满足交换律，结合律与分配律;
+  - 中间结果出现 0，可以利用加减移动到式子的任何地方，即 $(a + 0) \times b = a \times (b + 0) = a \times b + 0$;
+  - 中间结果出现 1，可以利用乘除移动到式子的任何地方，即 $(a + b) \times 1 = a \times 1 + b = a + b \times 1$;
+  - $a + b = c$ 时，$(a + b) / c$，$c / (a + b)$，$(c - b) / a$，$a / (c - b)$，$(c - a) / b$，$b / (c - a)$ 等价;
+  - 等值子式的交换等价;
+  - $2 \times 2$ 与 $2 + 2$ 等价，$4 / 2$ 与 $4 - 2$ 等价。
 
--   关于得分的说明:
+- 关于得分的说明:
 
-    -   每题的得分计算公式为 $10 \times n^{2-m} + 5 - 5 \times m$，其中 $m$ 为"当前总时间/总限时"，$n$ 为"当前解数/总解数";
-    -   如果题目被完全求解(AK)，求解该题目全员额外加 10 分;
-    -   首杀玩家额外加 5 分，最后一个解玩家额外加 $10 \times n^{2-m} \times (1 - \frac{1}{N})$ 分，其中 $N$ 为总解数;
-    -   如果题目多于一半的解均被某名玩家求出，该名玩家额外加(该玩家给出的解数)分;
-    -   统计完所有得分后，将得分取整，作为玩家的本题得分。
+  - 每题的得分计算公式为 $10 \times n^{2-m} + 5 - 5 \times m$，其中 $m$ 为"当前总时间/总限时"，$n$ 为"当前解数/总解数";
+  - 如果题目被完全求解(AK)，求解该题目全员额外加 10 分;
+  - 首杀玩家额外加 5 分，最后一个解玩家额外加 $10 \times n^{2-m} \times (1 - \frac{1}{N})$ 分，其中 $N$ 为总解数;
+  - 如果题目多于一半的解均被某名玩家求出，该名玩家额外加(该玩家给出的解数)分;
+  - 统计完所有得分后，将得分取整，作为玩家的本题得分。
 
--   关于成就的说明:
-    -   每局 42 点结束后，将给予表现出色的玩家一些成就;
-    -   F(First blood)指拿到首杀;
-    -   V(Victory)指获得游戏胜利;
-    -   H(Half AK)指获得半数 AK;
-    -   成就可以叠加获取，且仅供娱乐。
+- 关于成就的说明:
+  - 每局 42 点结束后，将给予表现出色的玩家一些成就;
+  - F(First blood)指拿到首杀;
+  - V(Victory)指获得游戏胜利;
+  - H(Half AK)指获得半数 AK;
+  - 成就可以叠加获取，且仅供娱乐。
 
 !!! tip
 
@@ -761,7 +761,7 @@
 
 ### 相关指令
 
--   回答 42 点题目。 :material-account-group: :material-circle:{.green_circle}
+- 回答 42 点题目。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -775,7 +775,7 @@
         calc42 $expr$
         ```
 
--   显示 42 点规则(即此节内容)。 :material-account: :material-account-group: :material-circle:{.green_circle}
+- 显示 42 点规则(即此节内容)。 :material-account: :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -789,7 +789,7 @@
         guide42
         ```
 
--   显示 42 点游戏得分。 :material-account-group: :material-circle:{.green_circle}
+- 显示 42 点游戏得分。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令 1"
 
@@ -809,7 +809,7 @@
         score42
         ```
 
--   显示 42 点游戏排行。 :material-account-group: :material-circle:{.green_circle}
+- 显示 42 点游戏排行。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令 1"
 
@@ -829,7 +829,7 @@
         rank42
         ```
 
--   显示 42 点游戏今日得分排行。 :material-account-group: :material-circle:{.green_circle}
+- 显示 42 点游戏今日得分排行。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令 1"
 
@@ -849,7 +849,7 @@
         dailyrank42
         ```
 
--   手动生成/取消 42 点(或随机生成 24-60 之间的其它点数)题目。 :material-account-group: :material-circle:{.green_circle}
+- 手动生成/取消 42 点(或随机生成 24-60 之间的其它点数)题目。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -897,7 +897,7 @@
 
 ## 其它功能
 
--   B 站直播订阅/取消订阅/查看订阅。 :material-account-group: :material-circle:{.green_circle}
+- B 站直播订阅/取消订阅/查看订阅。 :material-account-group: :material-circle:{.green_circle}
 
     === "中文指令"
 
@@ -927,13 +927,13 @@
             subscribe - $BUID$
             ```
 
--   B 站直播推送：小鱼每隔 20 秒查询订阅用户名单中的所有用户，如果某个用户处于直播状态，小鱼将会发送 TA 的直播间地址。 :material-account-group: :material-fish:{.blue_fish}
+- B 站直播推送：小鱼每隔 20 秒查询订阅用户名单中的所有用户，如果某个用户处于直播状态，小鱼将会发送 TA 的直播间地址。 :material-account-group: :material-fish:{.blue_fish}
 
 !!! warning
 
     该功能根据订阅名单构造了若干队列，每次查询队首用户状态，并将其移至队尾。需要注意，这种方式会相当耗费流量，且有被风控的风险，请谨慎决定其开启状态。
 
--   本地数据库存档：将小鱼的当前状态写入本地数据库。 :material-circle:{.red_circle} :material-account: :material-account-group:
+- 本地数据库存档：将小鱼的当前状态写入本地数据库。 :material-circle:{.red_circle} :material-account: :material-account-group:
 
     === "中文指令"
 
@@ -947,4 +947,4 @@
         save
         ```
 
--   自动写入数据库：小鱼会从 00:30:00 开始，每隔 2 小时将当前状态写入本地数据库。 :material-fish:{.blue_fish} :material-account: :material-account-group:
+- 自动写入数据库：小鱼会从 00:30:00 开始，每隔 2 小时将当前状态写入本地数据库。 :material-fish:{.blue_fish} :material-account: :material-account-group:

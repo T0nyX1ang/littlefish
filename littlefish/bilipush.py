@@ -11,9 +11,9 @@ import traceback
 import httpx
 import nonebot
 from nonebot import on_command
-from nonebot.adapters.cqhttp import Bot, Event, GroupMessageEvent
+from nonebot.adapters import Bot, Event
 from nonebot.log import logger
-from littlefish._policy.rule import check, broadcast
+from littlefish._policy.rule import check, broadcast, is_in_group
 from littlefish._db import load, save
 
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
@@ -76,9 +76,9 @@ async def push_live_message(bot: Bot, universal_id: str):
     status = await get_user_info(uid)
     if status['live_status'] and not subscribed_list[uid]:
         url_msg = '订阅用户%s开播了~\n' % status['name']
-        share_msg = '[CQ:share,url=%s,title=订阅用户%s开播了~,content=%s]' % (status['live_room_url'], status['name'],
-                                                                       status['live_title'])
-        message = url_msg + share_msg
+        title_msg = '直播标题: %s\n' % status['live_title']
+        share_msg = '直播地址: %s' % status['live_room_url']
+        message = url_msg + title_msg + share_msg
         # post the subscribe message
         await bot.send_group_msg(group_id=group_id, message=message)
 
@@ -88,11 +88,11 @@ async def push_live_message(bot: Bot, universal_id: str):
     save('0', 'global_subscribed_list', global_subscribed_list)
 
 
-subscriber = on_command(cmd='subscribe ', aliases={'订阅用户 '}, rule=check('bilipush', GroupMessageEvent))
+subscriber = on_command(cmd='subscribe', aliases={'订阅用户'}, force_whitespace=True, rule=check('bilipush') & is_in_group)
 
 
 @subscriber.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the subscribe command."""
     universal_id = str(event.self_id) + str(event.group_id)
     subscribed_list = load(universal_id, 'subscribed_list', {})
@@ -104,8 +104,8 @@ async def _(bot: Bot, event: Event, state: dict):
 
     arg = str(event.message).strip()
     try:
-        operator = arg[0]
-        operand = str(int(arg[1:].strip()))
+        operator = arg[1]
+        operand = str(int(arg[2:].strip()))
         operation[operator](operand)  # add or remove the word
         save(universal_id, 'subscribed_list', subscribed_list)
         await subscriber.send(message='订阅用户信息更新成功~')
@@ -117,9 +117,9 @@ async def _(bot: Bot, event: Event, state: dict):
 @broadcast('bilipush')
 async def _(bot_id: str, group_id: str):
     """Push the live message."""
-    bot = nonebot.get_bots()[bot_id]
-    universal_id = str(bot_id) + str(group_id)
     try:
+        bot = nonebot.get_bots()[bot_id]
+        universal_id = str(bot_id) + str(group_id)
         await push_live_message(bot, universal_id)
     except Exception:
         logger.error(traceback.format_exc())
