@@ -1,7 +1,0 @@
-nonebot2==2.0.0a13.post1
-nonebot-adapter-cqhttp==2.0.0a12
-nonebot-plugin-apscheduler==0.1.0
-nonebot-plugin-test==0.2.0
-42Points==1.2.7
-pycryptodome==3.9.6
-semver==2.13.0
