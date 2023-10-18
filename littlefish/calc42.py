@@ -153,26 +153,28 @@ async def show_solutions(bot: Bot, universal_id: str, result: dict):
         message.append({'type': 'node', 'data': {'name': '小鱼', 'uin': bot.self_id, 'content': remaining}})
 
     if message:
+        # warning: this code is only for Onebot protocol
         await bot.send_group_forward_msg(group_id=group_id, messages=Message(message))
 
 
-problem_solver = on_command(cmd='calc42 ', aliases={'42点 '}, rule=check('calc42', GroupMessageEvent))
+problem_solver = on_command(cmd='calc42', aliases={'42点'}, force_whitespace=True, rule=check('calc42') & is_in_group)
 
-manual_player = on_command(cmd='manual42 ', aliases={'手动42点 '}, rule=check('calc42', GroupMessageEvent))
+manual_player = on_command(cmd='manual42', aliases={'手动42点'}, force_whitespace=True, rule=check('calc42') & is_in_group)
 
-score_viewer = on_simple_command(cmd='score42', aliases={'42点得分', '42点积分'}, rule=check('calc42', GroupMessageEvent))
+score_viewer = on_fullmatch(msg=('score42', '42点得分', '42点积分'), rule=check('calc42') & is_in_group)
 
-rank_viewer = on_simple_command(cmd='rank42', aliases={'42点排名', '42点排行'}, rule=check('calc42', GroupMessageEvent))
+rank_viewer = on_fullmatch(msg=('rank42', '42点排名', '42点排行'), rule=check('calc42') & is_in_group)
 
-daily_rank_viewer = on_simple_command(cmd='dailyrank42',
-                                      aliases={'42点今日排名', '42点今日排行'},
-                                      rule=check('calc42', GroupMessageEvent))
+daily_rank_viewer = on_fullmatch(msg=('dailyrank42', '42点今日排名', '42点今日排行'), rule=check('calc42') & is_in_group)
 
 
 @problem_solver.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(bot: Bot, event: Event):
     """Handle the calc42 command."""
-    universal_id = str(event.self_id) + str(event.group_id)
+    if hasattr(event, 'group_id'):
+        universal_id = str(event.self_id) + str(event.group_id)
+    else:
+        universal_id = str(event.self_id) + str(event.get_user_id())
     member_manager = MemberManager(universal_id)
     if not status(universal_id):
         return
@@ -200,14 +202,18 @@ async def _(bot: Bot, event: Event, state: dict):
 
 
 @manual_player.handle()
-async def manual_calc42(bot: Bot, event: Event, state: dict):
+async def manual_calc42(bot: Bot, event: Event):
     """Control the calc42 game manually."""
-    universal_id = str(event.self_id) + str(event.group_id)
-    if status(universal_id) and event.user_id != manager.get_invoker(universal_id):
+    if hasattr(event, 'group_id'):
+        universal_id = str(event.self_id) + str(event.group_id)
+    else:
+        universal_id = str(event.self_id) + str(event.get_user_id())
+
+    if status(universal_id) and event.get_user_id() != manager.get_invoker(universal_id):
         # stop the manual command if the invokers are not matched, only check when the game is started
         return
 
-    option = str(event.message).strip()
+    option = str(event.message).split()[1]
 
     if option == '++':
         await start_game(bot, universal_id, False, True)
@@ -220,7 +226,7 @@ async def manual_calc42(bot: Bot, event: Event, state: dict):
 
 
 @score_viewer.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the score42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
     user_id = f'{event.user_id}'
@@ -229,7 +235,7 @@ async def _(bot: Bot, event: Event, state: dict):
 
 
 @rank_viewer.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the rank42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
     member_manager = MemberManager(universal_id)
@@ -237,7 +243,7 @@ async def _(bot: Bot, event: Event, state: dict):
 
 
 @daily_rank_viewer.handle()
-async def _(bot: Bot, event: Event, state: dict):
+async def _(event: Event):
     """Handle the dailyrank42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
     member_manager = MemberManager(universal_id)
