@@ -93,10 +93,10 @@ async def _(bot: Bot, event: Event):
         return  # ignore group member increases
 
     universal_id = str(event.self_id) + str(event.group_id)
-    join_id = f'{event.user_id}'
+    join_id = f'{event.get_user_id()}'
     members = load(universal_id, 'members', {})
 
-    if event.user_id == event.self_id:  # the bot can not respond to itself
+    if event.get_user_id() == event.self_id:  # the bot can not respond to itself
         return
 
     if join_id in members:  # this means the user has been a group member before
@@ -118,12 +118,12 @@ async def _(event: Event):
     if 'decrease' in event.notice_type:
         return  # ignore group member increases
     universal_id = str(event.self_id) + str(event.group_id)
-    leave_id = f'{event.user_id}'
+    leave_id = f'{event.get_user_id()}'
     members = load(universal_id, 'members', {})
 
     uid = members[leave_id]['id'] if leave_id in members and members[leave_id]['id'] else '未知'
 
-    if event.user_id != event.self_id:  # the bot can not respond to itself
+    if event.get_user_id() != event.self_id:  # the bot can not respond to itself
         await say_goodbye.send(message='有群员[Id: %s]跑路了QAQ' % uid)
 
 
@@ -131,7 +131,7 @@ async def _(event: Event):
 async def _(bot: Bot, event: Event):
     """Handle the blackroom command."""
     group_id = event.group_id
-    user_id = event.user_id
+    user_id = event.get_user_id()
     try:
         duration = int(str(event.message).strip())
     except Exception:

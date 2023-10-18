@@ -130,7 +130,7 @@ async def _(event: Event):
 async def _(event: Event):
     """Handle the id_me command."""
     universal_id = str(event.self_id) + str(event.group_id)
-    user_id = f'{event.user_id}'
+    user_id = f'{event.get_user_id()}'
     try:
         members = load(universal_id, 'members', {})
         uid = int(members[user_id]['id'])

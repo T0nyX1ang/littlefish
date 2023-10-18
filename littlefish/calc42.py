@@ -6,11 +6,10 @@ The rules can be found by invoking 'guide42' in groups.
 
 import traceback
 import nonebot
-from nonebot import on_command
-from nonebot.adapters.cqhttp import Bot, Event, Message, GroupMessageEvent
+from nonebot import on_command, on_fullmatch
+from nonebot.adapters import Bot, Event, Message
 from nonebot.log import logger
-from littlefish._policy.rule import check, broadcast
-from littlefish._policy.plugin import on_simple_command
+from littlefish._policy.rule import check, broadcast, is_in_group
 from littlefish._game import MemberManager, GameManager
 from littlefish._game.ftpts import init, start, solve, stop, status, current
 
@@ -90,7 +89,7 @@ def get_results(universal_id, result: dict) -> str:
 
 async def start_game(bot: Bot, universal_id: str, addscore: bool = True, enforce_random: bool = False):
     """Start the calc42 game."""
-    group_id = int(universal_id[len(str(bot.self_id)):])
+    group_id = universal_id[len(str(bot.self_id)):]
     init(universal_id)
 
     if status(universal_id):
@@ -103,7 +102,7 @@ async def start_game(bot: Bot, universal_id: str, addscore: bool = True, enforce
     try:
         manager.add_scheduler(bot, universal_id, finish_game, deadline)
         manager.add_scheduler(bot, universal_id, timeout_reminder, deadline - hint_timeout)
-        await bot.send_group_msg(group_id=group_id, message=message)
+        await bot.send_group_msg(group_id=int(group_id), message=message)
     except Exception:
         logger.error(traceback.format_exc())
         manager.remove_schedulers(universal_id)
@@ -179,7 +178,7 @@ async def _(bot: Bot, event: Event):
     if not status(universal_id):
         return
 
-    user_id = f'{event.user_id}'
+    user_id = f'{event.get_user_id()}'
     expr = str(event.message).strip()
     message = ''
 
@@ -217,10 +216,10 @@ async def manual_calc42(bot: Bot, event: Event):
 
     if option == '++':
         await start_game(bot, universal_id, False, True)
-        manager.set_invoker(universal_id, event.user_id)
+        manager.set_invoker(universal_id, event.get_user_id())
     elif option == '+':
         await start_game(bot, universal_id, False)
-        manager.set_invoker(universal_id, event.user_id)
+        manager.set_invoker(universal_id, event.get_user_id())
     elif option == '-':
         await finish_game(bot, universal_id)
 
@@ -229,7 +228,7 @@ async def manual_calc42(bot: Bot, event: Event):
 async def _(event: Event):
     """Handle the score42 command."""
     universal_id = str(event.self_id) + str(event.group_id)
-    user_id = f'{event.user_id}'
+    user_id = f'{event.get_user_id()}'
     member_manager = MemberManager(universal_id)
     await score_viewer.send(message=member_manager.get_member_stats(user_id, '42score'))
 
