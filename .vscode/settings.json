@@ -10,5 +10,6 @@
     "[python]": {
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "eeyore.yapf"
-    }
+    },
+    "ruff.lint.run": "onSave"
 }
