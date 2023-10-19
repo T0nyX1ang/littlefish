@@ -168,7 +168,7 @@ class Record(Board):
         state = True
         for next_row, next_col in self.filtered_adjacent(row, col, self.is_opening):
             if self.op_marker[next_row][next_col] == 0:
-                self.op_marker[next_row][next_col] == 1  # mark the opening (excluding edges)
+                self.op_marker[next_row][next_col] = 1  # mark the opening (excluding edges)
                 state = state and self.__is_opening_fully_opened(next_row, next_col)  # truncate if state is False already
 
         return state
