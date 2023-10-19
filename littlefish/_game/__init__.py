@@ -11,6 +11,7 @@ The plugin requires the database plugin (littlefish._db) to work normally.
 
 import nonebot
 from nonebot.adapters import Bot
+
 from littlefish._db import load, save
 
 
@@ -47,11 +48,11 @@ class MemberManager(object):
 
         score = self.members[user_id][rank_item]
         if result == 1:
-            return '排名: %d\n积分: %d' % (result, score)
+            return f'排名: {result}\n积分: {score}'
 
         upper_score = self.members[ranking[result - 2]][rank_item]
         distance = upper_score - score
-        return '排名: %d\n积分: %d\n距上一名: %d' % (result, score, distance)
+        return f'排名: {result}\n积分: {score}\n距上一名: {distance}'
 
     def get_game_rank(self, rank_item: str) -> str:
         """Get a member's rank of a certain game in a certain group with a certain bot."""
@@ -60,7 +61,7 @@ class MemberManager(object):
 
         i = 0
         while i < min(10, len(ranking)) and self.members[ranking[i]][rank_item] > 0:
-            rank_message += '%d: %s - %d\n' % (i + 1, self.get_member_name(ranking[i]), self.members[ranking[i]][rank_item])
+            rank_message += f'{i + 1}: {self.get_member_name(ranking[i])} - {self.members[ranking[i]][rank_item]}\n'
             i += 1
 
         if i == 0:
@@ -99,7 +100,7 @@ class GameManager(object):
             seconds=scheduler_interval,
             args=(bot, universal_id),
             misfire_grace_time=30,
-            id='%s_%s_%s' % (self.game_type, scheduler_func.__name__, universal_id),
+            id=f'{self.game_type}_{scheduler_func.__name__}_{universal_id}',
             replace_existing=True,
         )
 

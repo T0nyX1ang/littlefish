@@ -5,12 +5,14 @@ Please handle these commands with great care.
 """
 
 import traceback
+
 from nonebot import on_command, on_fullmatch
 from nonebot.adapters import Event
 from nonebot.log import logger
+
 from littlefish._db import commit, load, save
-from littlefish._policy.rule import check, is_in_group
 from littlefish._game import MemberManager
+from littlefish._policy.rule import check, is_in_group
 
 save_to_disk = on_fullmatch(msg=('save', '存档'), rule=check('supercmd'))
 
@@ -63,10 +65,9 @@ async def _(event: Event):
         cut_in_prob = 5
 
     block_message = '空' if not block_wordlist else ', '.join(block_wordlist)
-    message = '复读状态: [%d]-[%s|%s|%s]-[%d%%|%d%%]\n当前屏蔽词: %s' % (combo, left_increment, msg_base, right_increment, mutate_prob,
-                                                                cut_in_prob, block_message)
-
-    await repeater_status.send(message=message)
+    block_status = f'复读状态: [{combo}]-[{left_increment}|{msg_base}|{right_increment}]-[{mutate_prob}%|{cut_in_prob}%]\n'
+    block_word = f'当前屏蔽词: {block_message}'
+    await repeater_status.send(message=block_status + block_word)
 
 
 @block_word_changer.handle()
@@ -102,7 +103,7 @@ async def _(event: Event):
         cut_in_prob = min(max(next(args), 0), 100)
         save(universal_id, 'mutate_probability', mutate_prob)
         save(universal_id, 'cut_in_probability', cut_in_prob)
-        message = '复读参数设定成功，当前变形概率为%d%%，打断概率为%d%%' % (mutate_prob, cut_in_prob)
+        message = f'复读参数设定成功，当前变形概率为{mutate_prob}%，打断概率为{cut_in_prob}%'
         await repeater_param_changer.send(message=message)
     except Exception:
         await repeater_param_changer.send(message='复读参数设定失败，请重试')
@@ -118,7 +119,8 @@ async def _(event: Event):
     try:
         user_id = str(int(args[0]))
         score = int(args[2])
-        message = '42点得分修改成功(%d -> %d)' % member_manager.change_game_score(user_id, '42score', score * multiplier[args[1]])
+        before, after = member_manager.change_game_score(user_id, '42score', score * multiplier[args[1]])
+        message = f'42点得分修改成功({before} -> {after})'
         await calc42_score_changer.send(message=message)
     except Exception:
         await calc42_score_changer.send(message='42点得分修改失败，请重试')

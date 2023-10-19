@@ -25,7 +25,7 @@ from littlefish._db import save, load
 
 async def update_group_members(bot: Bot, group_id: str):
     """Update group members' information and store it to the database."""
-    logger.info('Updating group [%s] members ...' % group_id)
+    logger.info(f'Updating group [{group_id}] members ...')
     universal_id = str(bot.self_id) + str(group_id)
 
     # load the original information from the database
@@ -72,12 +72,7 @@ async def _(bot: Bot, event: Event):
         comment = str(event.comment)
         player_id = int(comment[comment.find('答案') + 3:].strip())
         user_info = await get_user_info(player_id)
-        message = '%s[%d](%s%d)申请加群了~' % (
-            user_info['nickname'],
-            user_info['uid'],
-            level_ref[user_info['level']],
-            user_info['rank'],
-        )
+        message = f"{user_info['nickname']}[{user_info['uid']}]({level_ref[user_info['level']]}{user_info['rank']})申请加群了~"
         if 0 <= user_info['rank'] <= 2:
             raise PermissionError('Insufficient level.')
         await user_validator.send(message=message)
@@ -124,7 +119,7 @@ async def _(event: Event):
     uid = members[leave_id]['id'] if leave_id in members and members[leave_id]['id'] else '未知'
 
     if event.get_user_id() != event.self_id:  # the bot can not respond to itself
-        await say_goodbye.send(message='有群员[Id: %s]跑路了QAQ' % uid)
+        await say_goodbye.send(message=f'有群员[Id: {uid}]跑路了QAQ')
 
 
 @black_room.handle()

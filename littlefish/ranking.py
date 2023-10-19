@@ -12,9 +12,10 @@ The [mode] and [level] command is only available in [time] and [bvs] item.
 
 from nonebot import on_command
 from nonebot.adapters import Event
+
 from littlefish._exclaim import exclaim_msg
 from littlefish._mswar.api import get_ranking_info
-from littlefish._mswar.references import type_ref, style_ref, mode_ref
+from littlefish._mswar.references import mode_ref, style_ref, type_ref
 from littlefish._policy.rule import check
 
 
@@ -22,7 +23,7 @@ def format_ranking_info(ranking_info: list) -> str:
     """Formatter for information."""
     result_message = ''
     for v in ranking_info:
-        result_message += '%d: %s[%d] - %s\n' % v
+        result_message += f'{v[0]}: {v[1]}[{v[2]}] - {v[3]}\n'
     if not result_message:
         # deal with empty query
         result_message = '未查询到符合条件的排名~'

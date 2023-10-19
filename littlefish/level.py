@@ -7,13 +7,15 @@ The level information is automatically fetched at 00:00:10 +- 30s weekly.
 """
 
 import traceback
+
 import nonebot
 from nonebot import on_fullmatch
 from nonebot.log import logger
-from littlefish._policy.rule import check, broadcast
+
+from littlefish._db import load, save
 from littlefish._mswar.api import get_level_list
 from littlefish._mswar.references import level_ref
-from littlefish._db import load, save
+from littlefish._policy.rule import broadcast, check
 
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 min_level, max_level = 1, max(level_ref)
@@ -44,7 +46,7 @@ def format_level_list(level_list_data: dict) -> str:
         ref = level_ref[lv]  # global reference
         total += data[ref]
         history_total += level_history[ref]
-        line.append('%s: %d(%+d) | %d(%+d)' % (ref, data[ref], data[ref] - level_history[ref], total, total - history_total))
+        line.append(f'{ref}: {data[ref]}({data[ref] - level_history[ref]:+}) | {total}({total - history_total:+})')
     result_message = ''
     for each_line in line:
         result_message = result_message + each_line + '\n'

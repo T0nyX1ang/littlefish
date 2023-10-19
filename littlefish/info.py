@@ -10,45 +10,47 @@ The command requires to be invoked in groups.
 
 import time
 import traceback
+
 from nonebot import on_command, on_fullmatch
 from nonebot.adapters import Event
 from nonebot.log import logger
-from littlefish._exclaim import exclaim_msg
-from littlefish._policy.rule import check, is_in_group
-from littlefish._mswar.api import get_user_info
-from littlefish._mswar.references import sex_ref, level_ref
+
 from littlefish._db import load, save
+from littlefish._exclaim import exclaim_msg
+from littlefish._mswar.api import get_user_info
+from littlefish._mswar.references import level_ref, sex_ref
+from littlefish._policy.rule import check, is_in_group
 
 
 def format_rank_change(change: int) -> str:
     """Format rank change."""
     if change > 0:
-        return '↓%d' % change
+        return f'↓{change}'
     elif change < 0:
-        return '↑%d' % abs(change)
+        return f'↑{abs(change)}'
     return '-'
 
 
 def format_user_info(user_info: dict) -> str:
     """Format detailed user info."""
-    line = ['%s [%d] %s' % (user_info['nickname'], user_info['uid'], sex_ref[user_info['sex']])]
+    line = [f"{user_info['nickname']} [{user_info['uid']}] {sex_ref[user_info['sex']]}"]
 
     if user_info['level'] != 0:
+        # convert to f-string
         line += [
-            '初级: %.3f | %.3f' % user_info['record_beg'],
-            '局数: %.1fw (%.1f%%)' % user_info['stat_beg'],
-            '中级: %.3f | %.3f' % user_info['record_int'],
-            '局数: %.1fw (%.1f%%)' % user_info['stat_int'],
-            '高级: %.3f | %.3f' % user_info['record_exp'],
-            '局数: %.1fw (%.1f%%)' % user_info['stat_exp'],
-            '总计: %.3f | %.3f' % user_info['record_total'],
-            '评价: %s, %d (%s)' %
-            (level_ref[user_info['level']], user_info['rank'], format_rank_change(user_info['rank_change']))
+            f"初级: {user_info['record_beg'][0]:.3f} | {user_info['record_beg'][1]:.3f}",
+            f"局数: {user_info['stat_beg'][0] / 10000:.1f}w ({user_info['stat_beg'][1]:.1f}%)",
+            f"中级: {user_info['record_int'][0]:.3f} | {user_info['record_int'][1]:.3f}",
+            f"局数: {user_info['stat_int'][0] / 10000:.1f}w ({user_info['stat_int'][1]:.1f}%)",
+            f"高级: {user_info['record_exp'][0]:.3f} | {user_info['record_exp'][1]:.3f}",
+            f"局数: {user_info['stat_exp'][0] / 10000:.1f}w ({user_info['stat_exp'][1]:.1f}%)",
+            f"总计: {user_info['record_total'][0]:.3f} | {user_info['record_total'][1]:.3f}",
+            f"评价: {level_ref[user_info['level']]}, {user_info['rank']} ({format_rank_change(user_info['rank_change'])})"
         ]
     else:
         line.append('未加入排名, 无评价')
 
-    line.append('雷网: %s' % user_info['saoleiID'])
+    line.append(f"雷网: {user_info['saoleiID']}")
     result_message = ''
     for each_line in line:
         result_message = result_message + each_line + '\n'
@@ -63,8 +65,8 @@ def _validate_id(universal_id: str, uid: str, gap: int) -> int:
         current[uid] = current_time
         save(universal_id, 'id_colding_list', current)
         return 0
-    else:
-        return gap - current_time + current[uid]
+
+    return gap - current_time + current[uid]
 
 
 id_info = on_command(cmd='id', aliases={'联萌'}, force_whitespace=True, rule=check('info') & is_in_group)
@@ -85,7 +87,7 @@ async def _(event: Event):
     universal_id = str(event.self_id) + str(event.group_id)
     colding_time = _validate_id(universal_id, str(uid), gap=3600)
     if colding_time > 0:
-        wait_message = '用户[%d]尚在查询冷却期，剩余时间%d秒~' % (uid, colding_time)
+        wait_message = f'用户[{uid}]尚在查询冷却期，剩余时间{colding_time}秒~'
         await id_info.finish(message=wait_message)
 
     try:
@@ -115,12 +117,12 @@ async def _(event: Event):
         logger.error(traceback.format_exc())
         await id_battle.finish(message='用户信息获取失败~')
 
-    battle_message = '[%d] vs [%d]\n' % (uid1, uid2)
+    battle_message = f'[{uid1}] vs [{uid2}]\n'
 
     for v in ['beg', 'int', 'exp', 'total']:
         tdiff = uid1_info[f'record_{v}'][0] - uid2_info[f'record_{v}'][0]
         bdiff = uid1_info[f'record_{v}'][1] - uid2_info[f'record_{v}'][1]
-        result = f'{v}: %+.3f | %+.3f' % (tdiff, bdiff)
+        result = f'{v}: {tdiff:+0.3f} | {bdiff:+0.3f}'
         battle_message += (result + '\n')
 
     await id_battle.send(message=battle_message.strip())
@@ -139,7 +141,7 @@ async def _(event: Event):
 
     colding_time = _validate_id(universal_id, str(uid), gap=3600)
     if colding_time > 0:
-        wait_message = '用户ID[%d]尚在查询冷却期，剩余冷却时间%d秒~' % (uid, colding_time)
+        wait_message = f'用户ID[{uid}]尚在查询冷却期，剩余冷却时间{colding_time}秒~'
         await id_me.finish(message=wait_message)
 
     try:

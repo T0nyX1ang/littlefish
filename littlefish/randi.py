@@ -9,10 +9,12 @@ d: descending order
 """
 
 import random
+
 from nonebot import on_command
 from nonebot.adapters import Event
-from littlefish._policy.rule import check
+
 from littlefish._exclaim import exclaim_msg
+from littlefish._policy.rule import check
 
 
 def get_randi(begin: int, end: int, count: int, extras: list) -> list:
@@ -47,7 +49,7 @@ async def _(event: Event):
         count = int(args[3])
         extras = args[4:]
         result = get_randi(begin, end, count, extras)
-        message = '随机结果: %s' % ' '.join(map(str, result))
+        message = f"随机结果: {' '.join(map(str, result))}"
         await randi.send(message=message)
     except Exception:
         await randi.send(message=exclaim_msg('', '3', False, 1))

@@ -74,7 +74,7 @@ try:
     with open(policy_config_location, 'r', encoding='utf-8') as f:
         policy_config = json.loads(f.read())
         logger.info('Policy file is loaded ...')
-        logger.debug('Policy control data: %s' % policy_config)
+        logger.debug(f'Policy control data: {policy_config}')
 except Exception:
     policy_config = {}
     logger.warning('Failed to load policy file, using empty policy file ...')
@@ -91,7 +91,7 @@ def valid(command_name: str) -> list:
 class PolicyRule:
     """Check the policy of each command by name."""
 
-    __slots__ = ('command_name')
+    __slots__ = ('command_name',)
 
     def __init__(self, command_name: str):
         """Initialize the rule."""
@@ -99,7 +99,7 @@ class PolicyRule:
 
     async def __call__(self, event: Event) -> bool:
         """Rule wrapper for "check" item in the policy control."""
-        logger.debug('Checking command: [%s].' % self.command_name)
+        logger.debug(f'Checking command: [{self.command_name}].')
 
         try:
             # Fetch information from event
@@ -132,19 +132,20 @@ def broadcast(command_name: str, identifier: str = '@') -> bool:
 
     def _broadcast(func):
         """Rule wrapper for "broadcast" item in the policy control."""
-        logger.debug('Checking broadcast: [%s].' % _name)
+        logger.debug(f'Checking broadcast: [{_name}].')
         for bid, gid in valid(_name):
             try:
                 scheduler.add_job(func=func,
                                   args=(bid, gid),
                                   trigger='cron',
-                                  id='%s_%s_broadcast_%s_%s' % (_name, _idt, bid, gid),
+                                  id=f'{_name}_{_idt}_broadcast_{bid}_{gid}',
                                   misfire_grace_time=30,
                                   replace_existing=True,
                                   **policy_config[bid][gid][_name][_idt])
-                logger.debug('Created broadcast [%s] with bot [%s] in group [%s].' % (_name, bid, gid))
+                logger.debug(f'Created broadcast [{_name}] with bot [{bid}] in group [{gid}].')
             except Exception:
-                logger.debug('Skipped broadcast [%s] with bot [%s] in group [%s].' % (_name, bid, gid))
+                logger.debug(f'Skipped broadcast [{_name}] with bot [{bid}] in group [{gid}].')
+
     return _broadcast
 
 

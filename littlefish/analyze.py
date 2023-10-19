@@ -19,29 +19,26 @@ from littlefish._exclaim import exclaim_msg
 def format_record(record: dict) -> str:
     """Formatter for information."""
     line = [
-        'playerID: %d (%s%d)' % (
-            record['uid'],
-            level_ref[record['level']],
-            record['rank'],
-        ),
-        'mode: %s%s (%s)' % ('UPK ' * record['upk'], record['difficulty'], record['style']),
-        'time/est: %.3f/%.3f' % (record['rtime'], record['est']),
-        'bv/bvs: %d/%d, %.3f' % (record['solved_bv'], record['bv'], record['bvs']),
-        'ce/ces: %d, %.3f' % (record['ce'], record['ces']),
-        'cl/cls: %d, %.3f' % (record['cl'], record['cls']),
-        'l/fl/r/d: %d, %d, %d, %d' % (record['left'], record['flags'], record['right'], record['double']),
-        'op/is: %d/%d, %d' % (record['solved_op'], record['op'], record['is']),
-        'path: %.3f' % (record['path']),
-        'ioe/iome: %.3f, %.3f' % (record['ioe'], record['iome']),
-        'corr/thrp: %.3f, %.3f' % (record['corr'], record['thrp']),
-        'rqp/qg: %.3f, %.3f' % (record['rqp'], record['qg']),
+        f"playerID: {record['uid']} ({level_ref[record['level']]}{record['rank']})",
+        f"mode: {'UPK ' * record['upk']}{record['difficulty']} ({record['style']})",
+        f"time/est: {record['rtime']:.3f}/{record['est']:.3f}",
+        f"bv/bvs: {record['solved_bv']}/{record['bv']:.3f}, {record['bvs']:.3f}",
+        f"ce/ces: {record['ce']:.3f}, {record['ces']:.3f}",
+        f"cl/cls: {record['cl']:.3f}, {record['cls']:.3f}",
+        f"l/fl/r/d: {record['left']}, {record['flags']}, {record['right']}, {record['double']}",
+        f"op/is: {record['solved_op']}/{record['op']}, {record['is']}",
+        f"path: {record['path']:.3f}",
+        f"ioe/iome: {record['ioe']:.3f}, {record['iome']:.3f}",
+        f"corr/thrp: {record['corr']:.3f}, {record['thrp']:.3f}",
+        f"rqp/qg: {record['rqp']:.3f}, {record['qg']:.3f}",
     ]
-    if record['difficulty'] in ['beg', 'int', 'exp-h', 'exp-v']:
-        line.append('stnb: %.3f' % record['stnb'])
 
-    result_message = ''
+    if record['difficulty'] in ['beg', 'int', 'exp-h', 'exp-v']:
+        line.append(f"stnb: {record['stnb']:.3f}")
+
+    result_message = ""
     for each_line in line:
-        result_message = result_message + each_line + '\n'
+        result_message = result_message + each_line + "\n"
     return result_message.strip()
 
 
@@ -53,6 +50,7 @@ record_pusher = on_keyword(keywords={'http://tapsss.com'}, rule=check('analyze')
 async def _(event: Event):
     """Handle the analyze command."""
     args = str(event.message).split()
+    print(args)
     id_type = {'record': False, 'r': False, '录像': False, 'post': True, 'p': True, '帖子': True}
 
     try:

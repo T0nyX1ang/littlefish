@@ -13,14 +13,16 @@ save: save the data to the database. (The data should be json compatible)
 commit: save the database on disk. This module is invoked every two hours.
 """
 
-import os
-import time
 import gzip
-import shutil
 import json
+import os
+import shutil
+import time
 import traceback
+
 import nonebot
 from nonebot.log import logger
+
 from .config import DatabaseConfig
 
 scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
@@ -70,7 +72,7 @@ async def commit():
     """Commit to the database, saving the file on disk from memory."""
     logger.info('Saving the database to disk ...')
 
-    database_backup = os.path.join(database_backup_directory, '%d.bak' % int(time.time() * 1000000))
+    database_backup = os.path.join(database_backup_directory, f'{int(time.time() * 1000000)}.bak')
     shutil.copyfile(database_location, database_backup)
 
     backups = os.listdir(database_backup_directory)

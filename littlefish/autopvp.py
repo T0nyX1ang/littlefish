@@ -16,14 +16,14 @@ from littlefish._exclaim import exclaim_msg
 
 def format_pvp_info(autopvp_info: dict) -> str:
     """Formatter for information."""
+    level_rate = autopvp_info['current_exp'] / autopvp_info['next_stage_exp'] * 100
+    win_rate = autopvp_info['win'] / (autopvp_info['win'] + autopvp_info['lose']) * 100
     line = [
-        '对战机器人状态:',
-        '排名: %d' % (autopvp_info['rank']),
-        '等级: %d (完成 %.1f%%)' % (autopvp_info['level'], autopvp_info['current_exp'] / autopvp_info['next_stage_exp'] * 100),
-        '战绩: 胜利 %d 场, 失败 %d 场, 胜率 %.1f%%' % (autopvp_info['win'], autopvp_info['lose'], autopvp_info['win'] /
-                                             (autopvp_info['win'] + autopvp_info['lose']) * 100),
-        '最近挑战胜者: %s' % (autopvp_info['latest_battle_winner'])
+        "对战机器人状态:", f"排名: {autopvp_info['rank']}", f"等级: {autopvp_info['level']} (完成 {level_rate:.1f}%)",
+        f"战绩: 胜利 {autopvp_info['win']} 场, 失败 {autopvp_info['lose']} 场, 胜率 {win_rate:.1f}%",
+        f"最近挑战胜者: {autopvp_info['latest_battle_winner']}"
     ]
+
     result_message = ''
     for each_line in line:
         result_message = result_message + each_line + '\n'

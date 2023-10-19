@@ -5,13 +5,15 @@ This module works as a kernel, and does not provide any of APIs.
 The APIs are seperated into the above layers.
 """
 
-import time
 import hashlib
 import json
+import time
+
 import httpx
 import nonebot
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
+
 from .config import AccountConfig
 
 global_config = nonebot.get_driver().config

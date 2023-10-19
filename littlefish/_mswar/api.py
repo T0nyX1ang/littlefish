@@ -10,11 +10,13 @@ get_record(with record_id or post_id)
 _get_latest_battle_winner.
 """
 
-import math
-import gzip
 import base64
+import gzip
+import math
 import urllib.parse
+
 import nonebot
+
 from .analyzer import Board, Record
 from .config import PVPConfig
 from .netcore import fetch
@@ -26,11 +28,11 @@ autopvp_uid = plugin_config.autopvp_uid
 
 async def _get_latest_battle_winner() -> str:
     """Get latest battle winner of autopvp."""
-    battle_query = "uid=%s&page=0&count=1" % autopvp_uid
+    battle_query = f"uid={autopvp_uid}&page=0&count=1"
     autopvp_last_battle = await fetch(page='/Minesweeper/game/pvp/list/record', query=battle_query)
     battle_id = autopvp_last_battle['data'][0]['record']['id']
 
-    battle_detail_query = 'id=%d' % (battle_id)
+    battle_detail_query = f'id={battle_id}'
     latest_battle_detail = await fetch(page='/Minesweeper/game/pvp/record/detail', query=battle_detail_query)
     winner = latest_battle_detail['data']['records'][0]['user']['nickName']
     return winner
@@ -38,7 +40,7 @@ async def _get_latest_battle_winner() -> str:
 
 async def get_autopvp_info() -> dict:
     """Get full information of autopvp bot."""
-    query = "uid=%s" % autopvp_uid
+    query = f"uid={autopvp_uid}"
     autopvp_result = await fetch(page='/Minesweeper/game/pvp/career', query=query)
 
     autopvp_info = {}
@@ -60,7 +62,7 @@ async def get_daily_map() -> dict:
     daily_map = daily_map_board.get_result()
     daily_map['id'] = daily_map_result['data']['mapId']
 
-    query = 'mapId=%d&page=0&count=1' % (daily_map['id'])
+    query = f'mapId={daily_map["id"]}&page=0&count=1'
     daily_map_highest_result = await fetch(page='/Minesweeper/rank/daily/list', query=query)
     if daily_map_highest_result['data']:
         daily_map['best_time'] = daily_map_highest_result['data'][0]['time'] / 1000
@@ -102,13 +104,12 @@ async def get_user_info(uid: int) -> dict:
     user_info['uid'] = uid
 
     # home info
-    home_info_result = await fetch(page='/Minesweeper/user/home', query='targetUid=%s' % uid)
+    home_info_result = await fetch(page='/Minesweeper/user/home', query=f'targetUid={uid}')
     user_info['saoleiID'] = '暂未关联'
     if home_info_result['data']['saoleiOauth']:
-        user_info['saoleiID'] = '%s [%s]' % (
-            home_info_result['data']['saoleiOauth']['name'].strip(),
-            home_info_result['data']['saoleiOauth']['openId'].strip(),
-        )
+        saolei_name = home_info_result['data']['saoleiOauth']['name'].strip()
+        saolei_id = home_info_result['data']['saoleiOauth']['openId'].strip()
+        user_info['saoleiID'] = f'{saolei_name} [{saolei_id}]'
     user_info['nickname'] = home_info_result['data']['user']['nickName']
     user_info['sex'] = home_info_result['data']['user']['sex']
     user_info['level'] = home_info_result['data']['user']['timingLevel']
@@ -117,12 +118,13 @@ async def get_user_info(uid: int) -> dict:
 
     if user_info['level'] != 0:
         # update history rank
+        query_rank = user_info['rank'] - 1
         rank_info_result = await fetch(page='/Minesweeper/rank/timing/list',
-                                       query='type=0&mode=-1&level=4&page=%d&count=1' % (user_info['rank'] - 1))
+                                       query=f'type=0&mode=-1&level=4&page={query_rank}&count=1')
         user_info['rank_change'] = user_info['rank'] - rank_info_result['data'][0]['rankHistory']
 
     # user statistics
-    statistics_result = await fetch(page='/Minesweeper/minesweeper/timing/statistics', query='uid=%s' % uid)
+    statistics_result = await fetch(page='/Minesweeper/minesweeper/timing/statistics', query=f'uid={uid}')
     for v in ['beg', 'int', 'exp']:  # fetch statistics information
         success = statistics_result['data'][f'{v}Sum']
         fail = statistics_result['data'][f'{v}Fail']
@@ -149,12 +151,12 @@ async def get_record(_id: int, use_post_id: bool = True) -> dict:
     """Get record using record_id or post_id from the remote server."""
     if use_post_id:
         # extract record_id from post_id, this part needs more time.
-        post_result = await fetch(page='/Minesweeper/post/get', query='postId=%d' % (_id))
+        post_result = await fetch(page='/Minesweeper/post/get', query=f'postId={_id}')
         if post_result['data']['recordType'] != 0:
             raise TypeError('Incorrect record type.')
         _id = post_result['data']['recordId']
 
-    record_file = await fetch(page='/Minesweeper/minesweeper/record/get', query='recordId=%d' % (_id))
+    record_file = await fetch(page='/Minesweeper/minesweeper/record/get', query=f'recordId={_id}')
 
     status = []
     if record_file['data']['mapStatus']:
@@ -174,7 +176,7 @@ async def get_record(_id: int, use_post_id: bool = True) -> dict:
 
 async def get_search_info(nickname: str) -> list:
     """Get search information from the remote server."""
-    result = await fetch(page='/Minesweeper/user/search', query='name=%s&page=0&count=10' % urllib.parse.quote(nickname))
+    result = await fetch(page='/Minesweeper/user/search', query=f'name={urllib.parse.quote(nickname)}&page=0&count=10')
 
     search_result = []
 
@@ -188,7 +190,7 @@ async def get_search_info(nickname: str) -> list:
     return search_result
 
 
-async def get_ranking_info(item: int, page: int, count: int = 10, extra: dict = {}) -> list:
+async def get_ranking_info(item: int, page: int, count: int = 10, extra: dict = None) -> list:
     """Get ranking information from the remote server."""
     _ref = [
         ('timing', 'time'),
@@ -202,11 +204,13 @@ async def get_ranking_info(item: int, page: int, count: int = 10, extra: dict = 
     ]  # a reference to negotiate with different ranking parameters
 
     _extra = ''
-    for k, v in extra.items():
-        _extra += '%s=%s&' % (k, v)
+    if not extra:
+        extra = {}
 
-    result = await fetch(page='/Minesweeper/rank/%s/list' % _ref[item][0],
-                         query='%spage=%d&count=%d' % (_extra, page, count))
+    for k, v in extra.items():
+        _extra += f'{k}={v}&'
+
+    result = await fetch(page=f'/Minesweeper/rank/{_ref[item][0]}/list', query=f'{_extra}page={page}&count={count}')
 
     search_result = []
 

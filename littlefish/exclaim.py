@@ -13,13 +13,15 @@ word abnormal for fun.
 Some commands require to be invoked in groups.
 """
 
-import random
 import datetime
-from nonebot import on_fullmatch, on_startswith, on_endswith
+import random
+
+from nonebot import on_endswith, on_fullmatch, on_startswith
 from nonebot.adapters import Event
+
 from littlefish._db import load, save
+from littlefish._exclaim import exclaim_msg, mutate_msg, slim_msg
 from littlefish._policy.rule import check, is_in_group
-from littlefish._exclaim import exclaim_msg, slim_msg, mutate_msg
 
 
 def check_block_wordlist(universal_id: str, message: str) -> bool:

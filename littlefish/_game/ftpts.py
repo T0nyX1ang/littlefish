@@ -13,9 +13,11 @@ Available operations:
 import itertools
 import random
 import traceback
+
 import nonebot
 from ftptsgame import FTPtsGame
 from nonebot.log import logger
+
 from .config import FTPtsConfig
 
 global_config = nonebot.get_driver().config
@@ -88,9 +90,9 @@ def solve(universal_id: str, expr: str, player_id: str) -> dict:
     except (OverflowError, SyntaxError, ValueError):
         hint = '输入错误'
     except ArithmeticError as ae:
-        hint = '答案错误[%s]' % (str(ae))
+        hint = f'答案错误[{str(ae)}]'
     except LookupError as le:
-        hint = '答案与[%s]重复' % (str(le))
+        hint = f'答案与[{str(le)}]重复'
     except Exception:
         hint = '未知错误'
         logger.error(traceback.format_exc())

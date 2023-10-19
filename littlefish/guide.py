@@ -6,6 +6,7 @@ is included here.
 """
 
 from nonebot import on_fullmatch
+
 from littlefish._policy.rule import check
 
 guide = on_fullmatch(msg=('guide', '指南'), rule=check('guide'))

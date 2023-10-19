@@ -71,7 +71,7 @@ class Board(object):
         try:
             return difficulty_ref[size]
         except Exception:
-            return '%dx%d+%d' % size
+            return f'{size[0]}x{size[1]}+{size[2]}'
 
     def filtered_adjacent(self, row: int, col: int, filters: bool):
         """Yield filtered adjacent coordinates."""

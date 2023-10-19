@@ -17,10 +17,8 @@ from littlefish._policy.rule import check, broadcast
 def format_daily_map(daily_map: dict) -> str:
     """Formatter for information."""
     line = [
-        '每日一图:',
-        '%d 行, %d 列, %d 雷' % (daily_map['row'], daily_map['column'], daily_map['mines']),
-        '%d bv, %d op, %d is' % (daily_map['bv'], daily_map['op'], daily_map['is']),
-        '最佳时间: %.3f' % (daily_map['best_time']), '大佬们冲鸭!'
+        "每日一图:", f"{daily_map['row']} 行, {daily_map['column']} 列, {daily_map['mines']} 雷",
+        f"{daily_map['bv']} bv, {daily_map['op']} op, {daily_map['is']} is", f"最佳时间: {daily_map['best_time']:.3f}", "大佬们冲鸭!"
     ]
     result_message = ''
     for each_line in line:

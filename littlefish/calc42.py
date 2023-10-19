@@ -21,8 +21,7 @@ manager = GameManager(game_type='calc42')
 
 def print_current_problem(info: dict) -> str:
     """Print the current problem."""
-    a, b, c, d, e = info['problem']
-    return '本次%d点的题目为: %d %d %d %d %d' % (info['target'], a, b, c, d, e)
+    return f"本次{info['target']}点的题目为: {' '.join(info['problem'])}"
 
 
 def get_deadline(total_number: int) -> int:
@@ -40,8 +39,8 @@ def get_results(universal_id, result: dict) -> str:
     players = result['stats']
     scores, solutions, achievements = {}, {}, {}
 
-    for i in range(len(players)):
-        player_id, elapsed = players[i]
+    for i, player in enumerate(players):
+        player_id, elapsed = player
 
         # get player bouns score
         scores.setdefault(player_id, bonus)
@@ -63,25 +62,25 @@ def get_results(universal_id, result: dict) -> str:
         scores[player_id] += t_score + n_score + f_bonus + v_bonus
 
     if players:
-        achievements[players[0][0]] += 'F'
-        achievements[players[-1][0]] += 'V'
+        achievements[players[0][0]] += "F"
+        achievements[players[-1][0]] += "V"
 
     ordered = sorted(solutions, key=lambda k: solutions[k], reverse=True)
 
     # 50% AK bonus
     if ordered and solutions[ordered[0]] * 2 > result['total']:
         scores[ordered[0]] += solutions[ordered[0]]
-        achievements[ordered[0]] += 'H'
+        achievements[ordered[0]] += "H"
 
-    result_message = '本局%s点游戏结束~\n' % result['target']
-    result_message += '求解完成度: %d/%d\n' % (result['current'], result['total'])
-    result_message += '积分倍率: %d\n' % result['addscore']
+    result_message = f"本局{result['target']}点游戏结束~\n"
+    result_message += f"求解完成度: {result['current']}/{result['total']}\n"
+    result_message += f"积分倍率: {result['addscore']}\n"
 
     member_manager = MemberManager(universal_id)
 
     for player in ordered:
         name = member_manager.get_member_name(player)
-        result_message += '%s: %d解/+%d %s\n' % (name, solutions[player], int(scores[player]), achievements[player])
+        result_message += f"{name}: {solutions[player]}解/+{scores[player]} {achievements[player]}\n"
         member_manager.change_game_score(player, '42score', int(scores[player] * result['addscore']))
         member_manager.change_game_score(player, '42score_daily', int(scores[player] * result['addscore']))
 
@@ -117,7 +116,7 @@ async def timeout_reminder(bot: Bot, universal_id: str):
     if status(universal_id):
         info = current(universal_id)
         try:
-            message = '距离本局%s点游戏结束还有%s秒，冲鸭~' % (info['target'], hint_timeout)
+            message = f"距离本局{info['target']}点游戏结束还有{hint_timeout}秒，冲鸭~"
             await bot.send_group_msg(group_id=group_id, message=message)
         except Exception:
             logger.error(traceback.format_exc())
@@ -189,11 +188,11 @@ async def _(bot: Bot, event: Event):
     else:
         elapsed = int(result['elapsed'])
         left = get_deadline(result['total']) - elapsed
-        message = '恭喜[%s]完成第%d/%d个解，完成时间: %.3f秒，剩余时间: %d秒~' % (member_manager.get_member_name(user_id), result['current'],
-                                                               result['total'], result['interval'], left)
+        member_name = member_manager.get_member_name(user_id)
+        message = f"恭喜[{member_name}]完成第{result['current']}/{result['total']}个解，完成时间: {result['interval']}秒，剩余时间: {left}秒~"
 
     is_finished = (result['current'] == result['total'])
-    message += (not is_finished) * ('\n%s' % print_current_problem(result))
+    message += (not is_finished) * (f'\n{print_current_problem(result)}')
 
     await problem_solver.send(message=message)
 

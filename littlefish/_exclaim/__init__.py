@@ -49,9 +49,11 @@ segment will remain unchanged.
 import csv
 import os
 import random
+
 import nonebot
-from nonebot.log import logger
 from nonebot.adapters.onebot.v11 import Message
+from nonebot.log import logger
+
 from .config import ResourceConfig
 
 global_config = nonebot.get_driver().config
@@ -69,7 +71,7 @@ with open(resource_location, 'r', encoding='utf-8') as f:
             # convert the data to required format, the item will be skipped if it doesn't meet the requirements
             _img = bool(int(_img))
             _weight = max(1, int(_weight))
-            logger.debug('Loading resource: %s, TYPE=%s, IMG=%s, WEIGHT=%s' % (_resource, _type, _img, _weight))
+            logger.debug(f'Loading resource: {_resource}, TYPE={_type}, IMG={_img}, WEIGHT={_weight}')
             # convert the CSV format raw database to dict format database
             resource_database.setdefault(_type, {})  # select the type as the key of the database
             resource_database[_type].setdefault('total_weight', 0)
@@ -79,7 +81,7 @@ with open(resource_location, 'r', encoding='utf-8') as f:
             resource_database[_type]['total_image_weight'] += _weight * _img
             resource_database[_type]['data'].append((_resource, _img, _weight))
         except Exception:
-            logger.error('Failed to load current resource: RAW=%s.' % line)
+            logger.error(f'Failed to load current resource: RAW={line}.')
 
 # sort the database to make the image and non-image resources split apart
 for _type in resource_database:
@@ -141,7 +143,7 @@ def slim_msg(message: str) -> Message:
         elif seg.type == 'redbag':
             seg.type = 'text'
             title = seg.data.pop('title')
-            seg.data['text'] = '我发了一个[%s红包]，请下载最新版扫雷联萌领取~' % title
+            seg.data['text'] = f'我发了一个[{title}红包]，请下载最新版扫雷联萌领取~'
     return Message(message)
 
 

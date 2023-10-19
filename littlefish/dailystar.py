@@ -8,23 +8,25 @@ The dailystar information is automatically fetched on every trigger.
 
 import time
 import traceback
+
 import nonebot
 from nonebot import on_command, on_fullmatch
-from nonebot.log import logger
 from nonebot.adapters import Event
+from nonebot.log import logger
+
+from littlefish._db import load, save
 from littlefish._exclaim import exclaim_msg
 from littlefish._mswar.api import get_daily_star
 from littlefish._mswar.references import sex_ref
-from littlefish._policy.rule import check, broadcast
-from littlefish._db import load, save
+from littlefish._policy.rule import broadcast, check
 
 
 def format_daily_star(daily_star_info: dict) -> str:
     """Format the message of daily star."""
+    # use f-string
     line = [
-        '联萌每日一星:',
-        '%s (Id: %d) %s' % (daily_star_info['nickname'], daily_star_info['uid'], sex_ref[daily_star_info['sex']]),
-        '局面信息: %.3fs / %.3f' % (daily_star_info['time'], daily_star_info['bvs']),
+        "联萌每日一星:", f"{daily_star_info['nickname']} (Id: {daily_star_info['uid']}) {sex_ref[daily_star_info['sex']]}",
+        f"局面信息: {daily_star_info['time']:.3f}s / {daily_star_info['bvs']:.3f}"
     ]
     result_message = ''
     for each_line in line:
@@ -78,8 +80,8 @@ async def _(event: Event):
 
     dailystar_count = _load_daily_star(uid)
     if len(dailystar_count) > 0:
-        message = '用户[%s]在联萌的每日一星次数: %d, 最近%d次获得时间为: %s' % (uid, len(dailystar_count), min(len(dailystar_count), 5), ', '.join(
-            dailystar_count[-1:-6:-1]))
+        counts = len(dailystar_count)
+        message = f"用户[{uid}]在联萌的每日一星次数: {counts}, 最近{min(counts, 5)}次获得时间为: {', '.join(dailystar_count[-1:-6:-1])}"
         await dailystar_counter.send(message=message)
     else:
         await dailystar_counter.send(message='该用户尚未获得每日一星, 请继续努力~')
