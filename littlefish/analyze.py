@@ -7,13 +7,15 @@ Available information:
 
 import time
 import traceback
+
 from nonebot import on_command, on_keyword
 from nonebot.adapters import Event
 from nonebot.log import logger
+
+from littlefish._exclaim import exclaim_msg
 from littlefish._mswar.api import get_record
 from littlefish._mswar.references import level_ref
 from littlefish._policy.rule import check
-from littlefish._exclaim import exclaim_msg
 
 
 def format_record(record: dict) -> str:

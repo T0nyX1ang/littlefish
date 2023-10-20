@@ -8,15 +8,16 @@ The command requires to be invoked in groups.
 """
 
 import traceback
+
 import httpx
 import nonebot
 from nonebot import on_command
 from nonebot.adapters import Bot, Event
 from nonebot.log import logger
-from littlefish._policy.rule import check, broadcast, is_in_group
-from littlefish._db import load, save
 from nonebot_plugin_apscheduler import scheduler
 
+from littlefish._db import load, save
+from littlefish._policy.rule import broadcast, check, is_in_group
 
 
 def _initialize_subscribed_list(universal_id: str, _type: str):

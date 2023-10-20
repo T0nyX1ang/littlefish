@@ -6,12 +6,14 @@ Bot: rank, level (including progress), wins / loses, latest winner.
 """
 
 import traceback
+
 import nonebot
 from nonebot import on_fullmatch
 from nonebot.log import logger
-from littlefish._mswar.api import get_autopvp_info
-from littlefish._policy.rule import check, broadcast
+
 from littlefish._exclaim import exclaim_msg
+from littlefish._mswar.api import get_autopvp_info
+from littlefish._policy.rule import broadcast, check
 
 
 def format_pvp_info(autopvp_info: dict) -> str:
