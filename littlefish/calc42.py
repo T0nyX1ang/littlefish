@@ -15,7 +15,6 @@ from littlefish._game import MemberManager, GameManager
 from littlefish._game.ftpts import init, start, solve, stop, status, current
 
 hint_timeout = 60
-scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 manager = GameManager(game_type='calc42')
 
 

@@ -22,10 +22,10 @@ import traceback
 
 import nonebot
 from nonebot.log import logger
+from nonebot_plugin_apscheduler import scheduler
 
 from .config import DatabaseConfig
 
-scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 global_config = nonebot.get_driver().config
 plugin_config = DatabaseConfig(**global_config.dict())
 database_location = os.path.join(os.getcwd(), plugin_config.database_location)

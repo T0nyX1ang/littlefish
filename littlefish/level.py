@@ -11,13 +11,13 @@ import traceback
 import nonebot
 from nonebot import on_fullmatch
 from nonebot.log import logger
+from nonebot_plugin_apscheduler import scheduler
 
 from littlefish._db import load, save
 from littlefish._mswar.api import get_level_list
 from littlefish._mswar.references import level_ref
 from littlefish._policy.rule import broadcast, check
 
-scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 min_level, max_level = 1, max(level_ref)
 level = on_fullmatch(msg=('level', '用户等级'), rule=check('level'))
 

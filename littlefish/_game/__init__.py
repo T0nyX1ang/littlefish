@@ -9,8 +9,8 @@ The plugin includes:
 The plugin requires the database plugin (littlefish._db) to work normally.
 """
 
-import nonebot
 from nonebot.adapters import Bot
+from nonebot_plugin_apscheduler import scheduler
 
 from littlefish._db import load, save
 
@@ -88,7 +88,7 @@ class GameManager(object):
 
     def __init__(self, game_type):
         """Initialize the manager."""
-        self.scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
+        self.scheduler = scheduler
         self.game_type = game_type
         self.invoker = {}
 

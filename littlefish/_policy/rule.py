@@ -63,12 +63,13 @@ import nonebot
 from nonebot.log import logger
 from nonebot.adapters import Event
 from nonebot.rule import Rule
+from nonebot_plugin_apscheduler import scheduler
+
 from .config import PolicyConfig
 
 global_config = nonebot.get_driver().config
 plugin_config = PolicyConfig(**global_config.dict())
 policy_config_location = os.path.join(os.getcwd(), plugin_config.policy_config_location)
-scheduler = nonebot.require('nonebot_plugin_apscheduler').scheduler
 
 try:
     with open(policy_config_location, 'r', encoding='utf-8') as f:
