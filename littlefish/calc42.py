@@ -5,14 +5,16 @@ The rules can be found by invoking 'guide42' in groups.
 """
 
 import traceback
+
 import nonebot
 from nonebot import on_command, on_fullmatch
 from nonebot.adapters import Bot, Event
 from nonebot.adapters.onebot.v11 import Message
 from nonebot.log import logger
-from littlefish._policy.rule import check, broadcast, is_in_group
-from littlefish._game import MemberManager, GameManager
-from littlefish._game.ftpts import init, start, solve, stop, status, current
+
+from littlefish._game import GameManager, MemberManager
+from littlefish._game.ftpts import current, init, solve, start, status, stop
+from littlefish._policy.rule import broadcast, check, is_in_group
 
 hint_timeout = 60
 manager = GameManager(game_type='calc42')

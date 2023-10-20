@@ -59,9 +59,10 @@ policy into the memory, but not saved into the policy file on disk.
 
 import json
 import os
+
 import nonebot
-from nonebot.log import logger
 from nonebot.adapters import Event
+from nonebot.log import logger
 from nonebot.rule import Rule
 from nonebot_plugin_apscheduler import scheduler
 
