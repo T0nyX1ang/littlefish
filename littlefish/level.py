@@ -9,9 +9,9 @@ The level information is automatically fetched at 00:00:10 +- 30s weekly.
 import traceback
 
 import nonebot
-from nonebot import on_fullmatch
 from nonebot.log import logger
 from nonebot_plugin_apscheduler import scheduler
+from nonebot_plugin_alconna import on_alconna, Alconna
 
 from littlefish._db import load, save
 from littlefish._mswar.api import get_level_list
@@ -19,7 +19,7 @@ from littlefish._mswar.references import level_ref
 from littlefish._policy.rule import broadcast, check
 
 min_level, max_level = 1, max(level_ref)
-level = on_fullmatch(msg=('level', '用户等级'), rule=check('level'))
+level = on_alconna(Alconna(['level', '用户等级']), rule=check('level'))
 
 
 def _initialize_history() -> dict:

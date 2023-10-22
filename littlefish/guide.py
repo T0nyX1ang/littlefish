@@ -5,23 +5,23 @@ A guide, a backup guide, an app package link and a minesweeping guide link
 is included here.
 """
 
-from nonebot import on_fullmatch
+from nonebot_plugin_alconna import on_alconna, Alconna
 
 from littlefish._policy.rule import check
 
-guide = on_fullmatch(msg=('guide', '指南'), rule=check('guide'))
+guide = on_alconna(Alconna(['guide', '指南']), rule=check('guide'))
 
-source_code = on_fullmatch(msg=('source', '源码'), rule=check('guide'))
+source_code = on_alconna(Alconna(['source', '源码']), rule=check('guide'))
 
-get_package = on_fullmatch(msg=('getpackage', '安装包', '安装链接'), rule=check('guide'))
+get_package = on_alconna(Alconna(['getpackage', '安装包', '安装链接']), rule=check('guide'))
 
-ms_guide = on_fullmatch(msg=('msguide', '扫雷指南'), rule=check('guide'))
+ms_guide = on_alconna(Alconna(['msguide', '扫雷指南']), rule=check('guide'))
 
-push_line = on_fullmatch(msg=('pushline', '推送线'), rule=check('guide'))
+push_line = on_alconna(Alconna(['pushline', '推送线']), rule=check('guide'))
 
-guide_42 = on_fullmatch(msg=('guide42', '42点说明'), rule=check('guide') & check('calc42'))
+guide_42 = on_alconna(Alconna(['guide42', '42点说明']), rule=check('guide') & check('calc42'))
 
-bigtable = on_fullmatch(msg=('msbigtable', '联萌大表'), rule=check('guide'))
+bigtable = on_alconna(Alconna(['msbigtable', '联萌大表']), rule=check('guide'))
 
 
 @guide.handle()

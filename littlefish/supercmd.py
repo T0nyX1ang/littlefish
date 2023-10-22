@@ -6,32 +6,26 @@ Please handle these commands with great care.
 
 import traceback
 
-from nonebot import on_command, on_fullmatch
 from nonebot.adapters import Event
 from nonebot.log import logger
+from nonebot_plugin_alconna import on_alconna, Alconna, Args, Arparma
 
 from littlefish._db import commit, load, save
 from littlefish._game import MemberManager
 from littlefish._policy.rule import check, is_in_group
 
-save_to_disk = on_fullmatch(msg=('save', '存档'), rule=check('supercmd'))
+save_to_disk = on_alconna(Alconna(['save', '存档']), rule=check('supercmd'))
 
-repeater_status = on_fullmatch(msg=('repeaterstatus', '复读状态'), rule=check('supercmd') & check('exclaim') & is_in_group)
+repeater_status = on_alconna(Alconna(['repeaterstatus', '复读状态']), rule=check('supercmd') & check('exclaim') & is_in_group)
 
-block_word_changer = on_command(cmd='blockword',
-                                aliases={'复读屏蔽词'},
-                                force_whitespace=True,
-                                rule=check('supercmd') & check('exclaim') & is_in_group)
+alc_bwchanger = Alconna(['blockword', '复读屏蔽词'], Args['option', ['+', '-']]['word', str])
+block_word_changer = on_alconna(alc_bwchanger, rule=check('supercmd') & check('exclaim') & is_in_group)
 
-repeater_param_changer = on_command(cmd='repeaterparam',
-                                    aliases={'复读参数'},
-                                    force_whitespace=True,
-                                    rule=check('supercmd') & check('exclaim') & is_in_group)
+alc_rpchanger = Alconna(['repeaterparam', '复读参数'], Args['mutate_prob', int]['cut_in_prob', int])
+repeater_param_changer = on_alconna(alc_rpchanger, rule=check('supercmd') & check('exclaim') & is_in_group)
 
-calc42_score_changer = on_command(cmd='changescore42',
-                                  aliases={'改变42点得分'},
-                                  force_whitespace=True,
-                                  rule=check('supercmd') & check('calc42') & is_in_group)
+alc_cschanger = Alconna(['changescore42', '改变42点得分'], Args['target', int]['option', ['+', '-']]['change', int])
+calc42_score_changer = on_alconna(alc_cschanger, rule=check('supercmd') & check('exclaim'))
 
 
 @save_to_disk.handle()
@@ -71,7 +65,7 @@ async def _(event: Event):
 
 
 @block_word_changer.handle()
-async def _(event: Event):
+async def _(event: Event, result: Arparma):
     """Handle the blockword command."""
     universal_id = str(event.self_id) + str(event.group_id)
     wordlist = load(universal_id, 'block_wordlist')
@@ -81,9 +75,8 @@ async def _(event: Event):
         '-': lambda x: wordlist.remove(x),
     }
 
-    arg = str(event.message).strip()
-    operator = arg[0]
-    operand = arg[1:].strip()
+    operator = result.option
+    operand = str(result.word)
     try:
         operation[operator](operand)  # add or remove the word
         save(universal_id, 'block_wordlist', list(wordlist))
@@ -94,33 +87,28 @@ async def _(event: Event):
 
 
 @repeater_param_changer.handle()
-async def _(event: Event):
+async def _(event: Event, result: Arparma):
     """Set the parameters of the repeater."""
     universal_id = str(event.self_id) + str(event.group_id)
-    try:
-        args = map(int, str(event.message).split())
-        mutate_prob = min(max(next(args), 0), 100)
-        cut_in_prob = min(max(next(args), 0), 100)
-        save(universal_id, 'mutate_probability', mutate_prob)
-        save(universal_id, 'cut_in_probability', cut_in_prob)
-        message = f'复读参数设定成功，当前变形概率为{mutate_prob}%，打断概率为{cut_in_prob}%'
-        await repeater_param_changer.send(message=message)
-    except Exception:
-        await repeater_param_changer.send(message='复读参数设定失败，请重试')
+    mutate_prob = min(max(result.mutate_prob, 0), 100)
+    cut_in_prob = min(max(result.cut_in_prob, 0), 100)
+
+    save(universal_id, 'mutate_probability', mutate_prob)
+    save(universal_id, 'cut_in_probability', cut_in_prob)
+    message = f'复读参数设定成功，当前变形概率为{mutate_prob}%，打断概率为{cut_in_prob}%'
+    await repeater_param_changer.send(message=message)
 
 
 @calc42_score_changer.handle()
-async def _(event: Event):
+async def _(event: Event, result: Arparma):
     """Change the calc42 game's score of a person manually."""
     universal_id = str(event.self_id) + str(event.group_id)
     member_manager = MemberManager(universal_id)
-    args = str(event.message).split()
     multiplier = {'+': 1, '-': -1}
-    try:
-        user_id = str(int(args[0]))
-        score = int(args[2])
-        before, after = member_manager.change_game_score(user_id, '42score', score * multiplier[args[1]])
-        message = f'42点得分修改成功({before} -> {after})'
-        await calc42_score_changer.send(message=message)
-    except Exception:
-        await calc42_score_changer.send(message='42点得分修改失败，请重试')
+
+    target = str(result.target)
+    option = result.option
+    change = result.change
+    before, after = member_manager.change_game_score(target, '42score', change * multiplier[option])
+    message = f'42点得分修改成功({before} -> {after})'
+    await calc42_score_changer.send(message=message)

@@ -34,7 +34,7 @@ adapters = [
     { name = "Console", module_name = "nonebot.adapters.console" },
     { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" }
 ]
-plugins = ["nonebot_plugin_apscheduler"]
+plugins = ["nonebot_plugin_apscheduler", "nonebot_plugin_alconna"]
 plugin_dirs = ["littlefish"]
 
 [build-system]

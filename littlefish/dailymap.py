@@ -9,8 +9,8 @@ User: best_time (math.inf) as default.
 import traceback
 
 import nonebot
-from nonebot import on_fullmatch
 from nonebot.log import logger
+from nonebot_plugin_alconna import on_alconna, Alconna
 
 from littlefish._mswar.api import get_daily_map
 from littlefish._policy.rule import broadcast, check
@@ -28,7 +28,7 @@ def format_daily_map(daily_map: dict) -> str:
     return result_message.strip()
 
 
-dailymap = on_fullmatch(msg=('dailymap', '每日一图'), rule=check('dailymap'))
+dailymap = on_alconna(Alconna(["dailymap", "每日一图"]), rule=check('dailymap'))
 
 
 @dailymap.handle()
