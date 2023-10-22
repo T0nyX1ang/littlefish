@@ -10,10 +10,8 @@ The page should be an integer, 10 users will be shown on each page.
 The [mode] and [level] command is only available in [time] and [bvs] item.
 """
 
-from nonebot import on_command
-from nonebot.adapters import Event
+from nonebot_plugin_alconna import Alconna, Args, Arparma, on_alconna
 
-from littlefish._exclaim import exclaim_msg
 from littlefish._mswar.api import get_ranking_info
 from littlefish._mswar.references import mode_ref, style_ref, type_ref
 from littlefish._policy.rule import check
@@ -30,24 +28,18 @@ def format_ranking_info(ranking_info: list) -> str:
     return result_message.strip()
 
 
-ranking = on_command(cmd='rank', aliases={'排名'}, force_whitespace=True, rule=check('ranking'))
+# ranking = on_command(cmd='rank', aliases={'排名'}, force_whitespace=True, rule=check('ranking'))
+alc_ranking = Alconna(['rank', '排名'], Args['item', type_ref]['page;?', int]['mode;?', style_ref]['level;?', mode_ref])
+ranking = on_alconna(alc_ranking, rule=check('ranking'))
 
 
 @ranking.handle()
-async def _(event: Event):
+async def _(result: Arparma):
     """Handle the ranking command."""
-    args = str(event.message).split()
-
-    try:
-        item = type_ref[args[1]]
-        page = max(0, int(args[2]) - 1)
-        extra = {'type': item, 'mode': -1, 'level': 4}
-        if len(args[2:]) >= 2:
-            extra['mode'] = style_ref[args[3]]
-            extra['level'] = mode_ref[args[4]]
-        if item not in [0, 1]:
-            extra = {}
-        result = await get_ranking_info(item, page, 10, extra)
-        await ranking.send(message=format_ranking_info(result))
-    except Exception:
-        await ranking.send(message=exclaim_msg('', '3', False, 1))
+    item = result.item
+    page = 0 if not result.page else max(0, result.page - 1)
+    mode = -1 if not result.mode else result.mode
+    level = 4 if not result.level else result.level
+    extra = {'type': item, 'mode': mode, 'level': level} if item in [0, 1] else None
+    rank_result = await get_ranking_info(item, page, 10, extra)
+    await ranking.send(message=format_ranking_info(rank_result))

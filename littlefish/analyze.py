@@ -8,11 +8,11 @@ Available information:
 import time
 import traceback
 
-from nonebot import on_command, on_keyword
+from nonebot import on_keyword
 from nonebot.adapters import Event
 from nonebot.log import logger
+from nonebot_plugin_alconna import on_alconna, Alconna, Args, Arparma
 
-from littlefish._exclaim import exclaim_msg
 from littlefish._mswar.api import get_record
 from littlefish._mswar.references import level_ref
 from littlefish._policy.rule import check
@@ -44,28 +44,24 @@ def format_record(record: dict) -> str:
     return result_message.strip()
 
 
-analyzer = on_command(cmd='analyze', aliases={'分析'}, force_whitespace=True, rule=check('analyze'))
+record_ref = {'record': False, 'r': False, '录像': False, 'post': True, 'p': True, '帖子': True}
+analyzer = on_alconna(Alconna(['analyze', '分析'], Args["use_post_id", record_ref]["id", int]), rule=check('analyze'))
+
 record_pusher = on_keyword(keywords={'http://tapsss.com'}, rule=check('analyze'), priority=10, block=True)
 
 
 @analyzer.handle()
-async def _(event: Event):
+async def _(result: Arparma):
     """Handle the analyze command."""
-    args = str(event.message).split()
-    print(args)
-    id_type = {'record': False, 'r': False, '录像': False, 'post': True, 'p': True, '帖子': True}
+    use_post_id = result.use_post_id
+    _id = result.id
 
     try:
-        use_post_id = id_type[args[1]]
-        _id = int(args[2])
         record_info = await get_record(_id, use_post_id)
         await analyzer.send(message=format_record(record_info))
     except TypeError:
         # indicates the message can't be found from the remote server
         await analyzer.send(message='无法查询到录像信息')
-    except Exception:
-        logger.error(traceback.format_exc())
-        await analyzer.send(message=exclaim_msg('', '3', False, 1))
 
 
 @record_pusher.handle()

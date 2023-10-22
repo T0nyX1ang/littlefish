@@ -10,10 +10,8 @@ d: descending order
 
 import random
 
-from nonebot import on_command
-from nonebot.adapters import Event
+from nonebot_plugin_alconna import Alconna, Args, Arparma, on_alconna
 
-from littlefish._exclaim import exclaim_msg
 from littlefish._policy.rule import check
 
 
@@ -36,20 +34,16 @@ def get_randi(begin: int, end: int, count: int, extras: list) -> list:
     return result
 
 
-randi = on_command(cmd='randi', aliases={'随机数'}, force_whitespace=True, rule=check('randi'))
+alc_randi = Alconna(['randi', '随机数'], Args['begin', int]['end', int]['count', int]['rep;?', 'r']['order;?', ['a', 'd']])
+randi = on_alconna(alc_randi, rule=check('randi'))
 
 
 @randi.handle()
-async def _(event: Event):
+async def _(result: Arparma):
     """Handle the randi command."""
-    args = str(event.message).split()
-    try:
-        begin = int(args[1])
-        end = int(args[2])
-        count = int(args[3])
-        extras = args[4:]
-        result = get_randi(begin, end, count, extras)
-        message = f"随机结果: {' '.join(map(str, result))}"
-        await randi.send(message=message)
-    except Exception:
-        await randi.send(message=exclaim_msg('', '3', False, 1))
+    begin, end = result.begin, result.end
+    count = min([result.count, 10, abs(end - begin) + 1])
+    extras = [result.rep, result.order]
+    randi_result = get_randi(begin, end, count, extras)
+    message = f"随机结果: {' '.join(map(str, randi_result))}"
+    await randi.send(message=message)

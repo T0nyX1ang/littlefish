@@ -7,10 +7,11 @@ The rules can be found by invoking 'guide42' in groups.
 import traceback
 
 import nonebot
-from nonebot import on_command, on_fullmatch
 from nonebot.adapters import Bot, Event
 from nonebot.adapters.onebot.v11 import Message
 from nonebot.log import logger
+from nepattern import AllParam
+from nonebot_plugin_alconna import on_alconna, Alconna, Args, Arparma
 
 from littlefish._game import GameManager, MemberManager
 from littlefish._game.ftpts import current, init, solve, start, status, stop
@@ -157,30 +158,28 @@ async def show_solutions(bot: Bot, universal_id: str, result: dict):
         await bot.send_group_forward_msg(group_id=group_id, messages=Message(message))
 
 
-problem_solver = on_command(cmd='calc42', aliases={'42点'}, force_whitespace=True, rule=check('calc42') & is_in_group)
+problem_solver = on_alconna(Alconna(['calc42', '42点'], Args["answer", AllParam]), rule=check('calc42') & is_in_group)
 
-manual_player = on_command(cmd='manual42', aliases={'手动42点'}, force_whitespace=True, rule=check('calc42') & is_in_group)
+manual_player = on_alconna(Alconna(['manual42', '手动42点'], Args["option", ["+", "-", "++"]]),
+                           rule=check('calc42') & is_in_group)
 
-score_viewer = on_fullmatch(msg=('score42', '42点得分', '42点积分'), rule=check('calc42') & is_in_group)
+score_viewer = on_alconna(Alconna(['score42', '42点得分', '42点积分']), rule=check('calc42') & is_in_group)
 
-rank_viewer = on_fullmatch(msg=('rank42', '42点排名', '42点排行'), rule=check('calc42') & is_in_group)
+rank_viewer = on_alconna(Alconna(['rank42', '42点排名', '42点排行']), rule=check('calc42') & is_in_group)
 
-daily_rank_viewer = on_fullmatch(msg=('dailyrank42', '42点今日排名', '42点今日排行'), rule=check('calc42') & is_in_group)
+daily_rank_viewer = on_alconna(Alconna(['dailyrank42', '42点今日排名', '42点今日排行']), rule=check('calc42') & is_in_group)
 
 
 @problem_solver.handle()
-async def _(bot: Bot, event: Event):
+async def _(bot: Bot, event: Event, result: Arparma):
     """Handle the calc42 command."""
-    if hasattr(event, 'group_id'):
-        universal_id = str(event.self_id) + str(event.group_id)
-    else:
-        universal_id = str(event.self_id) + str(event.get_user_id())
+    universal_id = str(event.self_id) + str(event.get_user_id())
     member_manager = MemberManager(universal_id)
     if not status(universal_id):
         return
 
     user_id = f'{event.get_user_id()}'
-    expr = str(event.message).strip()
+    expr = str(result.answer)
     message = ''
 
     result = solve(universal_id, expr, user_id)
@@ -202,19 +201,15 @@ async def _(bot: Bot, event: Event):
 
 
 @manual_player.handle()
-async def manual_calc42(bot: Bot, event: Event):
+async def manual_calc42(bot: Bot, event: Event, result: Arparma):
     """Control the calc42 game manually."""
-    if hasattr(event, 'group_id'):
-        universal_id = str(event.self_id) + str(event.group_id)
-    else:
-        universal_id = str(event.self_id) + str(event.get_user_id())
+    universal_id = str(event.self_id) + str(event.group_id)
 
     if status(universal_id) and event.get_user_id() != manager.get_invoker(universal_id):
         # stop the manual command if the invokers are not matched, only check when the game is started
         return
 
-    option = str(event.message).split()[1]
-
+    option = str(result.option)
     if option == '++':
         await start_game(bot, universal_id, False, True)
         manager.set_invoker(universal_id, event.get_user_id())

@@ -10,12 +10,10 @@ import time
 import traceback
 
 import nonebot
-from nonebot import on_command, on_fullmatch
-from nonebot.adapters import Event
 from nonebot.log import logger
+from nonebot_plugin_alconna import on_alconna, Alconna, Args, Arparma
 
 from littlefish._db import load, save
-from littlefish._exclaim import exclaim_msg
 from littlefish._mswar.api import get_daily_star
 from littlefish._mswar.references import sex_ref
 from littlefish._policy.rule import broadcast, check
@@ -57,9 +55,9 @@ def _save_daily_star(uid: str):
     save('0', 'dailystar', star_db)
 
 
-dailystar = on_fullmatch(msg=('dailystar', '联萌每日一星'), rule=check('dailystar'))
+dailystar = on_alconna(Alconna(['dailystar', '联萌每日一星']), rule=check('dailystar'))
 
-dailystar_counter = on_command(cmd='dailystarcount', aliases={'联萌每日一星次数'}, force_whitespace=True, rule=check('dailystar'))
+dailystar_counter = on_alconna(Alconna(['dailystarcount', '联萌每日一星次数'], Args["uid", int]), rule=check('dailystar'))
 
 
 @dailystar.handle()
@@ -71,13 +69,9 @@ async def _():
 
 
 @dailystar_counter.handle()
-async def _(event: Event):
+async def _(result: Arparma):
     """Handle the dailystar_count command."""
-    try:
-        uid = str(int(str(event.message).split()[1]))
-    except Exception:
-        await dailystar_counter.finish(message=exclaim_msg('', '3', False, 1))
-
+    uid = str(result.uid)
     dailystar_count = _load_daily_star(uid)
     if len(dailystar_count) > 0:
         counts = len(dailystar_count)

@@ -11,10 +11,10 @@ import traceback
 
 import httpx
 import nonebot
-from nonebot import on_command
 from nonebot.adapters import Bot, Event
 from nonebot.log import logger
 from nonebot_plugin_apscheduler import scheduler
+from nonebot_plugin_alconna import on_alconna, Alconna, Args, Arparma
 
 from littlefish._db import load, save
 from littlefish._policy.rule import broadcast, check, is_in_group
@@ -90,11 +90,12 @@ async def push_live_message(bot: Bot, universal_id: str):
     save('0', 'global_subscribed_list', global_subscribed_list)
 
 
-subscriber = on_command(cmd='subscribe', aliases={'订阅用户'}, force_whitespace=True, rule=check('bilipush') & is_in_group)
+alc_subscriber = Alconna(['subscribe', '订阅用户'], Args['option', ['+', '-']]['bili_id', int])
+subscriber = on_alconna(alc_subscriber, rule=check('bilipush') & is_in_group)
 
 
 @subscriber.handle()
-async def _(event: Event):
+async def _(event: Event, result: Arparma):
     """Handle the subscribe command."""
     universal_id = str(event.self_id) + str(event.group_id)
     subscribed_list = load(universal_id, 'subscribed_list', {})
@@ -103,11 +104,10 @@ async def _(event: Event):
         '+': lambda x: subscribed_list.setdefault(x, False),
         '-': lambda x: subscribed_list.pop(x),
     }
+    operator = result.option
+    operand = str(result.bili_id)
 
-    arg = str(event.message).strip()
     try:
-        operator = arg[1]
-        operand = str(int(arg[2:].strip()))
         operation[operator](operand)  # add or remove the word
         save(universal_id, 'subscribed_list', subscribed_list)
         await subscriber.send(message='订阅用户信息更新成功~')
