@@ -10,7 +10,7 @@ import nonebot
 from nonebot.adapters import Bot, Event
 from nonebot.adapters.onebot.v11 import Message
 from nonebot.log import logger
-from nepattern import AllParam
+from nepattern import AnyString
 from nonebot_plugin_alconna import on_alconna, Alconna, Args, Arparma
 
 from littlefish._game import GameManager, MemberManager
@@ -158,7 +158,7 @@ async def show_solutions(bot: Bot, universal_id: str, result: dict):
         await bot.send_group_forward_msg(group_id=group_id, messages=Message(message))
 
 
-problem_solver = on_alconna(Alconna(['calc42', '42点'], Args["answer", AllParam]), rule=check('calc42') & is_in_group)
+problem_solver = on_alconna(Alconna(['calc42', '42点'], Args["answer", AnyString]), rule=check('calc42') & is_in_group)
 
 manual_player = on_alconna(Alconna(['manual42', '手动42点'], Args["option", ["+", "-", "++"]]),
                            rule=check('calc42') & is_in_group)
