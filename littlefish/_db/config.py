@@ -6,7 +6,7 @@ Available configurations:
 database_root: str = "database" (default)
 """
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 
 class DatabaseConfig(BaseSettings):

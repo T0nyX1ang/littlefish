@@ -7,7 +7,7 @@ resource_location: str = "resource.csv" (default)
 resource_separator: str = "|" (default)
 """
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 
 class ResourceConfig(BaseSettings):

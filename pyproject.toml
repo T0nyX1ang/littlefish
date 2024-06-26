@@ -9,12 +9,13 @@ license = {text = "AGPL-3.0"}
 requires-python = "<4.0,>=3.9"
 dependencies = [
     "nonebot2[fastapi]<3.0.0,>=2.2.0",
-    "nonebot-adapter-console<1.0.0,>=0.4.0",
+    "nonebot-adapter-console<1.0.0,>=0.6.0",
     "nonebot-adapter-onebot<3.0.0,>=2.2.4",
     "nonebot-plugin-apscheduler<1.0.0,>=0.3.0",
+    "nonebot-plugin-alconna<1.0.0,>=0.30.0",
     "pycryptodome<4.0.0,>=3.19.1",
     "42points<2.0.0,>=1.2.7",
-    "nonebot-plugin-alconna<1.0.0,>=0.30.0",
+    "pydantic-settings<3.0.0,>=2.2.0",
 ]
 readme = "README.md"
 

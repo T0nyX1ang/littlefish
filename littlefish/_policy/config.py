@@ -6,7 +6,7 @@ Available configurations:
 policy_config_location: str = "policy.json" (default)
 """
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 
 class PolicyConfig(BaseSettings):

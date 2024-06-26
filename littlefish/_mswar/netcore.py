@@ -19,15 +19,15 @@ from .config import AccountConfig
 global_config = nonebot.get_driver().config
 plugin_config = AccountConfig(**global_config.dict())
 
-mswar_uid = plugin_config.mswar_uid
+mswar_uid = str(plugin_config.mswar_uid)
 mswar_token = plugin_config.mswar_token
 mswar_host = plugin_config.mswar_host
-mswar_version = plugin_config.mswar_version
+mswar_version = str(plugin_config.mswar_version)
 mswar_encryptor = AES.new(plugin_config.mswar_encryption_key.encode(), AES.MODE_ECB)
 mswar_decryptor = AES.new(plugin_config.mswar_decryption_key.encode(), AES.MODE_ECB)
 
 
-def _aes_encrypt(message: bytes) -> bytes:
+def _aes_encrypt(message: bytes) -> str:
     """Perform encryption on data."""
     return mswar_encryptor.encrypt(pad(message, AES.block_size)).hex().upper()
 
@@ -73,6 +73,6 @@ async def fetch(page: str, query: str = '') -> dict:
     validate_hash = hashlib.md5(data.encode()).hexdigest() if data else ''
     url = 'http://' + mswar_host + page
     async with httpx.AsyncClient() as client:  # using httpx instead
-        r = await client.post(url=url, data=data, headers=_generate_headers(validate_hash), timeout=10.0)
+        r = await client.post(url=url, data=data, headers=_generate_headers(validate_hash), timeout=10.0) # type: ignore
     result = json.loads(_aes_decrypt(bytes.fromhex(r.text[32:])))
     return result  # a dictionary will be generated

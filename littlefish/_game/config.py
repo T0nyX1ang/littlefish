@@ -9,7 +9,7 @@ ftpts_max_number: int = 13 (default)
 ftpts_allowed_hours: list = [] (default)
 """
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 
 class FTPtsConfig(BaseSettings):
