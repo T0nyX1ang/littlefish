@@ -218,3 +218,4 @@ resource*
 database*
 logs/
 backup/
+.pdm-python
